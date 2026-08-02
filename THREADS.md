@@ -2,11 +2,12 @@
 
 ## Open
 
-- [ ] Promote marquee visibility filters once implemented on charlesberret.net
 - [ ] Extract look-history fs implementation behind a `contentRoot` option
 - [ ] Minimal Astro reference app (visibility demo page)
-- [ ] Link marquee AGENTS.md / Claude.md to shellside EXTRACTION_MAP
+- [ ] Optional: file: dep → npm workspace / published private package
 
 ## Done
 
 - [x] Scaffold monorepo, packages, architecture + visibility docs
+- [x] Private GitHub: https://github.com/charlesberret/shellside
+- [x] Marquee uses `@shellside/content-model` + visibility filters on public surfaces
