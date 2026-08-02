@@ -1,0 +1,58 @@
+# Shellside
+
+**Private** site framework for dual-surface personal portfolios (readable site + optional console), content collections, and a **dev-only** editorial desk.
+
+Shellside is **not** a hosted CMS. It is a **filesystem-first kit**: content lives as YAML/Markdown, the public site is a static (or node) Astro build, and the admin/live-edit surface exists only in development.
+
+First marquee consumer: [charlesberret.net](https://github.com/charlesberret/charlesberret.net) (or local `~/cloud/git-projects/charlesberret.net`).
+
+## Why this exists
+
+- Capture schematics that would otherwise stay as local idiosyncrasies
+- Make the dual-surface + look + content-edit stack **portable** to the next site
+- Give agents a documented contract so they can contribute without rediscovering the house style
+- Periodically ask: *what would it take for people to notice, appreciate, and use this?* — without sidelining the portfolio itself
+
+## Packages
+
+| Package | Role |
+|---------|------|
+| `@shellside/content-model` | Schemas, **visibility** (`draft` \| `published`), lifecycle vs visibility, public filters |
+| `@shellside/look` | Look roles, field-style map shape, weight/size/font tokens, history contract |
+| `@shellside/edit-protocol` | `data-edit` path grammar, allowlists, entity parse |
+| `@shellside/dev-api` | Contract notes for the DEV-only content/look API (implementation stays site-side until stable) |
+
+## Apps
+
+| App | Role |
+|-----|------|
+| `apps/reference` | Minimal Astro stub that imports the packages (smoke + docs-by-code) |
+
+## Design pillars
+
+1. **Content once, many surfaces** — portfolio page, console VFS, plaintext, llms.txt all read the same collections
+2. **Visibility ≠ lifecycle** — `visibility: draft|published` is orthogonal to work `current|complete` or writing `forthcoming`
+3. **Look is role-scoped** — restyle “item title”, not only `work:kettle:title`
+4. **Admin is DEV-only** — no production write surface; drafts never ship if filters are correct
+5. **Site owns taste** — type, palette, chrome stay in the marquee site; shellside owns *structure*
+
+## Relationship to charlesberret.net
+
+```
+charlesberret.net     shellside
+─────────────────     ─────────
+Site chrome,          Contracts, filters,
+console personality,  path grammar, look
+deploy, copy    ──►   roles, docs, kits
+                  ◄── extract when stable
+```
+
+See [docs/EXTRACTION_MAP.md](./docs/EXTRACTION_MAP.md).
+
+## Status
+
+Scaffold. Packages are **contracts + stubs**; full runtime still lives primarily in the marquee site until extraction passes land.
+
+## License
+
+Private. Not published to npm. All rights reserved unless explicitly opened later.

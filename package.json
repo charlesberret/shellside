@@ -1,0 +1,20 @@
+{
+  "name": "shellside",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Private dual-surface portfolio + dev editorial desk framework",
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "npm run build -w @shellside/content-model && npm run build -w @shellside/look && npm run build -w @shellside/edit-protocol && npm run build -w @shellside/dev-api",
+    "test": "npm run test -w @shellside/content-model && npm run test -w @shellside/edit-protocol",
+    "check": "npm run build && npm run test && node scripts/check-reference.mjs",
+    "docs:list": "ls -la docs/"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
