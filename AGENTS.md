@@ -14,6 +14,7 @@ A **private** framework repo for dual-surface portfolio sites + dev editorial de
 
 ## Key docs
 
+- `docs/ROADMAP.md` — release bars, feature set, phases, marquee sync protocol
 - `docs/ARCHITECTURE.md` — system diagram
 - `docs/VISIBILITY.md` — draft/published model (incl. how admin sees drafts)
 - `docs/LIVE_EDIT.md` — editorial desk contract

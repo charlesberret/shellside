@@ -45,3 +45,7 @@ Marquee: `~/cloud/git-projects/charlesberret.net`
 > What would it take for Shellside to be noticed, appreciated, and used — without sidelining the portfolio?
 
 Capture answers in `docs/PRODUCT_NOTES.md` when they arise.
+
+## Roadmap
+
+Phased promote order, release bars (R0/R1/R2), and marquee sync protocol: **[ROADMAP.md](./ROADMAP.md)**.
