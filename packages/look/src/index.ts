@@ -7,6 +7,9 @@ export {
 export {
   LOOK_ROLE_IDS,
   pathToLookRole,
+  CROSS_SKIN_STYLE_KEYS,
+  PORTFOLIO_ONLY_STYLE_KEYS,
+  crossSkinStyle,
   type LookRoleId,
   type FieldStyle,
   type FieldStyleEntry,

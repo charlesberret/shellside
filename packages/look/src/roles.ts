@@ -29,7 +29,34 @@ export type FieldStyle = {
   color?: string;
   font?: string;
   weight?: string;
+  leading?: string;
+  case?: string;
 };
+
+/**
+ * Skin isolation (marquee fix 2026-09-12).
+ * Portfolio Look tokens paint the console skin only for these keys — signals
+ * that do not change the shell's type scale. Everything else stays
+ * portfolio-only; the console owns its own size/font/weight/leading
+ * (including the pagehead site name — no per-role size exception).
+ */
+export const CROSS_SKIN_STYLE_KEYS = ["color", "case"] as const;
+export const PORTFOLIO_ONLY_STYLE_KEYS = [
+  "size",
+  "font",
+  "weight",
+  "leading",
+] as const;
+
+/** Project a portfolio FieldStyle down to what may paint the console skin. */
+export function crossSkinStyle(style: FieldStyle | undefined): FieldStyle {
+  const out: FieldStyle = {};
+  if (!style) return out;
+  for (const k of CROSS_SKIN_STYLE_KEYS) {
+    if (style[k]) out[k] = style[k];
+  }
+  return out;
+}
 
 export type FieldStyleEntry = {
   portfolio?: FieldStyle;
