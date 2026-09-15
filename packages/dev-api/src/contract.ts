@@ -17,6 +17,8 @@ export type DevApiFieldStyle = {
   color?: string;
   font?: string;
   weight?: string;
+  leading?: string;
+  case?: string;
 };
 
 export type DevApiActions =
