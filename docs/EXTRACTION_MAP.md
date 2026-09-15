@@ -48,4 +48,4 @@ Capture answers in `docs/PRODUCT_NOTES.md` when they arise.
 
 ## Roadmap
 
-Phased promote order, release bars (R0/R1/R2), and marquee sync protocol: **[ROADMAP.md](./ROADMAP.md)**.
+Phased promote order, release bars (R0/R1/R2), content portability (marquee content → kit prod build), and marquee sync protocol: **[ROADMAP.md](./ROADMAP.md)** (§2.1).

@@ -53,7 +53,7 @@ See [docs/EXTRACTION_MAP.md](./docs/EXTRACTION_MAP.md).
 
 Scaffold → **R0/R1 in progress**. Packages are mostly **contracts + pure helpers**; full dual-surface runtime still lives primarily in the marquee until extraction passes land.
 
-**Roadmap & feature set:** [docs/ROADMAP.md](./docs/ROADMAP.md) — north star, release bars (R0 internal → R1 private dual-surface kit → R2 publishable), phased delivery, and marquee sync protocol.
+**Roadmap & feature set:** [docs/ROADMAP.md](./docs/ROADMAP.md) — north star, release bars (R0 contracts + content portability smoke → R1 dual-surface with marquee content fixture → R2 publishable), phased delivery, and marquee sync protocol.
 
 ## License
 

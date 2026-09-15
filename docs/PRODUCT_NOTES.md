@@ -25,8 +25,8 @@ People might care if:
 
 ## Release stance (see ROADMAP.md)
 
-- **R0** — internal kit: marquee on pure contracts; agents onboard from this repo  
-- **R1** — private release: reference app proves dual-surface without marquee chrome  
+- **R0** — internal kit **and** content portability smoke: (A) marquee on pure contracts; (B) scripted marquee **content** export loads into a shellside host and a **production build** renders the public graph correctly (structural fidelity, not visual twin)  
+- **R1** — private release: dual-surface reference (portfolio + console) with marquee public content as acceptance fixture + leak audit  
 - **R2** — publishable packaging (optional; product decision to open)  
 
-Default engineering target: **R1**. Console **VFS contracts** are core pillar; console **personality** stays marquee-local.
+Default engineering target: **R1**. Console **VFS contracts** are core pillar; console **personality** stays marquee-local. Export is **content only**—never a second marquee deploy.

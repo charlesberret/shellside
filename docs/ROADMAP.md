@@ -34,13 +34,65 @@ Shellside has three nested release bars. Ship when the bar is met; do not wait f
 
 | Bar | Name | Definition of done |
 |-----|------|--------------------|
-| **R0** | **Internal kit** | Marquee depends on shellside for all *stable pure* contracts; docs + `npm run check` green; agents can onboard from this repo alone for model/visibility/look/edit grammar |
-| **R1** | **Private release** | Second consumer works: `apps/reference` is a thin dual-surface Astro app (portfolio + console + visibility + DEV desk stubs) built only on packages + site glue; marquee has deleted local duplicates for promoted code |
+| **R0** | **Internal kit + content portability (smoke)** | **Both** directions of proof: (A) marquee depends on shellside for stable pure contracts; (B) scripted export of marquee **content** loads into a shellside-hosted app and a **production build** renders the public graph correctly (structural fidelity, not visual twin). Docs + `npm run check` green. |
+| **R1** | **Private release + full content portability** | Dual-surface reference app (portfolio + console + leak audit) on packages only; marquee content export (or large public subset) is the acceptance fixture; marquee has deleted local duplicates for promoted code; boring chrome is fine. |
 | **R2** | **Publishable kit** | Packages versioned and installable without monorepo path hacks (`file:../shellside`); create-site path documented; optional public GitHub/npm later |
 
 **Default goal for this roadmap:** **R1**. R2 is optional and gated on “second real site or deliberate open.”
 
 Private is fine through R1. Opening the name/repo is a product decision, not a technical prerequisite.
+
+### 2.1 Content portability (acceptance fixture)
+
+Treat marquee **content** as the hard acceptance fixture for “the kit is real”—not only unit tests and package imports.
+
+#### Two proofs (both required for a solid R0+)
+
+| Proof | Direction | Question it answers |
+|-------|-----------|---------------------|
+| **A. Marquee consumes shellside** | kit → marquee | Is the kit source of truth for contracts? |
+| **B. Shellside hosts marquee content** | marquee content → kit app | Can the kit stand alone as a dual-surface host? |
+
+- **A alone** → clean packages, no product demo.  
+- **B alone** → demo app while marquee still forks parsers.  
+- **A + B** → internal kit that actually loads real content.
+
+#### Scope of “export”
+
+**In scope (content + schema assumptions the kit claims to understand):**
+
+- `src/content/**` collections: work, writing, records, profile, page-copy (as needed for lists/detail)
+- Public visibility / lifecycle fields the kit filters on
+- Scripted sync into `apps/reference` or `fixtures/marquee-content` (not a permanent full-repo mirror)
+
+**Out of scope (stay marquee-local forever for this gate):**
+
+- Console personality, easter eggs, monome, CRT lore  
+- Palettes, type stacks, field-styles *taste*, admin chrome  
+- Enigma / private archive paths, reading rights, contact backend, deploy runners  
+- Pixel parity with charlesberret.net  
+
+Export may be **redacted** (strip private-only paths) while still representing the real public graph.
+
+#### What “renders correctly in production” means
+
+**Production** = `astro build` (or equivalent) **prod mode** + public-output / leak checks—not necessarily a public domain deploy.
+
+| Correct | Incorrect (fails the gate) |
+|---------|----------------------------|
+| Published items appear on portfolio (and console when in scope) | Drafts appear in prod HTML/JS/txt |
+| Titles, summaries, links match source for public items | Site-specific secrets or Enigma paths in dist |
+| Portfolio list, console `ls`/`cat`, and plaintext agree on the **same public set** | Visual twin of marquee required |
+| Boring shellside chrome is fine | Full marquee site clone required |
+
+#### R0 vs R1 depth for proof B
+
+| Bar | Content fixture | Surfaces | Leak audit |
+|-----|-----------------|----------|------------|
+| **R0** | Scripted export (or large subset) loads; at least **portfolio** (and plaintext if easy) builds in prod | Single-surface OK if dual not ready; prefer portfolio + one listing/txt | Basic: no drafts in dist; no private path strings from redaction list |
+| **R1** | Full public export (or complete public subset policy) is the default fixture | **Portfolio + console** over same graph | Kit leak-audit script green on reference dist |
+
+R0 is **not** “full charlesberret.net lives inside shellside.” It is **content-in, structure-out, prod-safe**.
 
 ---
 
@@ -79,6 +131,7 @@ Rough scale (order of magnitude):
 4. Admin/write API is **DEV-only** (no production write surface)  
 5. Site owns taste; kit owns structure  
 6. Prefer **contracts over copies** when promoting  
+7. **Content portability** — marquee public content can load into a kit app without forking filters  
 
 ---
 
@@ -156,19 +209,23 @@ Grouped by layer. **Must** items are R1; **Should** may land in R1 or early R2; 
 | Feature | Priority | Notes |
 |---------|----------|-------|
 | Package import smoke (`npm run check`) | **Must** | Partially via monorepo check |
-| Minimal Astro app: one work collection, portfolio list, visibility demo | **Must** | THREADS |
-| Console surface over same collection (boring VFS) | **Must** for R1 | Proves dual-surface without marquee chrome |
+| Minimal Astro app that can **load exported marquee content** | **Must** (R0) | Content portability host — §2.1 |
+| Portfolio list/detail over real public graph | **Must** (R0) | Structural render, boring chrome |
+| Console surface over same collection (boring VFS) | **Must** (R1) | Dual-surface proof |
 | DEV desk stub (or full handler via dev-api factory) | **Should** | Even read-only admin notes page counts early |
-| Sample content with one draft + one published | **Must** | Shows admin vs public |
-| README “build your site” walkthrough | **Must** | Agent + human onboarding |
+| Toy sample content (draft + published) for offline CI without marquee checkout | **Must** | Fallback when export path unavailable |
+| Scripted `export-marquee-content` (sibling path or env) | **Must** (R0) | Redact private paths; document flags |
+| README “build your site” + “run with marquee content” | **Must** | Agent + human onboarding |
 
 ### 4.8 Tooling & quality
 
 | Feature | Priority | Notes |
 |---------|----------|-------|
 | `npm run check` = build + unit tests + reference smoke | **Must** | Exists |
-| CI on push (private GH) | **Should** | `.github` present but empty-ish — wire it |
-| Promotion checklist automation (no charlesberret strings in packages) | **Should** | Script grepping packages for marquee paths/names |
+| `npm run build` on reference with fixture or exported content | **Must** (R0) | Prod mode |
+| Leak audit on reference dist | **Must** (R0 basic / R1 full) | Drafts, redaction list |
+| CI on push (private GH) | **Should** | Toy fixtures in CI; marquee export optional job if sibling present |
+| Promotion checklist automation (no charlesberret strings in **packages**) | **Should** | Fixtures may hold real titles; packages must stay generic |
 | Versioning / changelog per package | **Should** for R2 | Semver even while private |
 | Create-site script / template | **Could** | R2 |
 
@@ -180,6 +237,8 @@ Grouped by layer. **Must** items are R1; **Should** may land in R1 or early R2; 
 - Cloning marquee console personality, monome, Enigma archive, deploy runners  
 - Theme marketplace  
 - Competing with Sanity/WordPress on features  
+- **Pixel / brand parity** with charlesberret.net inside shellside  
+- Treating shellside as a second deploy of the marquee site  
 
 ---
 
@@ -189,7 +248,7 @@ Each phase has **exit criteria**. Prefer small promotions that marquee can absor
 
 ### Phase 0 — Stabilize the contract spine *(now → short)*
 
-**Goal:** Shellside is the source of truth for pure helpers marquee already needs.
+**Goal:** Shellside is the source of truth for pure helpers marquee already needs (**proof A** spine).
 
 | Work | Detail |
 |------|--------|
@@ -199,9 +258,23 @@ Each phase has **exit criteria**. Prefer small promotions that marquee can absor
 | Docs | Keep `EXTRACTION_MAP` and this roadmap current after each promotion |
 | Visibility leak checklist | Formalize marquee audit into `docs/VISIBILITY.md` leak checklist (already listed); track pass/fail in THREADS |
 
-**Exit:** Marquee depends on content-model **and** edit-protocol **and** look (pure); `npm run check` green both repos.
+**Exit:** Marquee depends on content-model **and** edit-protocol **and** look (pure); `npm run check` green both repos. (Not yet full R0—needs Phase 0b content path.)
 
-### Phase 1 — Injectable runtime cores *(R0 complete)*
+### Phase 0b — Content portability smoke *(R0 gate for proof B)*
+
+**Goal:** Marquee public content loads into a shellside app and survives a **production build**.
+
+| Work | Detail |
+|------|--------|
+| Export script | e.g. `scripts/export-marquee-content.mjs` — copy/sync content root; redact private paths; default source `../charlesberret.net/src/content` or `MARQUEE_ROOT` |
+| Reference host | Minimal Astro routes: index/portfolio list (+ detail if cheap); uses `@shellside/content-model` filters |
+| Toy fixture | Small draft+published set committed for CI without marquee present |
+| Prod build + basic leak audit | `astro build`; assert drafts absent from dist; redaction list clean |
+| Document | README: how to export and build; what “correct” means (§2.1) |
+
+**Exit:** `npm run build` (reference + exported or fixture content) green; public graph structurally correct. Combined with Phase 0 → **R0 declared.**
+
+### Phase 1 — Injectable runtime cores *(strengthens R0; not required to *declare* R0 if 0+0b pass)*
 
 **Goal:** File-touching logic is package-owned with **injected roots**, not hard-coded paths.
 
@@ -213,21 +286,23 @@ Each phase has **exit criteria**. Prefer small promotions that marquee can absor
 | content-edit promote | Promote path resolve + write pure core; site keeps collection-specific YAML shapes if needed |
 | Tests | Unit tests with temp dirs; no network |
 
-**Exit:** Marquee `dev-content` / look-history are thin adapters; shellside owns testable cores. **R0 declared.**
+**Exit:** Marquee `dev-content` / look-history are thin adapters; shellside owns testable cores.  
+**Note:** R0 can be declared after **0 + 0b** even if Phase 1 is still open; Phase 1 should not block content portability.
 
-### Phase 2 — Dual-surface kit + reference app *(R1)*
+### Phase 2 — Dual-surface kit + full content portability *(R1)*
 
-**Goal:** A stranger (or future you) can run a second dual-surface site from shellside alone.
+**Goal:** A stranger (or future you) can run a second dual-surface site from shellside alone, **using marquee content as the acceptance fixture**.
 
 | Work | Detail |
 |------|--------|
 | `@shellside/console-vfs` (or equivalent) | Build tree from filtered collections; `cat`/`ls` data only |
-| Reference Astro app | Portfolio page + console page + draft sample + public filter demo |
-| Plaintext helper | Optional `toPlaintextListing(items)` |
+| Reference Astro app | Portfolio + console over **exported marquee content**; toy fixture remains for CI |
+| Plaintext helper | Optional `toPlaintextListing(items)` — same public set as portfolio/console |
 | Leak audit script in kit | Runnable against reference build; marquee may wrap with site-specific rules (Enigma paths stay site) |
 | Admin preview context | Document + share pure URL flag helper if still duplicated |
+| Export policy | Document which paths are always redacted; keep in sync with marquee private surfaces |
 
-**Exit:** `apps/reference` demonstrates portfolio + console + visibility without copying marquee chrome. **R1 declared (private release).**
+**Exit:** Portfolio + console + leak audit green on marquee public export. **R1 declared (private release).**
 
 ### Phase 3 — Editorial desk portability *(R1 late / R2 early)*
 
@@ -260,20 +335,24 @@ Marquee moves weekly (live-edit, console, Look isolation, content). Shellside mu
 ### 6.1 Direction of travel
 
 ```
-Marquee (prove)  ──extract stable──►  Shellside (own)
-Shellside (fix)  ──import + delete──►  Marquee (thin)
-Reference (smoke) ◄── packages only ──  Shellside
+Marquee (prove)     ──extract stable──►  Shellside (own)
+Shellside (fix)     ──import + delete──►  Marquee (thin)
+Marquee content     ──export script───►  Reference / fixtures (proof B)
+Reference (host)    ◄── packages only ──  Shellside
 ```
 
 - **Never** dump experiments into marquee production. Prototype in `apps/reference` or packages.  
 - **Never** promote taste (palette, type stacks, easter eggs, deploy).  
-- **Always** promote after a marquee fix that reveals a missing invariant (e.g. portfolio Look tokens leaking into console skin → kit test + docs).
+- **Never** treat shellside as a second marquee deploy (content fixture ≠ site clone).  
+- **Always** promote after a marquee fix that reveals a missing invariant (e.g. portfolio Look tokens leaking into console skin → kit test + docs).  
+- **After marquee content shape changes** (schemas, new collections, visibility rules): re-run export + reference prod build; fix kit or export redaction list.
 
 ### 6.2 Cadence
 
 | Rhythm | Action |
 |--------|--------|
 | After any marquee fix in look / visibility / edit / console VFS | Ask: “Is this a contract?” If yes, open THREADS item or promote same week |
+| After marquee content model or public-filter changes | Re-export + reference prod build / leak audit |
 | Weekly (or when switching repos) | Skim marquee `git log` for `fix:`, `content-edit`, `look-`, `visibility`, `console` |
 | Before marquee deploy | Marquee build green; if shellside packages changed, marquee `npm i` / lockfile refreshed |
 | After each shellside promotion | Update `EXTRACTION_MAP.md`, this roadmap’s inventory table, marquee live-edit doc link if needed |
@@ -282,11 +361,12 @@ Reference (smoke) ◄── packages only ──  Shellside
 
 From `EXTRACTION_MAP.md` — mandatory:
 
-1. No hard-coded project titles or charlesberret paths in packages  
+1. No hard-coded project titles or charlesberret paths in **packages** (fixtures/export output may hold real titles)  
 2. Unit tests for pure functions  
 3. Marquee imports package and deletes local duplicate  
 4. Docs updated in **both** repos  
 5. `npm run check` green on shellside; marquee build green  
+6. If the change touches filters/surfaces: reference **prod build** still passes leak audit (toy fixture minimum; marquee export when available)
 
 ### 6.4 Conflict rule
 
@@ -294,7 +374,8 @@ If marquee behavior and shellside contract diverge:
 
 1. **Marquee is source of truth for product behavior** until the contract is updated.  
 2. Update shellside + tests first, then re-point marquee.  
-3. Do not leave two competing parsers/role maps.
+3. Do not leave two competing parsers/role maps.  
+4. Content export failures → fix kit host or redaction policy; do not “fix” by copying marquee page chrome into shellside.
 
 ### 6.5 Dependency hygiene (marquee)
 
@@ -306,6 +387,15 @@ Through R1 this is fine. When promoting multiple packages, either:
 - add a root workspace export / single `@shellside/kit` meta package later  
 
 Avoid nesting marquee *inside* shellside workspaces (keeps deploy and ownership clear).
+
+### 6.6 Export hygiene
+
+| Do | Don’t |
+|----|--------|
+| Scripted, repeatable export | Hand-copy content into shellside as the long-term workflow |
+| Redact private paths | Commit Enigma / private-only material |
+| Prefer gitignored generated export + committed toy fixture | Commit full marquee tree into shellside forever |
+| Compare public item sets (marquee public vs reference dist) when debugging | Require CSS/brand match |
 
 ---
 
@@ -319,7 +409,11 @@ packages/
   dev-api/           # handler factory + types (exists → implement)
   console-vfs/       # NEW: VFS projection from filtered content
 apps/
-  reference/         # dual-surface smoke site
+  reference/         # dual-surface host + content portability target
+fixtures/            # optional: toy content; generated marquee export (often gitignored)
+scripts/
+  export-marquee-content.mjs   # NEW (Phase 0b)
+  check-public-output.mjs      # NEW (leak audit for reference dist)
 docs/
   ARCHITECTURE.md
   VISIBILITY.md
@@ -335,21 +429,37 @@ Optional later: `live-edit-protocol` (message types only), `create-shellside` CL
 
 ## 8. Milestone checklist (copy into issues / THREADS)
 
-### R0 — Internal kit
+### R0 — Internal kit + content portability (smoke)
+
+**Proof A — contracts**
 
 - [ ] edit-protocol parity + marquee delete of local parse  
 - [ ] look pure parity + marquee thin-wrap  
-- [ ] look-history factory with `contentRoot`  
-- [ ] DEV API factory used by marquee (or documented adapter path)  
 - [ ] Visibility leak checklist last passed on marquee  
 - [ ] CI: `npm run check` on shellside  
 
-### R1 — Private release
+**Proof B — content → kit prod build**
 
-- [ ] Reference Astro app: portfolio + console + draft sample  
+- [ ] `scripts/export-marquee-content` (or equiv.) with redaction list  
+- [ ] Reference app loads exported content (or documents `MARQUEE_ROOT`)  
+- [ ] Committed toy fixture for CI without marquee checkout  
+- [ ] Reference **prod** build green on fixture  
+- [ ] Reference prod build green on marquee export (local / optional CI)  
+- [ ] Basic leak audit: no drafts in dist; redaction list clean  
+- [ ] README: export + build + “what correct means”  
+
+**Phase 1 (strengthens R0; may trail declaration)**
+
+- [ ] look-history factory with `contentRoot`  
+- [ ] DEV API factory used by marquee (or documented adapter path)  
+
+### R1 — Private release + full content portability
+
+- [ ] Reference Astro app: **portfolio + console** over marquee public export  
 - [ ] console-vfs (or equivalent) package with tests  
-- [ ] Leak audit script runs on reference  
-- [ ] README walkthrough: “from zero to dual-surface”  
+- [ ] Kit leak audit script green on reference dist (export + fixture)  
+- [ ] Portfolio / console / plaintext agree on same public item set  
+- [ ] README walkthrough: “from zero to dual-surface” + “with marquee content”  
 - [ ] EXTRACTION_MAP: no open “promote soon” items that block dual-surface  
 - [ ] PRODUCT_NOTES: positioning paragraph stable enough to quote  
 
@@ -366,13 +476,15 @@ Optional later: `live-edit-protocol` (message types only), `create-shellside` CL
 
 | Risk | Mitigation |
 |------|------------|
-| Kit becomes “clone of charlesberret.net” | Extraction map “stay site-local”; reference app deliberately boring |
+| Kit becomes “clone of charlesberret.net” | Extraction map “stay site-local”; reference chrome deliberately boring; export is content-only |
+| Content export becomes a second marquee | Redaction list; no deploy runners; structural fidelity only (§2.1) |
 | Draft leaks via console / txt / llms | Leak audit as R0/R1 gate; same `isPublicItem` everywhere |
 | Write API ships to production | DEV gate + loopback; build-time strip; fail-closed helpers |
 | Divergent path parsers | Single package; marquee deletes local |
-| Marquee velocity leaves kit stale | Sync protocol §6; promote after fixes, not in big-bang freezes |
+| Marquee velocity leaves kit stale | Sync protocol §6; re-export after content-model changes |
 | Scope creep (CMS, auth, multi-tenant) | Non-goals §4.9; park in PRODUCT_NOTES |
-| Huge live-edit extract blocks R1 | R1 does **not** require full live-edit package — contract + DEV API + dual surfaces suffice |
+| Huge live-edit extract blocks R1 | R1 does **not** require full live-edit package — dual surfaces + content portability suffice |
+| CI depends on marquee checkout | Toy fixture committed; marquee export is local/optional job |
 
 ---
 
@@ -380,21 +492,37 @@ Optional later: `live-edit-protocol` (message types only), `create-shellside` CL
 
 1. **Parity: edit-protocol** against marquee `content-edit.ts` parse + field kinds; marquee switches import.  
 2. **Parity: look** roles/weights against `look-roles.ts`; marquee thin-wraps.  
-3. **Look history factory** (`contentRoot`) — closes THREADS open item.  
-4. **Minimal reference Astro** — visibility demo page (THREADS); then console-vfs stub.  
-5. **Wire CI** for `npm run check`.  
-6. Only then: DEV API factory and larger content-edit promote.
+3. **Reference Astro shell** that can render a portfolio list from content collections.  
+4. **Export script + toy fixture** — marquee content → reference; prod build + basic leak audit (**Phase 0b**).  
+5. **Look history factory** (`contentRoot`) — closes THREADS open item.  
+6. **Wire CI** for `npm run check` (+ fixture prod build).  
+7. Then: console-vfs + dual-surface on export (**R1**); DEV API factory and larger content-edit promote as capacity allows.
 
 ---
 
-## 11. Success criteria (R1 narrative)
+## 11. Success criteria (narratives)
+
+### R0 narrative
 
 You can:
 
-1. Clone shellside, `npm i && npm run check`, run `apps/reference`.  
-2. See the **same** project as a portfolio card and as `cat projects/foo.md` in the console.  
+1. Point shellside at marquee content via the export script (or `MARQUEE_ROOT`).  
+2. Run a **production build** of the reference host and see the **public** work/writing/records graph render with boring chrome.  
+3. Confirm drafts and redacted private paths are **absent** from dist.  
+4. Confirm marquee still builds while importing shellside pure contracts (no parallel visibility/parse/role maps for promoted pieces).  
+5. Run CI on shellside with the **toy fixture** alone.
+
+When that is true, Shellside is an **internal kit with proven content portability**—not yet a full dual-surface private release.
+
+### R1 narrative
+
+You can:
+
+1. Clone shellside, `npm i && npm run check`, run `apps/reference` (fixture or export).  
+2. See the **same** public project as a portfolio card and as `cat projects/foo.md` in the console.  
 3. Mark an item `visibility: draft` and confirm it vanishes from public surfaces and remains in admin/DEV context.  
-4. Point marquee at the same packages without maintaining parallel parsers/role maps.  
-5. Onboard an agent from `AGENTS.md` + `docs/*` without reading the entire marquee tree.
+4. Re-export from marquee after content edits and still get a green prod build + leak audit.  
+5. Point marquee at the same packages without maintaining parallel parsers/role maps.  
+6. Onboard an agent from `AGENTS.md` + `docs/*` without reading the entire marquee tree.
 
 When that is true, Shellside is **released** as a private dual-surface framework — and charlesberret.net remains the craft marquee, not the only place the architecture exists.
