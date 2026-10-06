@@ -6,10 +6,10 @@
   "scripts": {
     "check": "node ../../scripts/check-reference.mjs",
     "predev": "node ../../scripts/prepare-reference-content.mjs",
-    "dev": "astro dev",
+    "dev": "ASTRO_TELEMETRY_DISABLED=1 astro dev",
     "prebuild": "node ../../scripts/prepare-reference-content.mjs",
-    "build": "astro build",
-    "preview": "astro preview"
+    "build": "ASTRO_TELEMETRY_DISABLED=1 astro build",
+    "preview": "ASTRO_TELEMETRY_DISABLED=1 astro preview"
   },
   "dependencies": {
     "@shellside/content-model": "*",

@@ -3,16 +3,16 @@ import { filterByVisibility, type VisibilityFields } from "@shellside/content-mo
 export type Listed = {
   id: string;
   data: VisibilityFields & {
-    title?: string;
-    summary?: string;
+    title?: string | number;
+    summary?: string | number;
     status?: string | null;
-    kind?: string;
-    org?: string;
-    dates?: string;
-    date?: string;
-    venue?: string;
+    kind?: string | number;
+    org?: string | number;
+    dates?: string | number;
+    date?: string | number;
+    venue?: string | number;
     year?: string | number;
-    type?: string;
+    type?: string | number;
   };
 };
 
@@ -26,6 +26,6 @@ export function publicEntries<T extends { data?: VisibilityFields }>(items: read
 
 export function byTitle<T extends Listed>(items: readonly T[]): T[] {
   return [...items].sort((a, b) =>
-    (a.data.title || a.id).localeCompare(b.data.title || b.id, "en"),
+    String(a.data.title || a.id).localeCompare(String(b.data.title || b.id), "en"),
   );
 }

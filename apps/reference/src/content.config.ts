@@ -1,31 +1,41 @@
 import { defineCollection, z } from "astro:content";
 import { glob } from "astro/loaders";
 
+/**
+ * YAML leaves bare years as numbers and `YYYY-MM-DD` as Date objects.
+ * Both become displayable text.
+ */
+const textish = z.preprocess((value) => {
+  if (value instanceof Date) return value.toISOString().slice(0, 10);
+  if (value == null) return undefined;
+  return value;
+}, z.union([z.string(), z.number()]).optional());
+
 const link = z
   .object({
-    label: z.string().optional(),
-    href: z.string().optional(),
-    description: z.string().optional(),
+    label: textish,
+    href: textish,
+    description: textish,
   })
   .passthrough();
 
 /** Loose on purpose: a marquee export may carry extra keys. */
 const entrySchema = z
   .object({
-    title: z.string().optional(),
-    summary: z.string().optional(),
+    title: textish,
+    summary: textish,
     visibility: z.string().optional(),
     status: z.string().optional(),
-    kind: z.string().optional(),
-    org: z.string().optional(),
-    dates: z.string().optional(),
-    date: z.string().optional(),
-    venue: z.string().optional(),
-    role: z.string().optional(),
-    type: z.string().optional(),
-    year: z.union([z.string(), z.number()]).optional(),
-    note: z.string().optional(),
-    tags: z.union([z.array(z.string()), z.string()]).optional(),
+    kind: textish,
+    org: textish,
+    dates: textish,
+    date: textish,
+    venue: textish,
+    role: textish,
+    type: textish,
+    year: textish,
+    note: textish,
+    tags: z.union([z.array(z.union([z.string(), z.number()])), z.string()]).optional(),
     links: z.array(link).optional(),
   })
   .passthrough();

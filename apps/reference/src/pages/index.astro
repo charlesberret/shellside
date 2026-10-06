@@ -16,6 +16,7 @@ const complete = work.filter((item) => item.data.status !== "current");
 function meta(item: Listed): string {
   return [item.data.kind, item.data.org, item.data.dates, item.data.venue, item.data.year, item.data.date]
     .filter((part) => part != null && part !== "")
+    .map((part) => String(part))
     .join(" · ");
 }
 ---
