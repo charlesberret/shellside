@@ -69,11 +69,14 @@ type ContentContext = {
 
 ## Migration (writing)
 
-Writing already has `status: draft | unpublished | …`. Prefer:
+Writing already has `status: draft | unpublished | …`. `isPublicItem` dual-reads:
 
-1. Add `visibility` with default `published`.
-2. Map existing `status: draft` → `visibility: draft` (one-time or dual-read).
-3. Keep `forthcoming` as editorial status, not visibility.
+1. `visibility: draft` always hides.
+2. `status: draft` or `unpublished` hides **only when `visibility` is absent**.
+3. Explicit `visibility: published` wins over a legacy draft status.
+4. `forthcoming`, and work `current` / `complete`, stay public.
+
+Prefer adding `visibility` and keeping `forthcoming` as editorial status, not visibility.
 
 ## Leak checklist
 
@@ -84,3 +87,5 @@ Before calling drafts “done”, audit:
 - [ ] `*.txt` and `llms.txt`
 - [ ] reading overlay IDs
 - [ ] admin “open public” still respects public filters
+
+Reference host: `npm run check` builds `apps/reference` and runs `scripts/check-public-output.mjs`. That gate fails if a non-public slug or a `SHELLSIDE_*_SENTINEL` from a draft file appears in `dist`, or if a redaction needle does. Console VFS is still a marquee/R1 surface.

@@ -24,6 +24,10 @@ export const LOOK_ROLE_IDS = [
 
 export type LookRoleId = (typeof LOOK_ROLE_IDS)[number];
 
+export function isLookRoleId(id: string): id is LookRoleId {
+  return (LOOK_ROLE_IDS as readonly string[]).includes(id);
+}
+
 export type FieldStyle = {
   size?: string;
   color?: string;
@@ -84,7 +88,14 @@ export function pathToLookRole(pathKey: string): string {
     if (p.endsWith(".kicker")) return "page-kicker";
     if (p.endsWith(".title")) return "page-title";
     if (p.endsWith(".sub")) return "page-sub";
-    if (/\.section/i.test(p) || /section[A-Z]/.test(p)) return "section-heading";
+    if (
+      /\.section/i.test(p) ||
+      /section[A-Z]/.test(p) ||
+      p.startsWith("page:writing.group") ||
+      p.startsWith("page:index.section")
+    ) {
+      return "section-heading";
+    }
   }
 
   if (/:links\.\d+\.label$/i.test(p)) return "link-label";
@@ -94,11 +105,11 @@ export function pathToLookRole(pathKey: string): string {
   if (/^(work|writing|record):[^:]+:title$/i.test(p)) return "item-title";
   if (/^writing:[^:]+:note$/i.test(p)) return "item-note";
   if (/^work:[^:]+:body$/i.test(p)) return "item-body";
-  if (/^work:[^:]+:tags$/i.test(p)) return "caption";
+  if (/^work:[^:]+:tags(\.\d+)?$/i.test(p)) return "caption";
 
   if (
     /^work:[^:]+:(kind|org|dates)$/i.test(p) ||
-    /^writing:[^:]+:(venue|role|award|year|coauthors)$/i.test(p) ||
+    /^writing:[^:]+:(venue|role|award|year|byline|coauthors)$/i.test(p) ||
     /^record:[^:]+:(type|venue|role|date)$/i.test(p)
   ) {
     return "item-meta";

@@ -1,0 +1,72 @@
+:root {
+  color: #1c1915;
+  background: #f7f4ee;
+  font-family: "Iowan Old Style", Palatino, Georgia, serif;
+  line-height: 1.5;
+}
+
+body {
+  margin: 0;
+}
+
+a {
+  color: #1d4e89;
+}
+
+.wrap {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3rem;
+}
+
+.site-name {
+  font-weight: 600;
+  text-decoration: none;
+  color: inherit;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: baseline;
+  margin-bottom: 1.5rem;
+}
+
+nav a {
+  margin-left: 0.75rem;
+}
+
+h1 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem;
+}
+
+.dek {
+  margin-top: 0;
+  color: #4a453e;
+}
+
+h2 {
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin: 1.75rem 0 0.5rem;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+li {
+  padding: 0.65rem 0;
+  border-top: 1px solid #e2dcd2;
+}
+
+.meta {
+  color: #5c564e;
+  font-size: 0.85rem;
+}

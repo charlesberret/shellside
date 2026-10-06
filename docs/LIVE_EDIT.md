@@ -56,8 +56,8 @@ Origin: marquee `c3a96b2` (2026-09-12) — the old `site-name` size exception le
 
 | Piece | In marquee | In shellside |
 |-------|------------|--------------|
-| Path parse / allowlist | yes | `edit-protocol` stub |
-| Look roles | yes | `look` stub + role id list |
+| Path parse / allowlist | yes — delete after switch | `edit-protocol` (parse, kinds, allowlist, file builder) |
+| Look roles | yes — thin-wrap after switch | `look` (`pathToLookRole`, slots, `crossSkinStyle`) |
 | field-styles I/O | yes | contract only |
 | Admin shell JS | yes | not yet |
 | DEV API | yes | contract notes in `dev-api` |

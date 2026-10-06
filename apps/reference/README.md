@@ -1,7 +1,12 @@
 # @shellside/reference
 
-Minimal consumer of shellside packages. Not a full portfolio — a smoke surface and documentation-by-import.
+Minimal Astro host for the R0 content-portability gate. Boring chrome. It lists **published** work, writing, and records from content collections and emits the same public set as `/list.txt`.
 
-Future: thin Astro app with one work collection + visibility demo + mock admin notes.
+Content is not committed here. `predev` / `prebuild` copy either `fixtures/marquee-content` or `fixtures/toy/content` into `src/content`.
 
-For now: `npm run check -w @shellside/reference` validates package imports resolve after build.
+```bash
+npm run dev -w @shellside/reference
+npm run build -w @shellside/reference
+```
+
+Drafts stay in the content tree and must not appear in `dist`. `node scripts/check-public-output.mjs` enforces that after a production build.

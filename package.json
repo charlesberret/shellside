@@ -10,8 +10,10 @@
   ],
   "scripts": {
     "build": "npm run build -w @shellside/content-model && npm run build -w @shellside/look && npm run build -w @shellside/edit-protocol && npm run build -w @shellside/dev-api",
-    "test": "npm run test -w @shellside/content-model && npm run test -w @shellside/edit-protocol",
-    "check": "npm run build && npm run test && node scripts/check-reference.mjs",
+    "test": "npm run test -w @shellside/content-model && npm run test -w @shellside/edit-protocol && npm run test -w @shellside/look",
+    "build:reference": "npm run build -w @shellside/reference",
+    "export": "node scripts/export-marquee-content.mjs",
+    "check": "npm run build && npm run test && node scripts/check-reference.mjs && npm run build:reference && node scripts/check-public-output.mjs && node --test scripts/*.test.mjs",
     "docs:list": "ls -la docs/"
   },
   "engines": {

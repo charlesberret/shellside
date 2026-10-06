@@ -29,5 +29,35 @@ describe("parseContentPath", () => {
   it("rejects garbage", () => {
     assert.equal(parseContentPath(""), null);
     assert.equal(isWellFormedEditPath("nope"), false);
+    assert.equal(parseContentPath("work::title"), null);
+    assert.equal(parseContentPath("work:sample:"), null);
+    assert.equal(parseContentPath("work:sample:title extra"), null);
+    assert.equal(parseContentPath(`work:${"x".repeat(300)}:title`), null);
+  });
+
+  it("parses live two-segment profile and page fields", () => {
+    const profile = parseContentPath("profile:experience.0.role");
+    assert.equal(profile?.kind, "profile");
+    assert.equal(profile?.id, "_");
+    assert.equal(profile?.field, "experience.0.role");
+
+    const page = parseContentPath("page:projects.sectionCurrent");
+    assert.equal(page?.kind, "page");
+    assert.equal(page?.field, "projects.sectionCurrent");
+
+    const now = parseContentPath("profile:now.intro");
+    assert.equal(now?.field, "now.intro");
+  });
+
+  it("parses writing, record, archive, tags, and visibility", () => {
+    assert.equal(parseContentPath("writing:sample:byline")?.field, "byline");
+    assert.equal(parseContentPath("writing:sample:type")?.kind, "writing");
+    assert.equal(parseContentPath("record:sample:date")?.field, "date");
+    assert.equal(parseContentPath("archive:sample:body")?.kind, "archive");
+    assert.equal(parseContentPath("work:sample:tags")?.field, "tags");
+    assert.equal(parseContentPath("work:sample:tags.2")?.field, "tags.2");
+    assert.equal(parseContentPath("work:sample:visibility")?.field, "visibility");
+    assert.equal(linkLeafFromPath("work:sample:links.2.description"), "description");
+    assert.equal(linkLeafFromPath("work:sample:title"), null);
   });
 });

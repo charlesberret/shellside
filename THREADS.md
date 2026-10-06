@@ -4,18 +4,10 @@ Full plan: [docs/ROADMAP.md](./docs/ROADMAP.md). Prefer small promotions that ma
 
 ## Open (Phase 0 → R0)
 
-**Proof A — contracts**
+**Proof A — marquee switch still open** (package parity is in; see [docs/MARQUEE_SWITCH.md](./docs/MARQUEE_SWITCH.md))
 
-- [ ] **edit-protocol parity** with marquee `content-edit.ts` parse; marquee imports package, deletes local parse
-- [ ] **look pure parity** (`pathToLookRole`, roles, weights); marquee thin-wraps `@shellside/look`
-- [ ] Wire CI for `npm run check`
-
-**Proof B — content portability (R0 gate)**
-
-- [ ] Minimal Astro reference host (portfolio list over content collections)
-- [ ] `scripts/export-marquee-content` + redaction list (`MARQUEE_ROOT` / sibling path)
-- [ ] Committed toy fixture (draft + published) for CI without marquee
-- [ ] Reference **prod** build + basic leak audit on fixture and on marquee export
+- [ ] Marquee imports `@shellside/edit-protocol` and deletes local `parseContentPath`
+- [ ] Marquee thin-wraps `@shellside/look` and deletes the local role map
 
 **Phase 1 (may trail R0 declaration)**
 
@@ -30,11 +22,18 @@ Full plan: [docs/ROADMAP.md](./docs/ROADMAP.md). Prefer small promotions that ma
 
 ## Marquee sync (§6)
 
-- [ ] **Skin isolation test** — unit test for `crossSkinStyle()` (color + case only); wire when `look` gets a test runner
 - [ ] **Dirty-guard contract** — when live-edit is extracted, `snapshotCleanState(saved)` must take persisted values; `closePanel({ force })` after destructive actions. Marquee `86344e1`.
 
 ## Done
 
+- [x] **edit-protocol parity** — path grammar, field kinds, allowlist, content-root file builder; tests cover live `data-edit` shapes (2026-10-06 public build)
+- [x] **look pure parity** — `pathToLookRole` includes `byline` → item-meta and `page:writing.group*` → section-heading; size/font slot lists; `crossSkinStyle` test
+- [x] CI: `.github/workflows/check.yml` runs `npm run check`
+- [x] Minimal Astro reference host (portfolio list/detail + `/list.txt`)
+- [x] `scripts/export-marquee-content` + `scripts/redaction.mjs`
+- [x] Committed toy fixture (`fixtures/toy`, draft + published + legacy `status: draft`)
+- [x] Reference prod build + `scripts/check-public-output.mjs` (toy in CI; marquee export when `MARQUEE_ROOT` is present)
+- [x] Skin isolation test (`crossSkinStyle`, color + case only)
 - [x] Skin isolation invariant recorded (`CROSS_SKIN_STYLE_KEYS`, docs/LIVE_EDIT.md) — marquee `c3a96b2`
 - [x] Scaffold monorepo, packages, architecture + visibility docs
 - [x] Private GitHub: https://github.com/charlesberret/shellside

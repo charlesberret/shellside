@@ -4,11 +4,17 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "node ../../scripts/check-reference.mjs"
+    "check": "node ../../scripts/check-reference.mjs",
+    "predev": "node ../../scripts/prepare-reference-content.mjs",
+    "dev": "astro dev",
+    "prebuild": "node ../../scripts/prepare-reference-content.mjs",
+    "build": "astro build",
+    "preview": "astro preview"
   },
   "dependencies": {
     "@shellside/content-model": "*",
     "@shellside/edit-protocol": "*",
-    "@shellside/look": "*"
+    "@shellside/look": "*",
+    "astro": "5.16.16"
   }
 }
