@@ -26,7 +26,7 @@ First marquee consumer: [charlesberret.net](https://github.com/charlesberret/cha
 
 | App | Role |
 |-----|------|
-| `apps/reference` | Minimal Astro stub that imports the packages (smoke + docs-by-code) |
+| `apps/reference` | Minimal Astro host: portfolio list/detail + plaintext over content collections |
 
 ## Design pillars
 
@@ -51,9 +51,26 @@ See [docs/EXTRACTION_MAP.md](./docs/EXTRACTION_MAP.md).
 
 ## Status
 
-Scaffold → **R0/R1 in progress**. Packages are mostly **contracts + pure helpers**; full dual-surface runtime still lives primarily in the marquee until extraction passes land.
+**R0 shellside side is in place** (contracts, reference host, toy fixture, leak audit, CI). The marquee still has to delete its local parse and role map — see [docs/MARQUEE_SWITCH.md](./docs/MARQUEE_SWITCH.md). Console VFS is R1.
 
 **Roadmap & feature set:** [docs/ROADMAP.md](./docs/ROADMAP.md) — north star, release bars (R0 contracts + content portability smoke → R1 dual-surface with marquee content fixture → R2 publishable), phased delivery, and marquee sync protocol.
+
+## What “renders correctly” means
+
+A production build of the reference host shows the **public** work, writing, and records graph with boring chrome. Drafts (`visibility: draft`, or legacy `status: draft|unpublished` when `visibility` is absent) and redacted private paths are absent from `dist`. It is not a visual twin of charlesberret.net.
+
+## Commands
+
+```bash
+npm ci
+npm run check          # packages, unit tests, reference prod build, leak audit
+npm run export         # copy marquee src/content → fixtures/marquee-content (gitignored)
+npm run dev -w @shellside/reference
+```
+
+`npm run check` builds the reference app from the committed toy fixture when no export is present. After `npm run export`, the next reference build uses that tree instead. Force the toy with `REFERENCE_CONTENT=fixtures/toy/content`.
+
+Export source: `--source`, else `MARQUEE_ROOT`, else `../charlesberret.net`, else `~/cloud/git-projects/charlesberret.net`. Private directories (`archive`, `enigma`, `private`, `reading-rights`, `secrets`, `.env*`) are dropped. See `scripts/redaction.mjs`.
 
 ## License
 

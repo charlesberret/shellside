@@ -30,7 +30,7 @@ const KIND_RE = /^(work|writing|record|profile|page|archive):/;
 
 export function parseContentPath(raw: string): ParsedContentPath | null {
   const s = String(raw || "").trim();
-  if (!s || s.length > 300) return null;
+  if (!s || s.length > 300 || /\s/.test(s)) return null;
   const m = s.match(/^(work|writing|record|profile|page|archive):([^:]+):(.+)$/);
   if (m) {
     return {

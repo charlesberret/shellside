@@ -26,8 +26,27 @@ if (typeof look.pathToLookRole !== "function") {
 if (look.pathToLookRole("work:x:title") !== "item-title") {
   throw new Error("look: pathToLookRole work title");
 }
+if (look.pathToLookRole("writing:sample:byline") !== "item-meta") {
+  throw new Error("look: byline role");
+}
+if (look.pathToLookRole("page:writing.groupBook") !== "section-heading") {
+  throw new Error("look: writing group role");
+}
+const skin = look.crossSkinStyle({ color: "#111", case: "upper", size: "lg", font: "mono" });
+if (skin.color !== "#111" || skin.case !== "upper" || skin.size || skin.font) {
+  throw new Error("look: crossSkinStyle");
+}
+if (!look.SIZE_KEYS.includes("base") || !look.FONT_KEYS.includes("prose")) {
+  throw new Error("look: option lists");
+}
 if (edit.parseContentPath("work:kettle:links.0.href")?.field !== "links.0.href") {
   throw new Error("edit-protocol: parse link path");
+}
+if (edit.contentFileForPath("record:sample:date") !== "records/sample.md") {
+  throw new Error("edit-protocol: content file");
+}
+if (edit.fieldKindFromPath("work:sample:tags.0") !== "tags") {
+  throw new Error("edit-protocol: tags kind");
 }
 
 console.log("check-reference: ok");

@@ -5,7 +5,22 @@ export {
   type WeightKey,
 } from "./weights.js";
 export {
+  SIZE_KEYS,
+  SIZE_OPTIONS,
+  FONT_KEYS,
+  FONT_OPTIONS,
+  LEADING_KEYS,
+  LEADING_OPTIONS,
+  CASE_KEYS,
+  CASE_OPTIONS,
+  type SizeKey,
+  type FontKey,
+  type LeadingKey,
+  type CaseKey,
+} from "./options.js";
+export {
   LOOK_ROLE_IDS,
+  isLookRoleId,
   pathToLookRole,
   CROSS_SKIN_STYLE_KEYS,
   PORTFOLIO_ONLY_STYLE_KEYS,

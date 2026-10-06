@@ -9,3 +9,5 @@ dist/
 .look-history/
 .cache/
 .tmp/
+fixtures/marquee-content/
+apps/reference/src/content/

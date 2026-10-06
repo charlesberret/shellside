@@ -103,10 +103,10 @@ R0 is **not** “full charlesberret.net lives inside shellside.” It is **conte
 | Package | Maturity | Marquee consumption |
 |---------|----------|---------------------|
 | `@shellside/content-model` | Real: visibility filters + tests | **Yes** (`public-content.ts`) |
-| `@shellside/look` | Partial: roles, weights, history *ids* | No (local `look-roles.ts` ~4× richer) |
-| `@shellside/edit-protocol` | Partial: path parse + tests | No (local `content-edit.ts` parse) |
+| `@shellside/look` | Pure roles, weights, size/font slots, `crossSkinStyle` tests | Not yet (switch doc'd; local `look-roles.ts` remains until thin-wrap) |
+| `@shellside/edit-protocol` | Path parse, field kinds, allowlist, content file builder + tests | Not yet (local `content-edit.ts` parse remains until switch) |
 | `@shellside/dev-api` | Contract types + loopback helper only | No (full handler in `api/dev-content.ts`) |
-| `apps/reference` | Stub README only | — |
+| `apps/reference` | Astro portfolio + plaintext over toy or exported content; leak audit | — |
 | Docs | Architecture, visibility, live-edit contract, extraction map | Linked from marquee live-edit docs |
 
 ### Still marquee-only (high signal)
@@ -433,20 +433,20 @@ Optional later: `live-edit-protocol` (message types only), `create-shellside` CL
 
 **Proof A — contracts**
 
-- [ ] edit-protocol parity + marquee delete of local parse  
-- [ ] look pure parity + marquee thin-wrap  
+- [x] edit-protocol parity (package). Marquee delete of local parse still open — `docs/MARQUEE_SWITCH.md`  
+- [x] look pure parity (package). Marquee thin-wrap still open  
 - [ ] Visibility leak checklist last passed on marquee  
-- [ ] CI: `npm run check` on shellside  
+- [x] CI: `npm run check` on shellside  
 
 **Proof B — content → kit prod build**
 
-- [ ] `scripts/export-marquee-content` (or equiv.) with redaction list  
-- [ ] Reference app loads exported content (or documents `MARQUEE_ROOT`)  
-- [ ] Committed toy fixture for CI without marquee checkout  
-- [ ] Reference **prod** build green on fixture  
-- [ ] Reference prod build green on marquee export (local / optional CI)  
-- [ ] Basic leak audit: no drafts in dist; redaction list clean  
-- [ ] README: export + build + “what correct means”  
+- [x] `scripts/export-marquee-content` with redaction list  
+- [x] Reference app loads exported content when present, else the toy (`MARQUEE_ROOT` / `REFERENCE_CONTENT`)  
+- [x] Committed toy fixture for CI without marquee checkout  
+- [x] Reference **prod** build on the fixture (`npm run check`)  
+- [ ] Reference prod build green on marquee export (local; needs the marquee checkout)  
+- [x] Basic leak audit: no drafts in dist; redaction list clean  
+- [x] README: export + build + “what correct means”  
 
 **Phase 1 (strengthens R0; may trail declaration)**
 
@@ -490,13 +490,10 @@ Optional later: `live-edit-protocol` (message types only), `create-shellside` CL
 
 ## 10. Immediate next actions (ordered)
 
-1. **Parity: edit-protocol** against marquee `content-edit.ts` parse + field kinds; marquee switches import.  
-2. **Parity: look** roles/weights against `look-roles.ts`; marquee thin-wraps.  
-3. **Reference Astro shell** that can render a portfolio list from content collections.  
-4. **Export script + toy fixture** — marquee content → reference; prod build + basic leak audit (**Phase 0b**).  
-5. **Look history factory** (`contentRoot`) — closes THREADS open item.  
-6. **Wire CI** for `npm run check` (+ fixture prod build).  
-7. Then: console-vfs + dual-surface on export (**R1**); DEV API factory and larger content-edit promote as capacity allows.
+1. **Marquee switch** — import `@shellside/edit-protocol` and `@shellside/look`; delete local parse and role map (`docs/MARQUEE_SWITCH.md`).  
+2. **Re-export** marquee content and confirm the reference prod build + leak audit on that tree.  
+3. **Look history factory** (`contentRoot`) — closes the Phase 1 THREADS item.  
+4. Then: console-vfs + dual-surface on export (**R1**); DEV API factory and larger content-edit promote as capacity allows.
 
 ---
 
