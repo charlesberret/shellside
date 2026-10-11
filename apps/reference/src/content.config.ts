@@ -9,6 +9,10 @@ const link = z
   })
   .passthrough();
 
+const yamlScalar = z
+  .union([z.string(), z.number(), z.date()])
+  .transform((v) => (v instanceof Date ? v.toISOString().slice(0, 10) : String(v)));
+
 /** Loose on purpose: a marquee export may carry extra keys. */
 const entrySchema = z
   .object({
@@ -18,12 +22,12 @@ const entrySchema = z
     status: z.string().optional(),
     kind: z.string().optional(),
     org: z.string().optional(),
-    dates: z.string().optional(),
-    date: z.string().optional(),
+    dates: yamlScalar.optional(),
+    date: yamlScalar.optional(),
     venue: z.string().optional(),
     role: z.string().optional(),
     type: z.string().optional(),
-    year: z.union([z.string(), z.number()]).optional(),
+    year: yamlScalar.optional(),
     note: z.string().optional(),
     tags: z.union([z.array(z.string()), z.string()]).optional(),
     links: z.array(link).optional(),
