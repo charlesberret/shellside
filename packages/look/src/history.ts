@@ -1,5 +1,5 @@
 /**
- * Look history contract (implementation may live site-side until fs root is injected).
+ * Look history contract. The fs implementation is `createLookHistory` in `@shellside/look/fs`.
  *
  * Layout (gitignored at site root):
  *   .look-history/field-styles/previous.yaml

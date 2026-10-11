@@ -11,7 +11,7 @@ Full plan: [docs/ROADMAP.md](./docs/ROADMAP.md). Prefer small promotions that ma
 
 **Phase 1 (may trail R0 declaration)**
 
-- [ ] Extract look-history fs behind a `contentRoot` option
+- [ ] Marquee adopts `createLookHistory` (adapter in MARQUEE_SWITCH.md)
 - [ ] DEV API factory (`createDevContentHandler`)
 
 ## Open (R1)
@@ -26,6 +26,7 @@ Full plan: [docs/ROADMAP.md](./docs/ROADMAP.md). Prefer small promotions that ma
 
 ## Done
 
+- [x] **look-history fs factory** — `createLookHistory({ contentRoot, historyDir, retainDays })` at `@shellside/look/fs`, ported from marquee `src/lib/look-history.ts`; temp-dir tests (2026-10-11)
 - [x] **Marquee export renders the full public graph** — reference loads root `<collection>.yaml` lists (marquee shape) or per-entry Markdown (toy); leak audit reads both; toy writing is YAML so CI covers the path. `npm run check` green again on a clean `npm ci` (YAML scalar types, no `sharp`) (2026-10-11)
 - [x] **edit-protocol parity** — path grammar, field kinds, allowlist, content-root file builder; tests cover live `data-edit` shapes (2026-10-06 public build)
 - [x] **look pure parity** — `pathToLookRole` includes `byline` → item-meta and `page:writing.group*` → section-heading; size/font slot lists; `crossSkinStyle` test

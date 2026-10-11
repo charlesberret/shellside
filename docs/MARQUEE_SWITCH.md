@@ -42,6 +42,24 @@ Keep token CSS, typeface stacks, and palette in the site. `SIZE_KEYS` / `FONT_KE
 
 After the switch: marquee build green, then delete the local parsers. Do not keep a second role map.
 
+## Look history (Phase 1)
+
+`src/lib/look-history.ts` becomes a thin adapter over the node-only subpath; the default `historyDir` resolves to `<site>/.look-history/field-styles`, the same layout the marquee writes today:
+
+```ts
+import path from "node:path";
+import { createLookHistory } from "@shellside/look/fs";
+
+const history = createLookHistory({ contentRoot: path.join(process.cwd(), "src", "content") });
+
+export const snapshotFieldStylesBeforeWrite = history.snapshotBeforeWrite;
+export const listLookHistory = history.list;
+export const restoreLookHistory = history.restore;
+export { localDateISO, type LookSnapshotMeta } from "@shellside/look";
+```
+
+`dev-content.ts` and `field-styles.ts` keep their imports unchanged. Never import `@shellside/look/fs` from client code (`live-edit.js`).
+
 Parity was taken from the public build’s `data-edit` paths and the generated look CSS (2026-10-06), not from a local marquee checkout:
 
 - `writing:*:byline` shares `item-meta` with venue / role / award / year (same emitted rule).

@@ -9,7 +9,7 @@ Marquee: `~/cloud/git-projects/charlesberret.net`
 | `src/content/schemas.mjs` (visibility parts) | `packages/content-model` | Keep site-specific enums in site |
 | visibility filters (to add) | `packages/content-model` | `isPublicItem`, `listForContext` |
 | `src/lib/look-roles.ts` | `packages/look` | Pure map is in the package. Marquee still thin-wraps — [MARQUEE_SWITCH.md](./MARQUEE_SWITCH.md) |
-| `src/lib/look-history.ts` | `packages/look` | Ids/contract only; fs factory is Phase 1 |
+| `src/lib/look-history.ts` | `packages/look` (`@shellside/look/fs`) | `createLookHistory({ contentRoot, historyDir, retainDays })`; marquee adapter in MARQUEE_SWITCH.md |
 | path parse in `content-edit.ts` | `packages/edit-protocol` | Pure parse, kinds, allowlist, file builder. Marquee still deletes the local parse |
 | Look weight/size/font option lists | `packages/look` | `WEIGHT_*`, `SIZE_*`, `FONT_*` slot names (not typefaces) |
 

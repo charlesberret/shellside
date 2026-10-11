@@ -167,8 +167,8 @@ Grouped by layer. **Must** items are R1; **Should** may land in R1 or early R2; 
 | Canonical role ids + default `pathToLookRole` | **Must** | Expand until marquee can re-export |
 | Weight/size/font option lists | **Must** | WEIGHT_* present; size/font option lists next |
 | FieldStyle / dual-skin map types (`portfolio` \| `console`) | **Must** | Types exist |
-| Look history contract (ids, retain days, safe snapshot ids) | **Must** | Partial |
-| Look history **fs implementation** behind `contentRoot` / `historyDir` | **Should** | THREADS item; remove hard-coded cwd |
+| Look history contract (ids, retain days, safe snapshot ids) | **Must** | Done |
+| Look history **fs implementation** behind `contentRoot` / `historyDir` | **Should** | Done — `@shellside/look/fs`; marquee adapter pending |
 | Token name resolution helpers (size → CSS) | **Should** | Site supplies token maps |
 | Per-skin isolation rules (portfolio tokens ≠ console skin) | **Should** | Capture as invariants + tests from marquee fixes |
 
@@ -450,7 +450,7 @@ Optional later: `live-edit-protocol` (message types only), `create-shellside` CL
 
 **Phase 1 (strengthens R0; may trail declaration)**
 
-- [ ] look-history factory with `contentRoot`  
+- [x] look-history factory with `contentRoot` (`@shellside/look/fs`, 2026-10-11; marquee adapter pending)  
 - [ ] DEV API factory used by marquee (or documented adapter path)  
 
 ### R1 — Private release + full content portability
@@ -491,8 +491,8 @@ Optional later: `live-edit-protocol` (message types only), `create-shellside` CL
 ## 10. Immediate next actions (ordered)
 
 1. **Marquee switch** — import `@shellside/edit-protocol` and `@shellside/look`; delete local parse and role map (`docs/MARQUEE_SWITCH.md`).  
-2. **Re-export** marquee content and confirm the reference prod build + leak audit on that tree.  
-3. **Look history factory** (`contentRoot`) — closes the Phase 1 THREADS item.  
+2. ~~Re-export marquee content and confirm the reference prod build + leak audit~~ — done 2026-10-11.  
+3. ~~Look history factory (`contentRoot`)~~ — done 2026-10-11; marquee adopts via MARQUEE_SWITCH.md.  
 4. Then: console-vfs + dual-surface on export (**R1**); DEV API factory and larger content-edit promote as capacity allows.
 
 ---

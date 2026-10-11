@@ -15,6 +15,7 @@ const content = await load(
   path.join(root, "packages/content-model/dist/index.js"),
 );
 const look = await load(path.join(root, "packages/look/dist/index.js"));
+const lookFs = await load(path.join(root, "packages/look/dist/fs.js"));
 const edit = await load(path.join(root, "packages/edit-protocol/dist/index.js"));
 
 if (typeof content.isPublicItem !== "function") {
@@ -22,6 +23,12 @@ if (typeof content.isPublicItem !== "function") {
 }
 if (typeof look.pathToLookRole !== "function") {
   throw new Error("look: missing pathToLookRole");
+}
+if (typeof lookFs.createLookHistory !== "function") {
+  throw new Error("look/fs: missing createLookHistory");
+}
+if (typeof look.createLookHistory !== "undefined") {
+  throw new Error("look: fs factory leaked into the client-safe entry");
 }
 if (look.pathToLookRole("work:x:title") !== "item-title") {
   throw new Error("look: pathToLookRole work title");

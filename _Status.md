@@ -5,7 +5,7 @@ phase: active
 canonical: ~/cloud/git-projects/shellside
 deps: npm
 test_cmd: npm ci && npm run check
-test_signal: green — 63 package tests, 3 script tests, toy reference build, leak audit ok
+test_signal: green — 69 package tests, 3 script tests, toy reference build, leak audit ok
 healthbeacon: none
 ---
 
@@ -23,7 +23,7 @@ is still open on the marquee side. Detailed boards: `THREADS.md`,
 - [ ] Marquee imports `@shellside/edit-protocol` and deletes local `parseContentPath` (marquee repo; `docs/MARQUEE_SWITCH.md`)
 - [ ] Marquee thin-wraps `@shellside/look` and deletes its local role map (marquee repo)
 - [ ] Visibility leak checklist re-run on the marquee (marquee repo)
-- [ ] Phase 1: look-history factory behind a `contentRoot` option
+- [ ] Marquee adopts `createLookHistory` (marquee repo; adapter in `docs/MARQUEE_SWITCH.md`)
 - [ ] Phase 1: DEV API factory (`createDevContentHandler`)
 
 ## Known gaps

@@ -51,6 +51,7 @@ Origin: marquee `c3a96b2` (2026-09-12) — the old `site-name` size exception le
 - Directory: `.look-history/field-styles/` (gitignored)  
 - `previous.yaml` + daily `YYYY-MM-DD.yaml`  
 - UI: **Rollback look** restores full map  
+- Implementation: `createLookHistory` from `@shellside/look/fs` (node-only; roots injected)  
 
 ## Extraction status
 
