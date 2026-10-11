@@ -68,6 +68,8 @@ npm run export         # copy marquee src/content → fixtures/marquee-content (
 npm run dev -w @shellside/reference
 ```
 
+Each of `work`, `writing`, `records`, `profile`, and `page-copy` loads from a root `<name>.yaml` list when present (the marquee shape), else from `<name>/` entry files (the toy keeps records and work that way).
+
 `npm run check` builds the reference app from the committed toy fixture when no export is present. After `npm run export`, the next reference build uses that tree instead. Force the toy with `REFERENCE_CONTENT=fixtures/toy/content`.
 
 Export source: `--source`, else `MARQUEE_ROOT`, else `../charlesberret.net`, else `~/cloud/git-projects/charlesberret.net`. Private directories (`archive`, `enigma`, `private`, `reading-rights`, `secrets`, `.env*`) are dropped. See `scripts/redaction.mjs`.

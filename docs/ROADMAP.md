@@ -444,7 +444,7 @@ Optional later: `live-edit-protocol` (message types only), `create-shellside` CL
 - [x] Reference app loads exported content when present, else the toy (`MARQUEE_ROOT` / `REFERENCE_CONTENT`)  
 - [x] Committed toy fixture for CI without marquee checkout  
 - [x] Reference **prod** build on the fixture (`npm run check`)  
-- [ ] Reference prod build green on marquee export (local; needs the marquee checkout)  
+- [x] Reference prod build green on marquee export (local; needs the marquee checkout) — 2026-10-11: 10 work, 42 writing, 51 records; `writing.yaml` / `records.yaml` / `profile.yaml` load through `file()`, leak audit reads them  
 - [x] Basic leak audit: no drafts in dist; redaction list clean  
 - [x] README: export + build + “what correct means”  
 

@@ -1,5 +1,14 @@
+import fs from "node:fs";
 import { defineCollection, z } from "astro:content";
-import { glob } from "astro/loaders";
+import { file, glob } from "astro/loaders";
+
+const contentRoot = "./src/content";
+
+/** Marquee shape: `<name>.yaml` list at the content root. Toy shape: `<name>/*.md`. */
+function loaderFor(name: string, pattern: string) {
+  const single = `${contentRoot}/${name}.yaml`;
+  return fs.existsSync(single) ? file(single) : glob({ pattern, base: `${contentRoot}/${name}` });
+}
 
 const link = z
   .object({
@@ -30,19 +39,26 @@ const entrySchema = z
     year: yamlScalar.optional(),
     note: z.string().optional(),
     tags: z.union([z.array(z.string()), z.string()]).optional(),
-    links: z.array(link).optional(),
+    links: z
+      .union([
+        z.array(link),
+        z.record(z.string()).transform((map) =>
+          Object.entries(map).map(([label, href]) => ({ label, href })),
+        ),
+      ])
+      .optional(),
   })
   .passthrough();
 
-function markdownCollection(base: string) {
+function entryCollection(name: string) {
   return defineCollection({
-    loader: glob({ pattern: "**/*.md", base }),
+    loader: loaderFor(name, "**/*.md"),
     schema: entrySchema,
   });
 }
 
 const profile = defineCollection({
-  loader: glob({ pattern: "*.{yaml,yml}", base: "./src/content/profile" }),
+  loader: loaderFor("profile", "*.{yaml,yml}"),
   schema: z
     .object({
       name: z.string().optional(),
@@ -53,7 +69,7 @@ const profile = defineCollection({
 });
 
 const pageCopy = defineCollection({
-  loader: glob({ pattern: "*.{yaml,yml}", base: "./src/content/page-copy" }),
+  loader: loaderFor("page-copy", "*.{yaml,yml}"),
   schema: z
     .object({
       title: z.string().optional(),
@@ -64,9 +80,9 @@ const pageCopy = defineCollection({
 });
 
 export const collections = {
-  work: markdownCollection("./src/content/work"),
-  writing: markdownCollection("./src/content/writing"),
-  records: markdownCollection("./src/content/records"),
+  work: entryCollection("work"),
+  writing: entryCollection("writing"),
+  records: entryCollection("records"),
   profile,
   pageCopy,
 };

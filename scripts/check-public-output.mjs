@@ -11,6 +11,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import yaml from "js-yaml";
 import { REDACTION_NEEDLES } from "./redaction.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -66,18 +67,32 @@ function entryId(relPosix) {
   return relPosix.replace(/\.(md|mdx|markdown|ya?ml)$/i, "");
 }
 
-function loadExpectations() {
-  const hiddenRoutes = [];
-  const hiddenSentinels = [];
-  const publicTitles = [];
+function* collectionEntries() {
+  for (const collection of Object.keys(ROUTE_DIRS)) {
+    const single = path.join(contentDir, `${collection}.yaml`);
+    if (!fs.existsSync(single)) continue;
+    const rows = yaml.load(fs.readFileSync(single, "utf8")) ?? [];
+    for (const row of rows) {
+      if (!row?.id) continue;
+      const { id, ...data } = row;
+      yield { collection, id: String(id), data, body: JSON.stringify(data) };
+    }
+  }
   for (const abs of walk(contentDir)) {
     const rel = path.relative(contentDir, abs).split(path.sep).join("/");
     const collection = rel.split("/")[0];
     if (!ROUTE_DIRS[collection]) continue;
     if (!/\.(md|mdx|markdown|ya?ml)$/i.test(rel)) continue;
-    const text = fs.readFileSync(abs, "utf8");
-    const { data, body } = parseFrontmatter(text);
-    const id = entryId(rel.slice(collection.length + 1));
+    const { data, body } = parseFrontmatter(fs.readFileSync(abs, "utf8"));
+    yield { collection, id: entryId(rel.slice(collection.length + 1)), data, body };
+  }
+}
+
+function loadExpectations() {
+  const hiddenRoutes = [];
+  const hiddenSentinels = [];
+  const publicTitles = [];
+  for (const { collection, id, data, body } of collectionEntries()) {
     if (isHidden(data)) {
       hiddenRoutes.push(`${ROUTE_DIRS[collection]}/${id}`);
       for (const match of `${data.title ?? ""}\n${body}`.matchAll(SENTINEL)) {
