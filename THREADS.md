@@ -39,6 +39,6 @@ Full plan: [docs/ROADMAP.md](./docs/ROADMAP.md). Prefer small promotions that ma
 - [x] Skin isolation invariant recorded (`CROSS_SKIN_STYLE_KEYS`, docs/LIVE_EDIT.md) — marquee `c3a96b2`
 - [x] Scaffold monorepo, packages, architecture + visibility docs
 - [x] Private GitHub: https://github.com/charlesberret/shellside
-- [x] Marquee uses `@shellside/content-model` + visibility filters on public surfaces
+- [x] Kit `@shellside/content-model` owns visibility filters; marquee still inlines them in `src/lib/public-content.ts` (no `@shellside/*` dep) so CI does not need `file:../shellside`
 - [x] Roadmap + feature set (`docs/ROADMAP.md`)
 - [x] R0/R1 include content portability (marquee content → kit prod build, structural fidelity)
