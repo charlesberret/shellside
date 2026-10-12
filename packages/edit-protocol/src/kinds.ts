@@ -25,3 +25,34 @@ export function fieldKindFromPath(raw: string): EditFieldKind | null {
   if (parsed.field === "body" || parsed.field === "longBio") return "body";
   return "scalar";
 }
+
+/** Writing links are a keyed map (links.html|pdf|arxiv|doi), not an array. */
+export type DeskEditKind = "text" | "tags" | "link" | "links" | "writing-link";
+
+export type EditKindInfo = {
+  editKind: DeskEditKind;
+  linkIndex?: number;
+  linkKey?: string;
+};
+
+/**
+ * Classify a path the way the editorial desk does: whole links list,
+ * single array link, keyed writing link, tags, otherwise text.
+ */
+export function editKindFromPath(raw: string): EditKindInfo {
+  const parsed = parseContentPath(raw);
+  if (!parsed) return { editKind: "text" };
+  if (parsed.kind === "work" && parsed.field === "tags") return { editKind: "tags" };
+  if ((parsed.kind === "work" || parsed.kind === "record") && parsed.field === "links") {
+    return { editKind: "links" };
+  }
+  const linkM = parsed.field.match(/^links\.(\d+)(?:\.(label|href|description|kind))?$/);
+  if ((parsed.kind === "work" || parsed.kind === "record") && linkM) {
+    return { editKind: "link", linkIndex: Number(linkM[1]) };
+  }
+  const wLink = parsed.field.match(/^links\.(html|pdf|arxiv|doi)$/);
+  if (parsed.kind === "writing" && wLink) {
+    return { editKind: "writing-link", linkKey: wLink[1] };
+  }
+  return { editKind: "text" };
+}

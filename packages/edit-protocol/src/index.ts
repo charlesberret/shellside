@@ -9,7 +9,10 @@ export {
   fieldKindFromPath,
   isTagsField,
   linkIndexFromPath,
+  editKindFromPath,
   type EditFieldKind,
+  type DeskEditKind,
+  type EditKindInfo,
 } from "./kinds.js";
 export { isAllowedEditPath, type EditPathPolicy } from "./allow.js";
 export {

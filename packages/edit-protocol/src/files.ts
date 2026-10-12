@@ -3,33 +3,29 @@ import { parseContentPath } from "./paths.js";
 
 /**
  * Content-root-relative file for an entity. No filesystem access.
- * Page copy is one file per page slug (`page:projects.title` → `page-copy/projects.yaml`).
- * Profile is a singleton. Sites may override a kind's rule.
+ *
+ * Default layout is the marquee's: one Markdown file per work item, a single
+ * YAML list per writing/records collection, single root files for
+ * profile/page-copy, and archive sub-documents as `<which>.yaml`. Sites with
+ * per-entry writing/records files may inject rules.
  */
-export type CollectionFileRule = {
-  dir: string;
-  ext: string;
-  singleton?: string;
-};
+export type CollectionFileRule =
+  | { file: string }
+  | { dir: string; ext: string };
 
 export const DEFAULT_CONTENT_FILES: Record<ContentKind, CollectionFileRule> = {
   work: { dir: "work", ext: ".md" },
-  writing: { dir: "writing", ext: ".md" },
-  record: { dir: "records", ext: ".md" },
-  profile: { dir: "profile", ext: ".yaml", singleton: "profile.yaml" },
-  page: { dir: "page-copy", ext: ".yaml" },
-  archive: { dir: "archive", ext: ".md" },
+  writing: { file: "writing.yaml" },
+  record: { file: "records.yaml" },
+  profile: { file: "profile.yaml" },
+  page: { file: "page-copy.yaml" },
+  archive: { dir: "", ext: ".yaml" },
 };
 
-const SLUG = /^[A-Za-z0-9][A-Za-z0-9_-]*$/;
+const SLUG = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
 
 function safeSlug(raw: string): string | null {
-  return SLUG.test(raw) ? raw : null;
-}
-
-function pageSlug(parsed: ParsedContentPath): string | null {
-  const raw = parsed.id !== "_" ? parsed.id : (parsed.field.split(".")[0] ?? "");
-  return safeSlug(raw);
+  return SLUG.test(raw) && !raw.includes("..") ? raw : null;
 }
 
 export function contentFileForPath(
@@ -38,14 +34,17 @@ export function contentFileForPath(
 ): string | null {
   const parsed = parseContentPath(raw);
   if (!parsed) return null;
-  const rule = { ...DEFAULT_CONTENT_FILES[parsed.kind], ...rules[parsed.kind] };
-  if (rule.singleton) {
-    const file = safeSlug(rule.singleton.replace(/\.[^.]+$/, ""));
-    if (!file) return null;
-    return `${rule.dir}/${rule.singleton}`;
-  }
-  const slug =
-    parsed.kind === "page" ? pageSlug(parsed) : parsed.id === "_" ? null : safeSlug(parsed.id);
+  const rule = rules[parsed.kind] ?? DEFAULT_CONTENT_FILES[parsed.kind];
+  if ("file" in rule) return rule.file;
+  // Singleton kinds carry no id; a per-page layout keys on the field's first
+  // segment (`page:projects.title` → page-copy/projects.yaml).
+  const entity =
+    parsed.id === "_"
+      ? (parsed.field.split(".")[0] ?? "")
+      : parsed.id;
+  const slug = safeSlug(entity);
   if (!slug) return null;
-  return `${rule.dir}/${slug}${rule.ext}`;
+  return rule.dir ? `${rule.dir}/${slug}${rule.ext}` : `${slug}${rule.ext}`;
 }
+
+export { type ParsedContentPath };

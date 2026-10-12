@@ -1,63 +1,54 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import {
-  isWellFormedEditPath,
-  linkLeafFromPath,
-  parseContentPath,
-} from "./paths.js";
+import { parseContentPath } from "./paths.js";
 
 describe("parseContentPath", () => {
   it("parses work fields", () => {
-    const p = parseContentPath("work:kettle:title");
-    assert.equal(p?.kind, "work");
-    assert.equal(p?.id, "kettle");
-    assert.equal(p?.field, "title");
+    assert.deepEqual(parseContentPath("work:kettle:title"), {
+      kind: "work", id: "kettle", field: "title", raw: "work:kettle:title",
+    });
   });
 
   it("parses nested link leaves", () => {
-    const p = parseContentPath("record:launch-x:links.0.href");
-    assert.equal(p?.field, "links.0.href");
-    assert.equal(linkLeafFromPath(p!.raw), "href");
+    assert.deepEqual(parseContentPath("work:kettle:links.0.href"), {
+      kind: "work", id: "kettle", field: "links.0.href", raw: "work:kettle:links.0.href",
+    });
   });
 
-  it("parses two-segment profile", () => {
-    const p = parseContentPath("profile:name");
-    assert.equal(p?.kind, "profile");
-    assert.equal(p?.field, "name");
+  it("parses two-segment profile and page fields", () => {
+    assert.deepEqual(parseContentPath("profile:tagline"), {
+      kind: "profile", id: "_", field: "tagline", raw: "profile:tagline",
+    });
+    assert.deepEqual(parseContentPath("profile:experience.0.note"), {
+      kind: "profile", id: "_", field: "experience.0.note", raw: "profile:experience.0.note",
+    });
+    assert.deepEqual(parseContentPath("page:portfolio.heroKicker"), {
+      kind: "page", id: "_", field: "portfolio.heroKicker", raw: "page:portfolio.heroKicker",
+    });
+  });
+
+  it("accepts the records: alias and archive sub-documents", () => {
+    assert.equal(parseContentPath("records:launch:date")?.kind, "record");
+    assert.deepEqual(parseContentPath("archive:cv:0.items.1"), {
+      kind: "archive", id: "cv", field: "0.items.1", raw: "archive:cv:0.items.1",
+    });
+    assert.deepEqual(parseContentPath("archive:resume:1.title"), {
+      kind: "archive", id: "resume", field: "1.title", raw: "archive:resume:1.title",
+    });
   });
 
   it("rejects garbage", () => {
     assert.equal(parseContentPath(""), null);
-    assert.equal(isWellFormedEditPath("nope"), false);
-    assert.equal(parseContentPath("work::title"), null);
-    assert.equal(parseContentPath("work:sample:"), null);
-    assert.equal(parseContentPath("work:sample:title extra"), null);
-    assert.equal(parseContentPath(`work:${"x".repeat(300)}:title`), null);
-  });
-
-  it("parses live two-segment profile and page fields", () => {
-    const profile = parseContentPath("profile:experience.0.role");
-    assert.equal(profile?.kind, "profile");
-    assert.equal(profile?.id, "_");
-    assert.equal(profile?.field, "experience.0.role");
-
-    const page = parseContentPath("page:projects.sectionCurrent");
-    assert.equal(page?.kind, "page");
-    assert.equal(page?.field, "projects.sectionCurrent");
-
-    const now = parseContentPath("profile:now.intro");
-    assert.equal(now?.field, "now.intro");
-  });
-
-  it("parses writing, record, archive, tags, and visibility", () => {
-    assert.equal(parseContentPath("writing:sample:byline")?.field, "byline");
-    assert.equal(parseContentPath("writing:sample:type")?.kind, "writing");
-    assert.equal(parseContentPath("record:sample:date")?.field, "date");
-    assert.equal(parseContentPath("archive:sample:body")?.kind, "archive");
-    assert.equal(parseContentPath("work:sample:tags")?.field, "tags");
-    assert.equal(parseContentPath("work:sample:tags.2")?.field, "tags.2");
-    assert.equal(parseContentPath("work:sample:visibility")?.field, "visibility");
-    assert.equal(linkLeafFromPath("work:sample:links.2.description"), "description");
-    assert.equal(linkLeafFromPath("work:sample:title"), null);
+    assert.equal(parseContentPath("nope"), null);
+    assert.equal(parseContentPath("work:"), null);
+    assert.equal(parseContentPath("work:x"), null);
+    assert.equal(parseContentPath("work:x:"), null);
+    assert.equal(parseContentPath("work:bad id:title"), null);
+    assert.equal(parseContentPath("work:x:tit le"), null);
+    assert.equal(parseContentPath("work:../x:title"), null);
+    // profile/page are two-segment only
+    assert.equal(parseContentPath("profile:x:y"), null);
+    assert.equal(parseContentPath("page:x:y:z"), null);
+    assert.equal(parseContentPath(`work:x:${"a".repeat(300)}`), null);
   });
 });

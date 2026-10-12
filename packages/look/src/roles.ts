@@ -20,6 +20,20 @@ export const LOOK_ROLE_IDS = [
   "caption",
   "nav-label",
   "contact-copy",
+  // Profile list rows — one style for all indices (skills.0 == skills.1, …)
+  "profile-skills-heading",
+  "profile-skills-detail",
+  "profile-experience-years",
+  "profile-experience-org",
+  "profile-experience-role",
+  "profile-experience-note",
+  "profile-education-year",
+  "profile-education-degree",
+  "profile-education-where",
+  "profile-now-intro",
+  "profile-now-title",
+  "profile-now-detail",
+  "profile-selected-blurb",
 ] as const;
 
 export type LookRoleId = (typeof LOOK_ROLE_IDS)[number];
@@ -80,9 +94,26 @@ export function pathToLookRole(pathKey: string): string {
 
   if (p === "profile:name") return "site-name";
   if (p === "profile:tagline") return "hero-tagline";
+  if (p === "profile:shortBio") return "page-sub";
+  if (p === "profile:longBio") return "item-body";
+  if (/^profile:skills\.\d+\.heading$/i.test(p)) return "profile-skills-heading";
+  if (/^profile:skills\.\d+\.detail$/i.test(p)) return "profile-skills-detail";
+  if (/^profile:experience\.\d+\.years$/i.test(p)) return "profile-experience-years";
+  if (/^profile:experience\.\d+\.org$/i.test(p)) return "profile-experience-org";
+  if (/^profile:experience\.\d+\.role$/i.test(p)) return "profile-experience-role";
+  if (/^profile:experience\.\d+\.note$/i.test(p)) return "profile-experience-note";
+  if (/^profile:education\.\d+\.year$/i.test(p)) return "profile-education-year";
+  if (/^profile:education\.\d+\.degree$/i.test(p)) return "profile-education-degree";
+  if (/^profile:education\.\d+\.where$/i.test(p)) return "profile-education-where";
+  if (p === "profile:now.intro") return "profile-now-intro";
+  if (/^profile:now\.projects\.\d+\.title$/i.test(p)) return "profile-now-title";
+  if (/^profile:now\.projects\.\d+\.detail$/i.test(p)) return "profile-now-detail";
+  if (/^profile:selectedProjects\.\d+\.blurb$/i.test(p)) return "profile-selected-blurb";
+
   if (p.startsWith("page:nav.")) return "nav-label";
   if (p.startsWith("page:contact.")) return "contact-copy";
   if (p.endsWith(".backlink")) return "caption";
+  if (p === "page:portfolio.heroKicker") return "page-kicker";
 
   if (p.startsWith("page:")) {
     if (p.endsWith(".kicker")) return "page-kicker";
@@ -91,11 +122,11 @@ export function pathToLookRole(pathKey: string): string {
     if (
       /\.section/i.test(p) ||
       /section[A-Z]/.test(p) ||
-      p.startsWith("page:writing.group") ||
-      p.startsWith("page:index.section")
+      p.includes("group")
     ) {
       return "section-heading";
     }
+    if (/plaintext|completeIndex|readOnSite|fullRecord/i.test(p)) return "caption";
   }
 
   if (/:links\.\d+\.label$/i.test(p)) return "link-label";
@@ -105,7 +136,7 @@ export function pathToLookRole(pathKey: string): string {
   if (/^(work|writing|record):[^:]+:title$/i.test(p)) return "item-title";
   if (/^writing:[^:]+:note$/i.test(p)) return "item-note";
   if (/^work:[^:]+:body$/i.test(p)) return "item-body";
-  if (/^work:[^:]+:tags(\.\d+)?$/i.test(p)) return "caption";
+  if (/^work:[^:]+:tags$/i.test(p)) return "caption";
 
   if (
     /^work:[^:]+:(kind|org|dates)$/i.test(p) ||

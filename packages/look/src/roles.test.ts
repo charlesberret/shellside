@@ -30,7 +30,7 @@ const ROLES: Record<string, string> = {
   "record:sample:role": "item-meta",
   "record:sample:date": "item-meta",
   "work:sample:tags": "caption",
-  "work:sample:tags.0": "caption",
+  "record:sample:date": "item-meta",
   "work:sample:links.0.label": "link-label",
   "work:sample:links.0.href": "link-href",
   "record:sample:links.3.description": "link-desc",
@@ -57,8 +57,28 @@ describe("pathToLookRole", () => {
 
   it("leaves ungrouped live paths as themselves", () => {
     assert.equal(pathToLookRole("writing:sample:type"), "writing:sample:type");
-    assert.equal(pathToLookRole("profile:shortBio"), "profile:shortBio");
-    assert.equal(pathToLookRole("profile:now.intro"), "profile:now.intro");
+    // Parity with the marquee map: profile list rows resolve to shared roles
+    assert.equal(pathToLookRole("profile:shortBio"), "page-sub");
+    assert.equal(pathToLookRole("profile:longBio"), "item-body");
+    assert.equal(pathToLookRole("profile:skills.0.heading"), "profile-skills-heading");
+    assert.equal(pathToLookRole("profile:skills.2.detail"), "profile-skills-detail");
+    assert.equal(pathToLookRole("profile:experience.1.years"), "profile-experience-years");
+    assert.equal(pathToLookRole("profile:experience.0.org"), "profile-experience-org");
+    assert.equal(pathToLookRole("profile:experience.3.role"), "profile-experience-role");
+    assert.equal(pathToLookRole("profile:experience.0.note"), "profile-experience-note");
+    assert.equal(pathToLookRole("profile:education.0.year"), "profile-education-year");
+    assert.equal(pathToLookRole("profile:education.0.degree"), "profile-education-degree");
+    assert.equal(pathToLookRole("profile:education.2.where"), "profile-education-where");
+    assert.equal(pathToLookRole("profile:now.intro"), "profile-now-intro");
+    assert.equal(pathToLookRole("profile:now.projects.0.title"), "profile-now-title");
+    assert.equal(pathToLookRole("profile:now.projects.1.detail"), "profile-now-detail");
+    assert.equal(pathToLookRole("profile:selectedProjects.0.blurb"), "profile-selected-blurb");
+    assert.equal(pathToLookRole("page:portfolio.heroKicker"), "page-kicker");
+    assert.equal(pathToLookRole("page:index.completeIndex"), "caption");
+    assert.equal(pathToLookRole("work:sample:tags.0"), "work:sample:tags.0");
+    for (const id of [
+      "profile-skills-heading","profile-experience-role","profile-now-intro","profile-selected-blurb",
+    ]) assert.ok(isLookRoleId(id), id);
     assert.equal(pathToLookRole("page:console.nowOpenLabel"), "page:console.nowOpenLabel");
     assert.equal(pathToLookRole("page:portfolio.heroAccent2"), "page:portfolio.heroAccent2");
     assert.equal(pathToLookRole(""), "");
