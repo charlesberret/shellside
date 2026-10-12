@@ -8,9 +8,11 @@ Marquee: `~/cloud/git-projects/charlesberret.net`
 |--------------|------------------|-------|
 | `src/content/schemas.mjs` (visibility parts) | `packages/content-model` | Keep site-specific enums in site |
 | visibility filters (to add) | `packages/content-model` | `isPublicItem`, `listForContext` |
-| `src/lib/look-roles.ts` | `packages/look` | Pure map is in the package. Marquee still thin-wraps — [MARQUEE_SWITCH.md](./MARQUEE_SWITCH.md) |
-| `src/lib/look-history.ts` | `packages/look` (`@shellside/look/fs`) | `createLookHistory({ contentRoot, historyDir, retainDays })`; marquee adapter in MARQUEE_SWITCH.md |
-| path parse in `content-edit.ts` | `packages/edit-protocol` | Pure parse, kinds, allowlist, file builder. Marquee still deletes the local parse |
+| `src/lib/look-roles.ts` | `packages/look` | **Done 2026-10-11** — package owns ids + path map; marquee keeps labels/hints/selectors |
+| `src/lib/look-history.ts` | `packages/look` (`@shellside/look/fs`) | **Done 2026-10-11** — `createLookHistory`; marquee is a 2-line adapter |
+| `src/lib/content-edit.ts` | `packages/dev-api` (`createContentEditor`) + `packages/edit-protocol` | **Done 2026-10-11** — machinery in dev-api; marquee file is layout/allowlist/joins/draft config |
+| `src/lib/public-content.ts` | `packages/content-model` | **Done 2026-10-11** — filters re-exported; site keeps Astro context helpers |
+| `src/pages/api/dev-content.ts` | `packages/dev-api` (`createDevContentHandler`) | **Done 2026-10-11** — gates + content actions in kit; look surface injected |
 | Look weight/size/font option lists | `packages/look` | `WEIGHT_*`, `SIZE_*`, `FONT_*` slot names (not typefaces) |
 
 ## Promote later (works, needs adapters)
@@ -19,8 +21,7 @@ Marquee: `~/cloud/git-projects/charlesberret.net`
 |--------------|----------------|
 | `src/lib/field-styles.ts` | content root path, token maps |
 | `src/lib/design-tokens.ts` | paths, palette presets |
-| `src/pages/api/dev-content.ts` | host policy, fs root |
-| `src/scripts/live-edit.js` | mount host, admin bridge |
+| `src/scripts/live-edit.js` | mount host, admin bridge; also duplicates `pathToLookRole` client-side (keep in sync with `@shellside/look`; `coauthors` is a kit extra) |
 | `src/scripts/admin-*.js` | site nav, preview origins |
 | console edit surfaces | VFS schema per site |
 

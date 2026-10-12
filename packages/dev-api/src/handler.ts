@@ -30,8 +30,11 @@ export type DevLookHandlers = {
   historyRestore?(id: string, skin: string): Promise<Record<string, unknown>>;
   /** POST {tokens}. */
   setTokens?(tokens: unknown, skin: string): Promise<Record<string, unknown>>;
-  /** POST {palette}. */
-  palette?(palette: Record<string, unknown>, skin: string): Promise<Record<string, unknown>>;
+  /** POST {palette}. May return a Response to control the status code. */
+  palette?(
+    palette: Record<string, unknown>,
+    skin: string,
+  ): Promise<Record<string, unknown> | Response>;
 };
 
 export type DevContentHandlerOptions = {
@@ -196,7 +199,9 @@ export function createDevContentHandler(opts: DevContentHandlerOptions): DevApiH
       const palette = needLook("palette");
       if (palette instanceof Response) return palette;
       try {
-        return json(await palette(body.palette, skin));
+        const out = await palette(body.palette, skin);
+        // A returned Response passes through so the site controls status.
+        return out instanceof Response ? out : json(out);
       } catch (e) {
         return json({ error: "palette_failed", message: String(e) }, 500);
       }
@@ -243,8 +248,6 @@ export function createDevContentHandler(opts: DevContentHandlerOptions): DevApiH
       return json({ error: "bad_path", path: pathParam }, 400);
     }
 
-    const writeExtras = look.writeExtras ? await look.writeExtras(pathParam, skin) : {};
-
     if (Array.isArray(body.tags) && ref.kind === "work" && ref.field === "tags") {
       try {
         const tags = await opts.editor.setTags(ref.id, body.tags);
@@ -252,10 +255,11 @@ export function createDevContentHandler(opts: DevContentHandlerOptions): DevApiH
         if ("style" in body && look.setStyle) {
           styleResult = await look.setStyle(pathParam, body.style, skin);
         }
+        const extras = look.writeExtras ? await look.writeExtras(pathParam, skin) : {};
         return json({
           ok: true, path: pathParam, editKind: "tags", tags,
-          value: tags.join(", "), skin, ...writeExtras,
-          style: styleResult,
+          value: tags.join(", "), skin, ...extras,
+          ...(styleResult !== undefined ? { style: styleResult } : {}),
           note: "tags saved",
         });
       } catch (e) {
@@ -272,10 +276,11 @@ export function createDevContentHandler(opts: DevContentHandlerOptions): DevApiH
         if ("style" in body && look.setStyle) {
           styleResult = await look.setStyle(pathParam, body.style, skin);
         }
+        const extras = look.writeExtras ? await look.writeExtras(pathParam, skin) : {};
         return json({
           ok: true, path: pathParam, editKind: "link", link,
-          value: link.label, skin, ...writeExtras,
-          style: styleResult,
+          value: link.label, skin, ...extras,
+          ...(styleResult !== undefined ? { style: styleResult } : {}),
           note: "link saved",
         });
       } catch (e) {
@@ -297,10 +302,11 @@ export function createDevContentHandler(opts: DevContentHandlerOptions): DevApiH
       if (hasStyle && look.setStyle) {
         styleResult = await look.setStyle(pathParam, body.style, skin);
       }
+      const extras = look.writeExtras ? await look.writeExtras(pathParam, skin) : {};
       return json({
         ok: true, path: pathParam,
-        value: valueResult?.value, skin, ...writeExtras,
-        style: styleResult,
+        value: valueResult?.value, skin, ...extras,
+        ...(styleResult !== undefined ? { style: styleResult } : {}),
         note: "saved; HMR may refresh the page",
       });
     } catch (e) {

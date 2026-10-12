@@ -20,7 +20,7 @@ First marquee consumer: [charlesberret.net](https://github.com/charlesberret/cha
 | `@shellside/content-model` | Schemas, **visibility** (`draft` \| `published`), lifecycle vs visibility, public filters |
 | `@shellside/look` | Look roles, field-style map shape, weight/size/font tokens, history contract |
 | `@shellside/edit-protocol` | `data-edit` path grammar, allowlists, entity parse |
-| `@shellside/dev-api` | Contract notes for the DEV-only content/look API (implementation stays site-side until stable) |
+| `@shellside/dev-api` | DEV-only desk machinery: `createContentEditor` (fs write core), `createDevContentHandler` (gates + actions; site injects look surface) |
 
 ## Apps
 
@@ -51,7 +51,7 @@ See [docs/EXTRACTION_MAP.md](./docs/EXTRACTION_MAP.md).
 
 ## Status
 
-**R0 shellside side is in place** (contracts, reference host, toy fixture, leak audit, CI). The marquee still has to delete its local parse and role map — see [docs/MARQUEE_SWITCH.md](./docs/MARQUEE_SWITCH.md). Console VFS is R1.
+**R0 is declared** (2026-10-11): contracts extracted and consumed — the marquee builds on vendored `@shellside/*` packages (`vendor/shellside`, synced by `scripts/sync-marquee-vendor.mjs`; details in [docs/MARQUEE_SWITCH.md](./docs/MARQUEE_SWITCH.md)) — plus reference host, toy fixture, leak audit, CI, and marquee-content portability. Console VFS is R1.
 
 **Roadmap & feature set:** [docs/ROADMAP.md](./docs/ROADMAP.md) — north star, release bars (R0 contracts + content portability smoke → R1 dual-surface with marquee content fixture → R2 publishable), phased delivery, and marquee sync protocol.
 

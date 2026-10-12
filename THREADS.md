@@ -4,15 +4,17 @@ Full plan: [docs/ROADMAP.md](./docs/ROADMAP.md). Prefer small promotions that ma
 
 ## Open (Phase 0 → R0)
 
-**Proof A — marquee switch still open** (package parity is in; see [docs/MARQUEE_SWITCH.md](./docs/MARQUEE_SWITCH.md))
+**Proof A — marquee switch done** (2026-10-11; vendored packages, see [docs/MARQUEE_SWITCH.md](./docs/MARQUEE_SWITCH.md))
 
-- [ ] Marquee imports `@shellside/edit-protocol` and deletes local `parseContentPath`
-- [ ] Marquee thin-wraps `@shellside/look` and deletes the local role map
+- [x] Marquee imports `@shellside/edit-protocol` and deleted local `parseContentPath`
+- [x] Marquee thin-wraps `@shellside/look` (kept role metadata: labels/hints/selectors)
+- [x] Marquee adopts `@shellside/content-model`, `@shellside/look/fs`, `@shellside/dev-api` — check:admin 32/32 green
 
 **Phase 1 (may trail R0 declaration)**
 
-- [ ] Marquee adopts `createLookHistory` (adapter in MARQUEE_SWITCH.md)
-- [ ] DEV API factory (`createDevContentHandler`)
+- [x] Marquee adopts `createLookHistory` — `src/lib/look-history.ts` is a thin adapter (2026-10-11)
+- [x] DEV API factory (`createDevContentHandler` + `createContentEditor`) — dev-content.ts thin; look surface injected (2026-10-11)
+- [ ] Field-styles map I/O helpers (`field-styles.ts` load/save/merge stays site-side for now)
 
 ## Open (R1)
 
@@ -22,6 +24,7 @@ Full plan: [docs/ROADMAP.md](./docs/ROADMAP.md). Prefer small promotions that ma
 
 ## Marquee sync (§6)
 
+- [ ] **Vendored drift** — `vendor/shellside` in the marquee needs re-sync (`npm run vendor:sync` … actually `node scripts/sync-marquee-vendor.mjs`) after any shellside package change; `scripts/check-vendor.mjs` fails the build check when a sibling checkout sees staleness
 - [ ] **Dirty-guard contract** — when live-edit is extracted, `snapshotCleanState(saved)` must take persisted values; `closePanel({ force })` after destructive actions. Marquee `86344e1`.
 
 ## Done

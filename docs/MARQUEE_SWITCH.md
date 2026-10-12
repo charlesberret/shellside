@@ -1,68 +1,41 @@
-# Marquee switch (proof A remainder)
+# Marquee switch (proof A) — DONE 2026-10-11
 
-Shellside now owns the pure edit-path grammar and the pure look-role map. charlesberret.net should import these packages and delete the local duplicates. This checkout cannot edit that repo (it is private and not granted to the shellside credential).
+charlesberret.net consumes shellside packages. Since the deploy runner only
+checks out the marquee repo, consumption is via **vendored builds**:
 
-Dependency, from the marquee root, alongside the existing content-model `file:` dep:
+- `scripts/sync-marquee-vendor.mjs` (shellside) copies each package's
+  `package.json` + `dist/` into `<marquee>/vendor/shellside/<name>` (the
+  marquee's `file:` deps point there), and stamps `manifest.json` with the
+  shellside SHA + per-package dist hashes.
+- `scripts/check-vendor.mjs` (marquee) fails when a sibling shellside
+  checkout exists and its built dist differs from the vendored copy; skips
+  on the runner.
+- `vendor/**/dist/` is deliberately unignored in the marquee `.gitignore`.
 
-```json
-"@shellside/edit-protocol": "file:../shellside/packages/edit-protocol",
-"@shellside/look": "file:../shellside/packages/look"
-```
+## What the marquee keeps (site-owned)
 
-Replace local `parseContentPath` / link-leaf helpers in `content-edit.ts`:
+| Kept in marquee | Why |
+|-----------------|-----|
+| `look-roles.ts` LOOK_ROLES labels/hints/selectors + `lookRolesClientPayload` | selectors encode site DOM |
+| `live-edit.js` client copy of `pathToLookRole` | client-side, no build dep; keep in sync — `@shellside/look` adds `coauthors` → item-meta |
+| `public-content.ts` Astro context helpers (`adminPreview`, `contentContextFromUrl`) | `import.meta.env` is site-bound |
+| `content-edit.ts` collection layout, allowlist, `PROFILE_LIST_JOIN`, draft builders | site content shapes and policy |
+| `dev-content.ts` look surface (tokens, palettes, field-styles CSS) | site token names + taste |
+| `field-styles.ts`, `design-tokens.ts` | not yet promoted (Phase 1 remainder) |
 
-```ts
-import {
-  parseContentPath,
-  isWellFormedEditPath,
-  isAllowedEditPath,
-  linkLeafFromPath,
-  fieldKindFromPath,
-  contentFileForPath,
-} from "@shellside/edit-protocol";
-```
+## Parity notes
 
-Pass a site policy if archive paths must stay out of the desk. Override `contentFileForPath` rules if a collection directory differs from `work/`, `writing/`, `records/`, `profile/profile.yaml`, `page-copy/`.
-
-Replace `pathToLookRole` and the role id list in `look-roles.ts` with a thin re-export:
-
-```ts
-export {
-  pathToLookRole,
-  LOOK_ROLE_IDS,
-  isLookRoleId,
-  crossSkinStyle,
-  WEIGHT_OPTIONS,
-  SIZE_OPTIONS,
-  FONT_OPTIONS,
-} from "@shellside/look";
-```
-
-Keep token CSS, typeface stacks, and palette in the site. `SIZE_KEYS` / `FONT_KEYS` are slot names (`base`, `prose`, `display`), not CSS lengths or font files.
-
-After the switch: marquee build green, then delete the local parsers. Do not keep a second role map.
-
-## Look history (Phase 1)
-
-`src/lib/look-history.ts` becomes a thin adapter over the node-only subpath; the default `historyDir` resolves to `<site>/.look-history/field-styles`, the same layout the marquee writes today:
-
-```ts
-import path from "node:path";
-import { createLookHistory } from "@shellside/look/fs";
-
-const history = createLookHistory({ contentRoot: path.join(process.cwd(), "src", "content") });
-
-export const snapshotFieldStylesBeforeWrite = history.snapshotBeforeWrite;
-export const listLookHistory = history.list;
-export const restoreLookHistory = history.restore;
-export { localDateISO, type LookSnapshotMeta } from "@shellside/look";
-```
-
-`dev-content.ts` and `field-styles.ts` keep their imports unchanged. Never import `@shellside/look/fs` from client code (`live-edit.js`).
-
-Parity was taken from the public build’s `data-edit` paths and the generated look CSS (2026-10-06), not from a local marquee checkout:
-
-- `writing:*:byline` shares `item-meta` with venue / role / award / year (same emitted rule).
-- `page:writing.group*` shares `section-heading` with `page:*section*`.
-- `writing:*:type`, `profile:shortBio`, `profile:now.intro`, `page:console.nowOpenLabel`, and `page:portfolio.heroAccent2` stay path-specific. The emitted CSS does not group them with another role.
-- Link leaves remain `label` / `href` / `description`. `href` is in the look CSS even when the public HTML does not mark it `data-edit`.
+- `@shellside/edit-protocol` `parseContentPath`: profile/page are two-segment
+  only; `records:` aliases to `record`; archive `id` is the sub-document and
+  `archiveKinds` (`["cv","resume"]`) enforces the which-check the old parser
+  did. `isAllowedEdit` → `allowlist` config (same regexes as before).
+- `@shellside/look` `pathToLookRole` now covers the full marquee map
+  including `profile:*` list roles, `page:portfolio.heroKicker`, and the
+  page caption set (`plaintext|completeIndex|readOnSite|fullRecord`).
+- `@shellside/dev-api` `createDevContentHandler`: gates on injected `isDev`
+  + loopback host; content actions delegate to `createContentEditor`; the
+  look surface (`meta`, `pathExtras`, `writeExtras`, `setStyle`,
+  `historyList`, `historyRestore`, `setTokens`, `palette`) is injected.
+- `coerceVisibility`, writing-year coercion, byline `and`-split, and the
+  profile-list empty-save guard are kit defaults (they are contract, not
+  taste); the site may override via `createContentEditor` options.

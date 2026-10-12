@@ -258,7 +258,7 @@ Each phase has **exit criteria**. Prefer small promotions that marquee can absor
 | Docs | Keep `EXTRACTION_MAP` and this roadmap current after each promotion |
 | Visibility leak checklist | Formalize marquee audit into `docs/VISIBILITY.md` leak checklist (already listed); track pass/fail in THREADS |
 
-**Exit:** Marquee depends on content-model **and** edit-protocol **and** look (pure); `npm run check` green both repos. (Not yet full R0—needs Phase 0b content path.)
+**Exit:** Marquee depends on content-model **and** edit-protocol **and** look (pure) — **done 2026-10-11** (vendored `file:vendor/shellside/*`; `npm run check` green both repos, check:admin 32/32).
 
 ### Phase 0b — Content portability smoke *(R0 gate for proof B)*
 
@@ -286,7 +286,7 @@ Each phase has **exit criteria**. Prefer small promotions that marquee can absor
 | content-edit promote | Promote path resolve + write pure core; site keeps collection-specific YAML shapes if needed |
 | Tests | Unit tests with temp dirs; no network |
 
-**Exit:** Marquee `dev-content` / look-history are thin adapters; shellside owns testable cores.  
+**Exit:** Marquee `dev-content` / look-history are thin adapters; shellside owns testable cores. **Done 2026-10-11.**  
 **Note:** R0 can be declared after **0 + 0b** even if Phase 1 is still open; Phase 1 should not block content portability.
 
 ### Phase 2 — Dual-surface kit + full content portability *(R1)*
@@ -321,7 +321,7 @@ Each phase has **exit criteria**. Prefer small promotions that marquee can absor
 
 | Work | Detail |
 |------|--------|
-| Drop `file:../shellside` | workspace publish, private npm, or git+semver tags |
+| ~~Drop `file:../shellside`~~ done via vendoring | workspace publish / private npm remains the R2 option if vendoring is painful |
 | Changelog + migration notes | Especially visibility + path grammar |
 | Create-site / template | Clone reference → rename → content root |
 | Decision: public vs private forever | Product, not engineering |
@@ -379,14 +379,9 @@ If marquee behavior and shellside contract diverge:
 
 ### 6.5 Dependency hygiene (marquee)
 
-Today: `"@shellside/content-model": "file:../shellside/packages/content-model"`.
+Since 2026-10-11 the marquee consumes **vendored builds**: `vendor/shellside/<pkg>` copied by `scripts/sync-marquee-vendor.mjs` (rewrites `@shellside/*` deps to `file:../<pkg>`), referenced as `file:vendor/shellside/<pkg>` and committed (deploy resolves them; a bare `file:../shellside` cannot — the runner only checks out the marquee). `scripts/check-vendor.mjs` in the marquee fails when a sibling checkout sees stale vendored dist.
 
-Through R1 this is fine. When promoting multiple packages, either:
-
-- depend on each `file:../shellside/packages/…`, or  
-- add a root workspace export / single `@shellside/kit` meta package later  
-
-Avoid nesting marquee *inside* shellside workspaces (keeps deploy and ownership clear).
+Through R1 this is fine. R2's packaging story (private registry, or git+semver) replaces vendoring if it becomes painful.
 
 ### 6.6 Export hygiene
 
@@ -433,9 +428,9 @@ Optional later: `live-edit-protocol` (message types only), `create-shellside` CL
 
 **Proof A — contracts**
 
-- [x] edit-protocol parity (package). Marquee delete of local parse still open — `docs/MARQUEE_SWITCH.md`  
-- [x] look pure parity (package). Marquee thin-wrap still open  
-- [ ] Visibility leak checklist last passed on marquee  
+- [x] edit-protocol parity (package). Marquee deleted local parse 2026-10-11  
+- [x] look pure parity (package incl. profile-* roles). Marquee thin-wrap done 2026-10-11  
+- [x] Visibility leak checklist passed on marquee (postbuild `check-public-output` + `check:admin` 32/32, 2026-10-11)  
 - [x] CI: `npm run check` on shellside  
 
 **Proof B — content → kit prod build**
@@ -450,8 +445,8 @@ Optional later: `live-edit-protocol` (message types only), `create-shellside` CL
 
 **Phase 1 (strengthens R0; may trail declaration)**
 
-- [x] look-history factory with `contentRoot` (`@shellside/look/fs`, 2026-10-11; marquee adapter pending)  
-- [ ] DEV API factory used by marquee (or documented adapter path)  
+- [x] look-history factory with `contentRoot` (`@shellside/look/fs`; marquee adopted 2026-10-11)  
+- [x] DEV API factory used by marquee (`createDevContentHandler`; content-edit promoted as `createContentEditor`, 2026-10-11)  
 
 ### R1 — Private release + full content portability
 
@@ -490,7 +485,7 @@ Optional later: `live-edit-protocol` (message types only), `create-shellside` CL
 
 ## 10. Immediate next actions (ordered)
 
-1. **Marquee switch** — import `@shellside/edit-protocol` and `@shellside/look`; delete local parse and role map (`docs/MARQUEE_SWITCH.md`).  
+1. ~~Marquee switch~~ — done 2026-10-11 via vendored packages (`vendor/shellside` in the marquee; `scripts/sync-marquee-vendor.mjs`).  
 2. ~~Re-export marquee content and confirm the reference prod build + leak audit~~ — done 2026-10-11.  
 3. ~~Look history factory (`contentRoot`)~~ — done 2026-10-11; marquee adopts via MARQUEE_SWITCH.md.  
 4. Then: console-vfs + dual-surface on export (**R1**); DEV API factory and larger content-edit promote as capacity allows.
