@@ -31,4 +31,4 @@ local `npm run export` builds 103 public pages (10 work, 42 writing,
 - The marquee export path is checked locally only; CI runs the toy fixture, which covers both loader shapes (YAML list and per-entry Markdown).
 - Writing and records detail pages render no body for YAML rows (they have none); only summary shows.
 - Vendored packages are re-synced by hand; nothing pushes marquee-side (deliberate).
-- Linear project Shellside is P-LAB-17. No open `mode:agent` issue (2026-10-11). LAB-113 (npm + PyPI name) is `mode:human` / `motion:park`. `THREADS.md` is the working checklist.
+- Linear project Shellside is P-LAB-17. No open `mode:agent` issue (2026-10-12). LAB-113 (npm + PyPI name) is `mode:human` / `motion:park`. `THREADS.md` is the working checklist.

@@ -102,10 +102,10 @@ R0 is **not** “full charlesberret.net lives inside shellside.” It is **conte
 
 | Package | Maturity | Marquee consumption |
 |---------|----------|---------------------|
-| `@shellside/content-model` | Real: visibility filters + tests | **Yes** (`public-content.ts`) |
-| `@shellside/look` | Pure roles, weights, size/font slots, `crossSkinStyle` tests | Not yet (switch doc'd; local `look-roles.ts` remains until thin-wrap) |
-| `@shellside/edit-protocol` | Path parse, field kinds, allowlist, content file builder + tests | Not yet (local `content-edit.ts` parse remains until switch) |
-| `@shellside/dev-api` | Contract types + loopback helper only | No (full handler in `api/dev-content.ts`) |
+| `@shellside/content-model` | Real: visibility filters + tests | **Yes** — `public-content.ts` re-exports them; site keeps Astro helpers (vendored, 2026-10-11) |
+| `@shellside/look` | Roles, weights, size/font slots, `crossSkinStyle`, look-history fs | **Yes** — `look-roles.ts` and `look-history.ts` are thin adapters (vendored, 2026-10-11). Field-styles load/save/merge still site-side |
+| `@shellside/edit-protocol` | Path parse, field kinds, allowlist, content file builder + tests | **Yes** — `parseContentPath` reshapes the package parse; layout and allowlist stay in `content-edit.ts` (2026-10-11) |
+| `@shellside/dev-api` | `createDevContentHandler` + `createContentEditor` | **Yes** — `dev-content.ts` and `content-edit.ts` are thin adapters; look surface injected (vendored, 2026-10-11) |
 | `apps/reference` | Astro portfolio + plaintext over toy or exported content; leak audit | — |
 | Docs | Architecture, visibility, live-edit contract, extraction map | Linked from marquee live-edit docs |
 
@@ -115,12 +115,13 @@ Rough scale (order of magnitude):
 
 | Area | Marquee home | Promote? |
 |------|--------------|----------|
-| Content edit + DEV API | `content-edit.ts`, `api/dev-content.ts` | Yes — with injected `contentRoot` + host policy |
-| Look I/O + history fs | `field-styles.ts`, `look-history.ts`, `look-roles.ts` | Yes — pure map/role first; fs behind options |
+| Field-styles load/save/merge | `field-styles.ts` | Yes — content root + palette names injected. Role map and look-history fs are already in the kit |
+| Content layout remainder | `content-edit.ts` allowlist, joins, draft shapes | Stays site-specific. Write machinery is `createContentEditor` |
+| Look surface | tokens, palettes, field-styles CSS | Site taste. Injected into the DEV handler |
 | Live-edit client | `live-edit.js` (~3.5k) | Later — mount/host adapters |
 | Admin shell | `admin-app.js`, preview bridge, `/admin` | Later — chrome is taste-heavy |
 | Console VFS + personality | `console.astro` (~6k) | **Contracts only** — VFS schema, not easter eggs |
-| Public leak guards | `check-public-output.mjs`, content checks | Yes — as kit checklist + optional scripts |
+| Public leak guards | marquee postbuild check | Kit script exists (`scripts/check-public-output.mjs`); site keeps its own |
 | Taste / deploy / Enigma / monome | site-local | **Never** (see extraction map) |
 
 ### Design pillars (invariants — do not break in any phase)
@@ -154,7 +155,7 @@ Grouped by layer. **Must** items are R1; **Should** may land in R1 or early R2; 
 
 | Feature | Priority | Notes |
 |---------|----------|-------|
-| Path grammar parse (`work:id:field`, profile/page two-segment) | **Must** | Stub exists; must match marquee 1:1 then marquee deletes duplicate |
+| Path grammar parse (`work:id:field`, profile/page two-segment) | **Must** | Done — package parse; marquee reshapes it to `ContentRef` (2026-10-11) |
 | Well-formed / allowlist hooks | **Must** | Sites tighten further |
 | Link leaf parse; tags path conventions | **Must** | Align with live-edit field kinds |
 | Entity → filesystem resolution (contentRoot-relative) | **Should** | Pure path builder; no fs |
@@ -164,11 +165,11 @@ Grouped by layer. **Must** items are R1; **Should** may land in R1 or early R2; 
 
 | Feature | Priority | Notes |
 |---------|----------|-------|
-| Canonical role ids + default `pathToLookRole` | **Must** | Expand until marquee can re-export |
-| Weight/size/font option lists | **Must** | WEIGHT_* present; size/font option lists next |
+| Canonical role ids + default `pathToLookRole` | **Must** | Done — marquee re-exports them; labels, hints, and selectors stay site (2026-10-11) |
+| Weight/size/font option lists | **Must** | Done — `WEIGHT_*`, `SIZE_*`, `FONT_*` |
 | FieldStyle / dual-skin map types (`portfolio` \| `console`) | **Must** | Types exist |
 | Look history contract (ids, retain days, safe snapshot ids) | **Must** | Done |
-| Look history **fs implementation** behind `contentRoot` / `historyDir` | **Should** | Done — `@shellside/look/fs`; marquee adapter pending |
+| Look history **fs implementation** behind `contentRoot` / `historyDir` | **Should** | Done — `@shellside/look/fs`; marquee `look-history.ts` is a thin adapter (2026-10-11) |
 | Token name resolution helpers (size → CSS) | **Should** | Site supplies token maps |
 | Per-skin isolation rules (portfolio tokens ≠ console skin) | **Should** | Capture as invariants + tests from marquee fixes |
 
@@ -178,7 +179,7 @@ Grouped by layer. **Must** items are R1; **Should** may land in R1 or early R2; 
 |---------|----------|-------|
 | Action + request/response types | **Must** | Partial in `contract.ts` |
 | `isLoopbackHost` / DEV gate helpers | **Must** | Partial |
-| **Factory**: `createDevContentHandler({ contentRoot, isDev, hostPolicy, allowlist })` | **Should** | Moves bulk of `dev-content.ts` + `content-edit` write path |
+| **Factory**: `createDevContentHandler({ contentRoot, isDev, hostPolicy, allowlist })` | **Should** | Done — `createDevContentHandler` + `createContentEditor` (2026-10-11); look surface stays injected |
 | Look history list/restore actions | **Should** | With look package |
 | Auth plug-in interface (beyond loopback) | **Could** | Explicit non-goal for R1 |
 | Production-safe no-op export for accidental imports | **Should** | Fail closed |
@@ -400,15 +401,15 @@ Through R1 this is fine. R2's packaging story (private registry, or git+semver) 
 packages/
   content-model/     # visibility + list context (exists)
   edit-protocol/     # path grammar (exists → parity)
-  look/              # roles, weights, history fs factory (exists → expand)
-  dev-api/           # handler factory + types (exists → implement)
+  look/              # roles, weights, history fs (exists); field-styles I/O still open
+  dev-api/           # handler + content editor (exists)
   console-vfs/       # NEW: VFS projection from filtered content
 apps/
   reference/         # dual-surface host + content portability target
 fixtures/            # optional: toy content; generated marquee export (often gitignored)
 scripts/
-  export-marquee-content.mjs   # NEW (Phase 0b)
-  check-public-output.mjs      # NEW (leak audit for reference dist)
+  export-marquee-content.mjs   # exists (R0)
+  check-public-output.mjs      # exists (leak audit for reference dist)
 docs/
   ARCHITECTURE.md
   VISIBILITY.md
@@ -488,7 +489,7 @@ Optional later: `live-edit-protocol` (message types only), `create-shellside` CL
 1. ~~Marquee switch~~ — done 2026-10-11 via vendored packages (`vendor/shellside` in the marquee; `scripts/sync-marquee-vendor.mjs`).  
 2. ~~Re-export marquee content and confirm the reference prod build + leak audit~~ — done 2026-10-11.  
 3. ~~Look history factory (`contentRoot`)~~ — done 2026-10-11; marquee adopts via MARQUEE_SWITCH.md.  
-4. Then: console-vfs + dual-surface on export (**R1**); DEV API factory and larger content-edit promote as capacity allows.
+4. Then: field-styles map I/O (load/save/merge), then console-vfs + dual-surface on export (**R1**).
 
 ---
 
