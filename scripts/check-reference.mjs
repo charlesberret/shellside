@@ -49,8 +49,15 @@ if (!look.SIZE_KEYS.includes("base") || !look.FONT_KEYS.includes("prose")) {
 if (edit.parseContentPath("work:kettle:links.0.href")?.field !== "links.0.href") {
   throw new Error("edit-protocol: parse link path");
 }
-if (edit.contentFileForPath("record:sample:date") !== "records/sample.md") {
+if (edit.contentFileForPath("record:sample:date") !== "records.yaml") {
   throw new Error("edit-protocol: content file");
+}
+if (typeof edit.editKindFromPath !== "function" || edit.editKindFromPath("writing:x:links.pdf").editKind !== "writing-link") {
+  throw new Error("edit-protocol: editKindFromPath");
+}
+const devApi = await load(path.join(root, "packages/dev-api/dist/index.js"));
+if (typeof devApi.createContentEditor !== "function" || typeof devApi.createDevContentHandler !== "function") {
+  throw new Error("dev-api: missing editor or handler factory");
 }
 if (edit.fieldKindFromPath("work:sample:tags.0") !== "tags") {
   throw new Error("edit-protocol: tags kind");
