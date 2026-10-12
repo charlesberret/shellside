@@ -36,3 +36,17 @@ export {
   localDateISO,
   type LookSnapshotMeta,
 } from "./history.js";
+export {
+  FIELD_STYLE_LEADING_KEYS,
+  FIELD_STYLE_CASE_KEYS,
+  isLookSkin,
+  isSafeRoleKey,
+  normalizeLookColor,
+  normalizeStyle,
+  normalizeEntry,
+  styleForSkin,
+  mergeStyles,
+  parseFieldStylesRoot,
+  type LookSkin,
+  type NormalizeStyleOptions,
+} from "./field-styles.js";

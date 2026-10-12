@@ -103,7 +103,7 @@ R0 is **not** “full charlesberret.net lives inside shellside.” It is **conte
 | Package | Maturity | Marquee consumption |
 |---------|----------|---------------------|
 | `@shellside/content-model` | Real: visibility filters + tests | **Yes** — `public-content.ts` re-exports them; site keeps Astro helpers (vendored, 2026-10-11) |
-| `@shellside/look` | Roles, weights, size/font slots, `crossSkinStyle`, look-history fs | **Yes** — `look-roles.ts` and `look-history.ts` are thin adapters (vendored, 2026-10-11). Field-styles load/save/merge still site-side |
+| `@shellside/look` | Roles, weights, size/font slots, `crossSkinStyle`, look-history fs, field-styles I/O | **Yes** for roles and history (thin adapters, vendored 2026-10-11). Field-styles load/save/merge is `createFieldStyles` (2026-10-12); the marquee file still owns CSS |
 | `@shellside/edit-protocol` | Path parse, field kinds, allowlist, content file builder + tests | **Yes** — `parseContentPath` reshapes the package parse; layout and allowlist stay in `content-edit.ts` (2026-10-11) |
 | `@shellside/dev-api` | `createDevContentHandler` + `createContentEditor` | **Yes** — `dev-content.ts` and `content-edit.ts` are thin adapters; look surface injected (vendored, 2026-10-11) |
 | `apps/reference` | Astro portfolio + plaintext over toy or exported content; leak audit | — |
@@ -115,7 +115,7 @@ Rough scale (order of magnitude):
 
 | Area | Marquee home | Promote? |
 |------|--------------|----------|
-| Field-styles load/save/merge | `field-styles.ts` | Yes — content root + palette names injected. Role map and look-history fs are already in the kit |
+| Field-styles CSS | `field-styles.ts` | I/O is `createFieldStyles` (2026-10-12). CSS and token maps stay site |
 | Content layout remainder | `content-edit.ts` allowlist, joins, draft shapes | Stays site-specific. Write machinery is `createContentEditor` |
 | Look surface | tokens, palettes, field-styles CSS | Site taste. Injected into the DEV handler |
 | Live-edit client | `live-edit.js` (~3.5k) | Later — mount/host adapters |
@@ -170,6 +170,7 @@ Grouped by layer. **Must** items are R1; **Should** may land in R1 or early R2; 
 | FieldStyle / dual-skin map types (`portfolio` \| `console`) | **Must** | Types exist |
 | Look history contract (ids, retain days, safe snapshot ids) | **Must** | Done |
 | Look history **fs implementation** behind `contentRoot` / `historyDir` | **Should** | Done — `@shellside/look/fs`; marquee `look-history.ts` is a thin adapter (2026-10-11) |
+| Field-styles load/save/merge | **Should** | Done in the kit — `createFieldStyles` (2026-10-12). On-disk leading/case names are wider than the editor lists. Marquee file still owns CSS |
 | Token name resolution helpers (size → CSS) | **Should** | Site supplies token maps |
 | Per-skin isolation rules (portfolio tokens ≠ console skin) | **Should** | Capture as invariants + tests from marquee fixes |
 
@@ -401,7 +402,7 @@ Through R1 this is fine. R2's packaging story (private registry, or git+semver) 
 packages/
   content-model/     # visibility + list context (exists)
   edit-protocol/     # path grammar (exists → parity)
-  look/              # roles, weights, history fs (exists); field-styles I/O still open
+  look/              # roles, weights, history fs, field-styles I/O (exists)
   dev-api/           # handler + content editor (exists)
   console-vfs/       # NEW: VFS projection from filtered content
 apps/
@@ -489,7 +490,8 @@ Optional later: `live-edit-protocol` (message types only), `create-shellside` CL
 1. ~~Marquee switch~~ — done 2026-10-11 via vendored packages (`vendor/shellside` in the marquee; `scripts/sync-marquee-vendor.mjs`).  
 2. ~~Re-export marquee content and confirm the reference prod build + leak audit~~ — done 2026-10-11.  
 3. ~~Look history factory (`contentRoot`)~~ — done 2026-10-11; marquee adopts via MARQUEE_SWITCH.md.  
-4. Then: field-styles map I/O (load/save/merge), then console-vfs + dual-surface on export (**R1**).
+4. ~~Field-styles map I/O~~ — done in the kit 2026-10-12 (`createFieldStyles`). The marquee file still owns CSS; vendor re-sync is a sibling-repo follow-on.
+5. Then: console-vfs + dual-surface on export (**R1**).
 
 ---
 

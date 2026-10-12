@@ -21,7 +21,7 @@ checks out the marquee repo, consumption is via **vendored builds**:
 | `public-content.ts` Astro context helpers (`adminPreview`, `contentContextFromUrl`) | `import.meta.env` is site-bound |
 | `content-edit.ts` collection layout, allowlist, `PROFILE_LIST_JOIN`, draft builders | site content shapes and policy |
 | `dev-content.ts` look surface (tokens, palettes, field-styles CSS) | site token names + taste |
-| `field-styles.ts`, `design-tokens.ts` | not yet promoted (Phase 1 remainder) |
+| `field-styles.ts` CSS, `design-tokens.ts` | I/O is `createFieldStyles` (2026-10-12); the site file still owns CSS and token maps |
 
 ## Parity notes
 

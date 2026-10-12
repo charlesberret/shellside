@@ -13,13 +13,14 @@ Marquee: `~/cloud/git-projects/charlesberret.net`
 | `src/lib/content-edit.ts` | `packages/dev-api` (`createContentEditor`) + `packages/edit-protocol` | **Done 2026-10-11** — machinery in dev-api; marquee file is layout/allowlist/joins/draft config |
 | `src/lib/public-content.ts` | `packages/content-model` | **Done 2026-10-11** — filters re-exported; site keeps Astro context helpers |
 | `src/pages/api/dev-content.ts` | `packages/dev-api` (`createDevContentHandler`) | **Done 2026-10-11** — gates + content actions in kit; look surface injected |
+| `src/lib/field-styles.ts` load/save/merge | `packages/look` (`@shellside/look/fs`) | **Done 2026-10-12** — `createFieldStyles`. Marquee file still owns CSS and is not a thin adapter |
 | Look weight/size/font option lists | `packages/look` | `WEIGHT_*`, `SIZE_*`, `FONT_*` slot names (not typefaces) |
 
 ## Promote later (works, needs adapters)
 
 | Marquee path | Adapter needed |
 |--------------|----------------|
-| `src/lib/field-styles.ts` | content root path, token maps |
+| `src/lib/field-styles.ts` CSS emitter | token maps, role selectors. Load/save/merge is `createFieldStyles` |
 | `src/lib/design-tokens.ts` | paths, palette presets |
 | `src/scripts/live-edit.js` | mount host, admin bridge; also duplicates `pathToLookRole` client-side (keep in sync with `@shellside/look`; `coauthors` is a kit extra) |
 | `src/scripts/admin-*.js` | site nav, preview origins |

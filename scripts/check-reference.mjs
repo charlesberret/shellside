@@ -27,8 +27,14 @@ if (typeof look.pathToLookRole !== "function") {
 if (typeof lookFs.createLookHistory !== "function") {
   throw new Error("look/fs: missing createLookHistory");
 }
-if (typeof look.createLookHistory !== "undefined") {
+if (typeof lookFs.createFieldStyles !== "function") {
+  throw new Error("look/fs: missing createFieldStyles");
+}
+if (typeof look.createLookHistory !== "undefined" || typeof look.createFieldStyles !== "undefined") {
   throw new Error("look: fs factory leaked into the client-safe entry");
+}
+if (look.parseFieldStylesRoot({ roles: { "work:x:title": { size: "lg" } } })["item-title"]?.portfolio?.size !== "lg") {
+  throw new Error("look: parseFieldStylesRoot path fold");
 }
 if (look.pathToLookRole("work:x:title") !== "item-title") {
   throw new Error("look: pathToLookRole work title");

@@ -27,6 +27,11 @@ export type FontKey = (typeof FONT_KEYS)[number];
 
 export const FONT_OPTIONS = ["inherit", ...FONT_KEYS] as const;
 
+/**
+ * Editor lists still served on the look surface. On-disk field-styles.yaml
+ * accepts a wider set (`FIELD_STYLE_LEADING_KEYS`, `FIELD_STYLE_CASE_KEYS`
+ * in `field-styles.ts`). `upper` / `lower` canonicalize on write.
+ */
 export const LEADING_KEYS = ["normal", "body"] as const;
 
 export type LeadingKey = (typeof LEADING_KEYS)[number];
