@@ -1,6 +1,6 @@
 # Shellside
 
-**Private** site framework for dual-surface personal portfolios (readable site + optional console), content collections, and a **dev-only** editorial desk.
+Site framework for dual-surface personal portfolios (readable site + optional console), content collections, and a **dev-only** editorial desk.
 
 Shellside is **not** a hosted CMS. It is a **filesystem-first kit**: content lives as YAML/Markdown, the public site is a static (or node) Astro build, and the admin/live-edit surface exists only in development.
 
@@ -72,8 +72,8 @@ Each of `work`, `writing`, `records`, `profile`, and `page-copy` loads from a ro
 
 `npm run check` builds the reference app from the committed toy fixture when no export is present. After `npm run export`, the next reference build uses that tree instead. Force the toy with `REFERENCE_CONTENT=fixtures/toy/content`.
 
-Export source: `--source`, else `MARQUEE_ROOT`, else `../charlesberret.net`, else `~/cloud/git-projects/charlesberret.net`. Private directories (`archive`, `enigma`, `private`, `reading-rights`, `secrets`, `.env*`) are dropped. See `scripts/redaction.mjs`.
+Export source: `--source`, else `MARQUEE_ROOT`, else `../charlesberret.net`. Private directories (`archive`, `enigma`, `private`, `reading-rights`, `secrets`, `.env*`) are dropped. See `scripts/redaction.mjs`.
 
 ## License
 
-Private. Not published to npm. All rights reserved unless explicitly opened later.
+MIT. See [LICENSE](./LICENSE). Not published to npm.

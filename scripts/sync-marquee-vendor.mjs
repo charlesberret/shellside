@@ -22,7 +22,7 @@ const PACKAGES = ["content-model", "edit-protocol", "look", "dev-api"];
 
 const marquee =
   process.env.MARQUEE_ROOT ||
-  [path.join(root, "..", "charlesberret.net"), "/Users/charles/cloud/git-projects/charlesberret.net"]
+  [path.join(root, "..", "charlesberret.net")]
     .find((p) => fs.existsSync(p));
 
 if (!marquee) {

@@ -11,3 +11,8 @@ dist/
 .tmp/
 fixtures/marquee-content/
 apps/reference/src/content/
+
+# Agent working files (kept on disk, never published)
+.local/
+.inbox/
+.coordination/
