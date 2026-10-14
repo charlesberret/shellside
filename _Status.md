@@ -11,14 +11,7 @@ healthbeacon: none
 
 ## Status
 
-Private framework kit for dual-surface portfolio sites; charlesberret.net is the
-first consumer. **R0 declared 2026-10-11** — both proofs hold. A: the marquee
-imports all four packages as vendored builds (`vendor/shellside`, synced by
-`scripts/sync-marquee-vendor.mjs`); content-edit, dev-content, look-history,
-and public-content are thin adapters, and check:admin is 32/32 green. B: a
-local `npm run export` builds 103 public pages (10 work, 42 writing,
-51 records) with the leak audit green. Boards: `THREADS.md`,
-`docs/ROADMAP.md` §8.
+Private framework kit for dual-surface portfolio sites; charlesberret.net is the first consumer. **R0 declared 2026-10-11** — both proofs hold. A: the marquee imports all four packages as vendored builds (`vendor/shellside`, synced by `scripts/sync-marquee-vendor.mjs`); content-edit, dev-content, look-history, and public-content are thin adapters, and check:admin is 32/32 green. B: a local `npm run export` builds 103 public pages (10 work, 42 writing, 51 records) with the leak audit green. Boards: `THREADS.md`, `docs/ROADMAP.md` §8.
 
 ## Next action
 
