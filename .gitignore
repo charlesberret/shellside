@@ -16,3 +16,20 @@ apps/reference/src/content/
 .local/
 .inbox/
 .coordination/
+
+
+# Local surface — not for a public tree
+.claude/
+.cursor/
+.grok/
+.aider*
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+.idea/
+*.swp
+Thumbs.db
