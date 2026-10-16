@@ -16,7 +16,7 @@ Private framework kit for dual-surface portfolio sites; charlesberret.net is the
 ## Next action
 
 - [ ] Phase 3 (R1 late): extract the typed preview-bridge protocol (live-edit event names/payloads) — see ROADMAP §Phase 3
-- [ ] Promote design-tokens load/set validation to `@shellside/look/fs` (marquee keeps defaults + palettes) — LAB-#### (filed this sitting)
+- [ ] Promote design-tokens load/set validation to `@shellside/look/fs` (marquee keeps defaults + palettes) — LAB-1393
 - [ ] Re-sync vendored packages after shellside package changes (`node scripts/sync-marquee-vendor.mjs`); marquee `check-vendor` flags staleness
 
 ## Known gaps
