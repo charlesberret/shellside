@@ -507,7 +507,7 @@ You can:
 4. Confirm marquee still builds while importing shellside pure contracts (no parallel visibility/parse/role maps for promoted pieces).  
 5. Run CI on shellside with the **toy fixture** alone.
 
-When that is true, Shellside is an **internal kit with proven content portability**—not yet a full dual-surface private release.
+When that is true, Shellside is an **internal kit with proven content portability**—not yet a full dual-surface release.
 
 ### R1 narrative
 
