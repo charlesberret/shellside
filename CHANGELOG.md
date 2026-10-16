@@ -7,6 +7,13 @@ the packaging milestone).
 
 ## [Unreleased]
 
+## [0.3.0] — 2026-10-16
+
+The kit completes the grand-plan lane: engine mechanics, the config-driven
+host, the create-site scaffold, and the shared leak audit are all in. The
+console-vfs node-vocabulary change is **breaking within 0.x** — consumers
+using `t:"chr"`/`read`/`bin.href` must adopt `t:"c"`/`gen()`/`bin.url`.
+
 ### Changed
 
 - **`@shellside/console-vfs`** adopted the marquee's node vocabulary (breaking within 0.x): `t:"c"`/`gen()` char devices, `bin.url`, `file()` emits `html`/`links`/`compactLinks` defaults; `VfsLink` gains `editLabel`/`editDesc`; `link()` shortcut. New `docs/DIVERGENCES.md` tracks marquee↔kit alignment.
