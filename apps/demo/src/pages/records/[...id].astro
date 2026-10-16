@@ -18,7 +18,7 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 ---
 
 <Base title={title}>
-  <p class="meta"><a href={`${base}`}>Portfolio</a></p>
+  <p class="meta"><a href={`${base}`}>Home</a></p>
   <h1>{title}</h1>
   {entry.data.summary ? <p class="dek">{entry.data.summary}</p> : null}
   <Content />

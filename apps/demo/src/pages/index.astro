@@ -11,8 +11,7 @@ const profiles = await getCollection("profile");
 const name = profiles[0]?.data.name ?? "Reference";
 const dek = profiles[0]?.data.shortBio ?? profiles[0]?.data.tagline ?? "";
 
-const current = work.filter((item) => item.data.status === "current");
-const complete = work.filter((item) => item.data.status !== "current");
+
 
 function meta(item: Listed): string {
   return [item.data.kind, item.data.org, item.data.dates, item.data.venue, item.data.year, item.data.date]
@@ -26,22 +25,10 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
   <h1>{name}</h1>
   {dek ? <p class="dek">{dek}</p> : null}
 
-  <h2>Current</h2>
+  <h2>Packages</h2>
   <ul>
     {
-      current.map((item) => (
-        <li>
-          <a href={`${base}projects/${entryId(item)}`}>{item.data.title ?? entryId(item)}</a>
-          {meta(item) ? <div class="meta">{meta(item)}</div> : null}
-        </li>
-      ))
-    }
-  </ul>
-
-  <h2>Complete</h2>
-  <ul>
-    {
-      complete.map((item) => (
+      work.map((item) => (
         <li>
           <a href={`${base}projects/${entryId(item)}`}>{item.data.title ?? entryId(item)}</a>
           {item.data.summary ? <div>{item.data.summary}</div> : null}
@@ -51,7 +38,7 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
     }
   </ul>
 
-  <h2>Writing</h2>
+  <h2>Docs</h2>
   <ul>
     {
       writing.map((item) => (
@@ -74,7 +61,7 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
     }
   </ul>
 
-  <h2>Records</h2>
+  <h2>Index</h2>
   <ul>
     {
       records.map((item) => (

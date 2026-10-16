@@ -23,7 +23,7 @@ export default defineShellsiteConfig({
     ],
     homeFiles: {
       "readme.txt":
-        "This site is built on the kit it describes.\nEach project file is one shellside package; each writing file a kit doc.\nls packages/ · cat docs/architecture.txt · cat releases/v0.3.0.txt",
+        "This site is built on the kit it describes.\nEach file under packages/ is one shellside package; docs/ holds the kit docs.\nls packages/ · cat docs/architecture.txt · cat releases/v0.3.0.txt",
     },
   },
 });

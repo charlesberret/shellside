@@ -11,38 +11,26 @@ const profiles = await getCollection("profile");
 const name = profiles[0]?.data.name ?? "Reference";
 const dek = profiles[0]?.data.shortBio ?? profiles[0]?.data.tagline ?? "";
 
-const current = work.filter((item) => item.data.status === "current");
-const complete = work.filter((item) => item.data.status !== "current");
+
 
 function meta(item: Listed): string {
   return [item.data.kind, item.data.org, item.data.dates, item.data.venue, item.data.year, item.data.date]
     .filter((part) => part != null && part !== "")
     .join(" · ");
 }
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 ---
 
 <Base title={name}>
   <h1>{name}</h1>
   {dek ? <p class="dek">{dek}</p> : null}
 
-  <h2>Current</h2>
+  <h2>Projects</h2>
   <ul>
     {
-      current.map((item) => (
+      work.map((item) => (
         <li>
-          <a href={`/projects/${entryId(item)}`}>{item.data.title ?? entryId(item)}</a>
-          {meta(item) ? <div class="meta">{meta(item)}</div> : null}
-        </li>
-      ))
-    }
-  </ul>
-
-  <h2>Complete</h2>
-  <ul>
-    {
-      complete.map((item) => (
-        <li>
-          <a href={`/projects/${entryId(item)}`}>{item.data.title ?? entryId(item)}</a>
+          <a href={`${base}projects/${entryId(item)}`}>{item.data.title ?? entryId(item)}</a>
           {item.data.summary ? <div>{item.data.summary}</div> : null}
           {meta(item) ? <div class="meta">{meta(item)}</div> : null}
         </li>
@@ -55,7 +43,7 @@ function meta(item: Listed): string {
     {
       writing.map((item) => (
         <li>
-          <a href={`/writing/${entryId(item)}`}>{item.data.title ?? entryId(item)}</a>
+          <a href={`${base}writing/${entryId(item)}`}>{item.data.title ?? entryId(item)}</a>
           {item.data.summary ? <div>{item.data.summary}</div> : null}
         </li>
       ))
@@ -67,7 +55,7 @@ function meta(item: Listed): string {
     {
       reading.map((item) => (
         <li>
-          <a href={`/reading/${entryId(item)}`}>{item.data.title ?? entryId(item)}</a>
+          <a href={`${base}reading/${entryId(item)}`}>{item.data.title ?? entryId(item)}</a>
         </li>
       ))
     }
@@ -78,13 +66,13 @@ function meta(item: Listed): string {
     {
       records.map((item) => (
         <li>
-          <a href={`/records/${entryId(item)}`}>{item.data.title ?? entryId(item)}</a>
+          <a href={`${base}records/${entryId(item)}`}>{item.data.title ?? entryId(item)}</a>
           {item.data.summary ? <div>{item.data.summary}</div> : null}
         </li>
       ))
     }
   </ul>
   <p class="meta">
-    <a href="/about/cv">CV</a> · <a href="/about/resume">Resume</a> · <a href="/console">Console</a>
+    <a href={`${base}about/cv`}>CV</a> · <a href={`${base}about/resume`}>Resume</a> · <a href={`${base}console`}>Console</a>
   </p>
 </Base>

@@ -8,10 +8,11 @@ const raw = yaml.load(
   await fs.readFile(path.join(process.cwd(), "src", "content", "resume.yaml"), "utf8"),
 );
 const sections = Array.isArray(raw) ? raw : [];
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 ---
 
 <Base title="Resume">
-  <p class="meta"><a href="/">Portfolio</a></p>
+  <p class="meta"><a href={base}>Home</a></p>
   <h1>Resume</h1>
   {
     sections.map((s: { title?: string; items?: string[] }) => (
