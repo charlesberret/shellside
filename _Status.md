@@ -25,4 +25,4 @@ Private framework kit for dual-surface portfolio sites; charlesberret.net is the
 - Writing and records detail pages render no body for YAML rows (they have none); only summary shows.
 - Vendored packages are re-synced by hand; nothing pushes marquee-side (deliberate). Look now depends on `js-yaml`, so the next vendor sync changes the marquee lockfile.
 - Kit `LEADING_OPTIONS` / `CASE_OPTIONS` are shorter than the on-disk field-styles names (`tight`…`airy`, `uppercase` / `lowercase` / `capitalize`). The loader accepts the file vocabulary. `upper` and `lower` are stored in the long form.
-- Linear project Shellside is P-LAB-17. No open `mode:agent` issue (2026-10-12). LAB-113 (npm + PyPI name) is `mode:human` / `motion:park`. `THREADS.md` is the working checklist.
+- Linear project Shellside is P-LAB-17. Open `mode:agent` issues (2026-10-15, milestone R1): LAB-1285 console-vfs, LAB-1287 field-styles adoption, LAB-1294 live-edit dedup; LAB-1291 changelog/release ungrouped. LAB-113 (npm + PyPI name) is `mode:human` / `motion:park`. `THREADS.md` is the working checklist.
