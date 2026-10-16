@@ -25,3 +25,15 @@ export {
   isAdminPreviewUrl,
   withAdminPreview,
 } from "./preview.js";
+export {
+  BRIDGE_SHELL_SOURCE,
+  BRIDGE_PREVIEW_SOURCE,
+  BRIDGE_EDITOR_EVENT,
+  shellMessage,
+  previewMessage,
+  isShellToPreview,
+  isPreviewToShell,
+  type ShellToPreviewMessage,
+  type PreviewToShellMessage,
+  type EditorToShellMessage,
+} from "./preview-bridge.js";
