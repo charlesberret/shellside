@@ -15,6 +15,7 @@
     "@shellside/content-model": "*",
     "@shellside/edit-protocol": "*",
     "@shellside/look": "*",
-    "astro": "5.16.16"
+    "astro": "5.16.16",
+    "@shellside/console-vfs": "0.1.0"
   }
 }

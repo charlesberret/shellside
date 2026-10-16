@@ -1,0 +1,185 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../layouts/Base.astro";
+import { byTitle, entryId, publicEntries, type Listed } from "../lib/public";
+import {
+  dir,
+  file,
+  projectCollections,
+  type VfsNode,
+} from "@shellside/console-vfs";
+
+const profiles = await getCollection("profile");
+const name = profiles[0]?.data.name ?? "Reference";
+const dek = profiles[0]?.data.shortBio ?? profiles[0]?.data.tagline ?? "";
+
+function itemBody(item: Listed): string {
+  const meta = [
+    item.data.kind,
+    item.data.org,
+    item.data.dates,
+    item.data.venue,
+    item.data.role,
+    item.data.year,
+    item.data.date,
+  ]
+    .filter((p) => p != null && p !== "")
+    .join(" · ");
+  const links = (item.data.links ?? [])
+    .map((l: { label?: string; href?: string }) => `  ${l.label ?? "link"}: ${l.href ?? ""}`)
+    .join("\n");
+  return [
+    item.data.title ?? entryId(item),
+    meta && `${meta}\n`,
+    item.data.summary && `${item.data.summary}\n`,
+    (item as { body?: string }).body,
+    links && `links:\n${links}`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
+const toItems = (items: Listed[], base: string) =>
+  byTitle(publicEntries(items)).map((item) => ({
+    slug: entryId(item),
+    body: itemBody(item),
+    url: `${base}/${entryId(item)}`,
+    section: item.data.type,
+  }));
+
+const root = dir({
+  "~": dir({
+    "about.txt": file(`${name}\n\n${dek}`),
+    "readme.txt": file(
+      "A console over the same public collections.\nls, cd, cat, pwd, tree, help. Portfolio view: /",
+    ),
+    "list.txt": file("", { url: "/list.txt" }),
+    ...projectCollections([
+      { dir: "projects", ext: "txt", items: toItems(await getCollection("work"), "/projects") },
+      { dir: "writing", ext: "txt", items: toItems(await getCollection("writing"), "/writing") },
+      {
+        dir: "index",
+        ext: "txt",
+        groupBySection: true,
+        items: toItems(await getCollection("records"), "/records"),
+      },
+    ]),
+  }),
+});
+
+const fsJson = JSON.stringify(root).replace(/</g, "\\u003c");
+---
+
+<Base title={`console — ${name}`}>
+  <div class="console">
+    <div id="scrollback"></div>
+    <form id="promptline">
+      <span id="prompt"></span>
+      <input id="cmd" autocomplete="off" spellcheck="false" />
+    </form>
+    <p class="hint">read-only console · <a href="/">portfolio</a></p>
+  </div>
+  <script is:inline define:vars={{ fsJson }}>
+    const FS = JSON.parse(fsJson);
+    const HOME = ["~"];
+    let cwd = [...HOME];
+    const scroll = document.getElementById("scrollback");
+    const promptEl = document.getElementById("prompt");
+    const cmdEl = document.getElementById("cmd");
+    const out = (text) => {
+      const div = document.createElement("div");
+      div.className = "out";
+      div.textContent = text;
+      scroll.append(div);
+    };
+    const prompt = () => `guest@ref ${cwd.join("/")} $`;
+    const nodeAt = (parts) => {
+      let n = FS;
+      for (const p of parts) {
+        if (!n || n.t !== "d" || !n.children[p]) return null;
+        n = n.children[p];
+      }
+      return n;
+    };
+    const norm = (parts) => {
+      const acc = [];
+      for (const p of parts) {
+        if (!p || p === ".") continue;
+        if (p === "..") acc.pop();
+        else acc.push(p);
+      }
+      return acc;
+    };
+    const resolve = (arg) =>
+      norm(
+        !arg
+          ? cwd
+          : arg === "~"
+            ? HOME
+            : arg.startsWith("~/")
+              ? [...HOME, ...arg.slice(2).split("/")]
+              : arg.startsWith("/")
+                ? arg.slice(1).split("/")
+                : [...cwd, ...arg.split("/")],
+      );
+    const walk = (node, parts, indent) => {
+      const lines = [];
+      for (const [k, v] of Object.entries(node.children)) {
+        lines.push(`${indent}${k}${v.t === "d" ? "/" : ""}`);
+        if (v.t === "d") lines.push(...walk(v, [...parts, k], indent + "  "));
+      }
+      return lines;
+    };
+    const run = (raw) => {
+      out(`${prompt()} ${raw}`);
+      const [cmd, ...args] = raw.trim().split(/\s+/);
+      const arg = args.join(" ");
+      if (cmd === "ls") {
+        const node = nodeAt(resolve(arg));
+        if (!node) return out(`ls: ${arg}: no such file or directory`);
+        if (node.t !== "d") return out(arg);
+        out(Object.keys(node.children).map((k) => (node.children[k].t === "d" ? k + "/" : k)).join("  "));
+      } else if (cmd === "cd") {
+        const parts = resolve(arg);
+        const node = nodeAt(parts);
+        if (!node || node.t !== "d") return out(`cd: ${arg}: not a directory`);
+        cwd = parts;
+      } else if (cmd === "pwd") {
+        out("/" + cwd.slice(1).join("/"));
+      } else if (cmd === "cat") {
+        const node = nodeAt(resolve(arg));
+        if (!node) return out(`cat: ${arg}: no such file`);
+        if (node.t === "d") return out(`cat: ${arg}: is a directory`);
+        if (node.t === "bin") return out(node.href);
+        out(node.body || "");
+        if (node.url) out(`\n→ ${node.url}`);
+        for (const l of node.links || []) out(`→ ${l.label}: ${l.href}`);
+      } else if (cmd === "tree") {
+        out(walk(nodeAt(resolve(arg)) ?? FS, [], "").join("\n"));
+      } else if (cmd === "help" || cmd === "?") {
+        out("ls [dir] · cd <dir> · cat <file> · pwd · tree [dir] · clear · help");
+      } else if (cmd === "clear") {
+        scroll.innerHTML = "";
+      } else if (cmd) {
+        out(`${cmd}: command not found (try help)`);
+      }
+    };
+    document.getElementById("promptline").addEventListener("submit", (e) => {
+      e.preventDefault();
+      run(cmdEl.value);
+      cmdEl.value = "";
+      cmdEl.focus();
+    });
+    run("help");
+    run("ls");
+  </script>
+  <style>
+    .console { font-family: ui-monospace, monospace; font-size: 0.9rem; }
+    #scrollback { white-space: pre-wrap; }
+    .out { margin: 0 0 0.5rem; }
+    #promptline { display: flex; gap: 0.5ch; }
+    #cmd { flex: 1; font: inherit; border: 0; background: transparent; color: inherit; }
+    #cmd:focus { outline: none; }
+    .hint { opacity: 0.6; font-size: 0.8rem; }
+  </style>
+</Base>

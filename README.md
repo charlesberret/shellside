@@ -20,6 +20,7 @@ First marquee consumer: [charlesberret.net](https://github.com/charlesberret/cha
 | `@shellside/content-model` | Schemas, **visibility** `draft` or `published`, lifecycle vs visibility, public filters |
 | `@shellside/look` | Look roles, field-style map shape, weight/size/font tokens, history contract |
 | `@shellside/edit-protocol` | `data-edit` path grammar, allowlists, entity parse |
+| `@shellside/console-vfs` | VFS node types + collection→tree projection for a second-site console (`ls`/`cat` data only — no personality) |
 | `@shellside/dev-api` | DEV-only desk machinery. `createContentEditor` is the fs write core. `createDevContentHandler` covers gates and actions. The site injects the look surface. |
 
 ## Apps

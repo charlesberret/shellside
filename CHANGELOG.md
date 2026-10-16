@@ -5,6 +5,13 @@ All notable changes to this project are recorded here. Format follows
 semver tags, starting at `0.x` while the kit is pre-publishable (R2 is
 the packaging milestone).
 
+## [Unreleased]
+
+### Added
+
+- `@shellside/console-vfs` — VFS node types (`dir`/`file`/`bin`/`chr`), `mount`/`nodeAt`/`walk`, and `projectCollections` mapping filtered collections to `dir/<slug>.<ext>` trees. No personality.
+- Reference app `/console` — read-only `ls`/`cd`/`cat`/`tree` shell over the public VFS (104-page marquee export verified; drafts absent).
+
 ## [0.1.0] — 2026-10-15
 
 R0: the extraction gate. Contracts and machinery extracted from

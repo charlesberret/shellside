@@ -452,8 +452,8 @@ Optional later: `live-edit-protocol` (message types only), `create-shellside` CL
 
 ### R1 — Second-site release + full content portability
 
-- [ ] Reference Astro app: **portfolio + console** over marquee public export  
-- [ ] console-vfs (or equivalent) package with tests  
+- [x] Reference Astro app: **portfolio + console** over marquee public export (`/console`, read-only ls/cat, 2026-10-15)  
+- [x] `@shellside/console-vfs` package with tests (6) — projection only, no personality  
 - [ ] Kit leak audit script green on reference dist (export + fixture)  
 - [ ] Portfolio / console / plaintext agree on same public item set  
 - [ ] README walkthrough: “from zero to dual-surface” + “with marquee content”  

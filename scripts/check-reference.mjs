@@ -69,4 +69,32 @@ if (edit.fieldKindFromPath("work:sample:tags.0") !== "tags") {
   throw new Error("edit-protocol: tags kind");
 }
 
+const vfs = await load(
+  path.join(root, "packages/console-vfs/dist/index.js"),
+);
+if (typeof vfs.projectCollections !== "function") {
+  throw new Error("console-vfs: missing projectCollections");
+}
+const tree = vfs.projectCollections([
+  { dir: "projects", items: [{ slug: "x", body: "b" }] },
+]);
+if (vfs.nodeAt(vfs.dir(tree), ["projects", "x.md"])?.body !== "b") {
+  throw new Error("console-vfs: projection + nodeAt round-trip");
+}
+
+// reference dist: console page exists and carries the VFS payload
+{
+  const consoleHtml = path.join(
+    root,
+    "apps/reference/dist/console/index.html",
+  );
+  const { existsSync, readFileSync } = await import("node:fs");
+  if (!existsSync(consoleHtml)) {
+    throw new Error("reference: no /console page built");
+  }
+  const html = readFileSync(consoleHtml, "utf8");
+  if (!html.includes("fsJson") || !html.includes("\\\"projects\\\"")) {
+    throw new Error("reference: console page lacks the VFS payload");
+  }
+}
 console.log("check-reference: ok");

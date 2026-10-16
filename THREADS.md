@@ -18,8 +18,8 @@ Full plan: [docs/ROADMAP.md](./docs/ROADMAP.md). Prefer small promotions that ma
 
 ## Open (R1)
 
-- [ ] `@shellside/console-vfs` (or equiv.) — VFS projection, no personality
-- [ ] Reference: portfolio + console over marquee public export; leak audit green
+- [x] `@shellside/console-vfs` — node constructors + mount/nodeAt/walk + `projectCollections` (2026-10-15, 6 tests)
+- [x] Reference: portfolio + console over marquee public export — `/console` serves ls/cat/cd/tree over the VFS; 104 pages, leak audit green (2026-10-15)
 - [ ] Optional R2: file: dep → npm workspace / published private package
 
 ## Marquee sync (§6)
