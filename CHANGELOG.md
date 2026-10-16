@@ -7,10 +7,21 @@ the packaging milestone).
 
 ## [Unreleased]
 
+## [0.2.0] — 2026-10-15
+
+R1 progress: the kit now covers the console surface. Anyone consuming the
+packages can project their filtered collections into a VFS and serve a
+working `ls`/`cat` console — as the reference app does — without writing
+tree plumbing. No consumer action needed; nothing a site relies on broke.
+
 ### Added
 
-- `@shellside/console-vfs` — VFS node types (`dir`/`file`/`bin`/`chr`), `mount`/`nodeAt`/`walk`, and `projectCollections` mapping filtered collections to `dir/<slug>.<ext>` trees. No personality.
-- Reference app `/console` — read-only `ls`/`cd`/`cat`/`tree` shell over the public VFS (104-page marquee export verified; drafts absent).
+- **`@shellside/console-vfs`** — VFS node types (`dir`/`file`/`bin`/`chr`), `mount`/`nodeAt`/`walk`, and `projectCollections` mapping filtered collections to `dir/<slug>.<ext>` trees. No personality.
+- **Reference app `/console`** — read-only `ls`/`cd`/`cat`/`tree` shell over the public VFS (104-page marquee export verified; drafts absent).
+
+### Documentation
+
+- **README** gained a dual-surface walkthrough ("from zero" and "with marquee content") and the release-steps doc; R1 wording de-privated across ROADMAP/PRODUCT_NOTES/_Status.
 
 ## [0.1.0] — 2026-10-15
 
