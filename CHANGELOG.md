@@ -7,6 +7,9 @@ the packaging milestone).
 
 ## [Unreleased]
 
+- **`@shellside/console-engine`** gained `createHistory` (ring + draft restore) and `completeLine` (lcp + cycle on repeat Tab); the packaged `/console` page is now a bundled engine-driven shell — pipes, grep/find/head/tail/wc/sort/uniq/diff/strings, ls/cd/cat/tree/open, ↑/↓ history, Tab completion — replacing the hand-rolled if/else shell.
+- **`apps/demo`** — self-describing demo on GitHub Pages (`shellsite` instance; packages as entries, docs as writing, releases as records). `.github/workflows/pages.yml` builds packages → demo → leak-audit gate → deploy.
+
 ## [0.3.0] — 2026-10-16
 
 The kit completes the grand-plan lane: engine mechanics, the config-driven
