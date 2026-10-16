@@ -1,0 +1,31 @@
+---
+import config from "virtual:shellsite/config";
+import "../styles/site.css";
+
+interface Props {
+  title: string;
+}
+const { title } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <a class="site-name" href={base}>{config.identity.name}</a>
+        <nav>
+          <a href={base}>Portfolio</a>
+          <a href={`${base}console`}>Console</a>
+          <a href={`${base}list.txt`}>Plaintext</a>
+        </nav>
+      </header>
+      <slot />
+    </div>
+  </body>
+</html>

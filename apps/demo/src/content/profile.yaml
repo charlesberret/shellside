@@ -1,0 +1,8 @@
+- id: main
+  name: Shellside
+  roles: ["kit", "demo"]
+  location: "github.com/charlesberret/shellside"
+  tagline: "a private/filesystem-first framework for dual-surface portfolio sites"
+  shortBio: "Shellside extracts the stable contracts out of a working dual-surface portfolio — content model, look roles, edit protocol, console VFS and engine — so the next site is config + content + taste."
+  formerly: []
+  stack: ["Astro", "TypeScript", "zod"]
