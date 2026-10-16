@@ -458,7 +458,7 @@ Optional later: `live-edit-protocol` (message types only), `create-shellside` CL
 - [x] Portfolio / console / plaintext agree on same public item set — all read `publicEntries`/`filterByVisibility`; audit asserts presence+absence across dist incl. `/console` and `/list.txt`, 2026-10-15  
 - [ ] README walkthrough: “from zero to dual-surface” + “with marquee content”  
 - [x] EXTRACTION_MAP: no open “promote soon” items that block dual-surface — all rows done 2026-10-15 (field-styles was last, LAB-1287)  
-- [ ] PRODUCT_NOTES: positioning paragraph stable enough to quote  
+- [x] PRODUCT_NOTES: positioning paragraph stable enough to quote — "filesystem-first dual-surface portfolio kit with a dev editorial desk" (2026-10-15)  
 
 ### R2 — Publishable (optional)
 
