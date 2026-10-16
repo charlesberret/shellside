@@ -13,6 +13,10 @@ First marquee consumer: [charlesberret.net](https://github.com/charlesberret/cha
 - Give agents a documented contract so they can contribute without rediscovering the house style
 - Periodically ask: *what would it take for people to notice, appreciate, and use this?* Do that without sidelining the portfolio itself
 
+## Live demo
+
+https://charlesberret.github.io/shellside/ — a `@shellside/site` instance whose content is the kit itself (packages as projects, docs as writing, releases as records). Deployed by `.github/workflows/pages.yml` on changes to `apps/demo/` or `packages/`.
+
 ## Packages
 
 | Package | Role |
