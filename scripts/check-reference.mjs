@@ -93,7 +93,7 @@ if (vfs.nodeAt(vfs.dir(tree), ["projects", "x.md"])?.body !== "b") {
     throw new Error("reference: no /console page built");
   }
   const html = readFileSync(consoleHtml, "utf8");
-  if (!html.includes("fsJson") || !html.includes("\\\"projects\\\"")) {
+  if (!html.includes('id="vfs-data"') || !html.includes("projects")) {
     throw new Error("reference: console page lacks the VFS payload");
   }
 }

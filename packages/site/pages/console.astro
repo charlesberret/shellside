@@ -93,107 +93,203 @@ const fsJson = JSON.stringify(root).replace(/</g, "\\u003c");
     <input id="cmd" autocomplete="off" spellcheck="false" />
   </form>
   <p class="hint">read-only console · <a href={import.meta.env.BASE_URL.replace(/\/?$/, "/")}>home</a></p>
-  <script is:inline define:vars={{ fsJson, base }}>
-    const FS = JSON.parse(fsJson);
+  <div id="vfs-data" data-json={fsJson} hidden />
+  <script>
+    import {
+      createFsCommands,
+      createFilterCommands,
+      createHistory,
+      createOutput,
+      createRunner,
+      createStickyScroll,
+      completeLine,
+      nodeAt as nodeAtFs,
+      prettyPath,
+      registerCommands,
+      resolve as resolveSegments,
+      resolvePath as resolvePathFs,
+      DEFAULT_HOME,
+    } from "@shellside/console-engine";
+
+    const FS = JSON.parse(document.getElementById("vfs-data").dataset.json);
     const HOME = ["~"];
     let cwd = [...HOME];
-    const scroll = document.getElementById("scrollback");
+    const scrollEl = document.body;
+    const scrollbackEl = document.getElementById("scrollback");
+    const promptlineEl = document.getElementById("promptline");
     const cmdEl = document.getElementById("cmd");
-    const out = (text) => {
-      const div = document.createElement("div");
-      div.className = "out";
-      div.textContent = text;
-      scroll.append(div);
-      window.scrollTo(0, document.body.scrollHeight);
-    };
-    const host = document.title.replace(/^console — /, "") || "site";
     const promptEl = document.getElementById("prompt");
+
+    const esc = (s) =>
+      String(s)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    const plainText = (html) =>
+      String(html)
+        .replace(/<[^>]*>/g, "")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, '"')
+        .replace(/&nbsp;/g, " ")
+        .replace(/&amp;/g, "&");
+
+    // capture/pipe state for pipelines
+    let pipeStdin = null;
+    let capturing = false;
+    let captureBuf = [];
+    const setPipeStdin = (v) => { pipeStdin = v; };
+    const getPipeStdin = () => pipeStdin;
+    const beginCapture = () => { capturing = true; captureBuf = []; };
+    const endCapture = () => { capturing = false; return captureBuf.join("\n"); };
+    const resetPipe = () => { pipeStdin = null; capturing = false; captureBuf = []; };
+
+    const sticky = createStickyScroll(() => scrollEl);
+    const { out, blank } = createOutput({
+      getScrollback: () => scrollbackEl,
+      getPromptline: () => promptlineEl,
+      scrollToPrompt: () => window.scrollTo(0, document.body.scrollHeight),
+      isCapturing: () => capturing,
+      pushCapture: (chunk) => captureBuf.push(chunk),
+      plainText,
+    });
+
+    const host = document.title.replace(/^console — /, "") || "site";
     const prompt = () => `guest@${host.toLowerCase()} ${cwd.join("/")} $`;
     const paintPrompt = () => { promptEl.textContent = prompt(); };
+
+    const nodeAt = (parts) => nodeAtFs(FS, parts);
+    const resolvePath = (arg) => resolvePathFs(cwd, HOME, FS, arg);
+    const resolveRel = (arg) => resolveSegments(cwd, HOME, arg);
+
+    const fileViewCmd = (name) => (/\.md$/i.test(name) ? "less" : "cat");
+    const openExternal = (url) => { window.open(url, "_blank", "noopener"); };
+    const openLess = (body) => out(`<pre class="lessout">${esc(body)}</pre>`);
+    const rawTextFile = (pathArg, verb) => {
+      const node = nodeAt(resolvePath(pathArg));
+      if (!node) return { err: `${verb}: ${esc(pathArg)}: no such file`, cls: "red" };
+      if (node.t === "d") return { err: `${verb}: ${esc(pathArg)}: is a directory`, cls: "red" };
+      if (node.t === "bin") return { err: `${verb}: ${esc(pathArg)}: binary`, cls: "muted" };
+      return { text: node.body ?? "" };
+    };
+    const readTextFile = (pathArg, verb) => {
+      const r = rawTextFile(pathArg, verb);
+      if (r.err) {
+        if (r.err.includes("binary")) {
+          const node = nodeAt(resolvePath(pathArg));
+          if (node?.url) return { err: r.err, cls: "muted", openUrl: node.url, openLabel: pathArg };
+        }
+        return r;
+      }
+      return { body: `<pre class="catout">${esc(r.text)}</pre>` };
+    };
+    const walkVfs = (parts, opts = {}) => {
+      const rows = [];
+      const walk = (p, node) => {
+        if (!node.children) return;
+        for (const [name, child] of Object.entries(node.children)) {
+          if (!opts.showHidden && name.startsWith(".")) continue;
+          const cp = [...p, name];
+          if (child.t === "f" || child.t === "bin") rows.push({ parts: cp, node: child, name });
+          if (child.t === "d" && opts.recursive) walk(cp, child);
+        }
+      };
+      walk(parts, nodeAt(parts) ?? {});
+      return rows;
+    };
+    const lsShortEntry = (node, name) => {
+      if (node.t === "d") return `<span class="cyan">${esc(name)}/</span>`;
+      if (node.t === "bin") return `<span class="x">${esc(name)}*</span>`;
+      return esc(name);
+    };
+    const lsLongRow = (node, name) =>
+      `<span class="muted">${node.t === "d" ? "drwx" : "-r--"}</span> ${lsShortEntry(node, name)}`;
+
+    const history = createHistory();
+    const cmds = registerCommands(
+      createFsCommands({
+        out, esc,
+        getCwd: () => cwd,
+        setCwd: (p) => { cwd = p; paintPrompt(); },
+        resolvePath, nodeAt, prettyPath,
+        lsLongRow, lsShortEntry, readTextFile, fileViewCmd, openExternal, openLess,
+      }),
+      createFilterCommands({
+        out, esc, getPipeStdin, rawTextFile, resolvePath, nodeAt, walkVfs, plainText, prettyPath,
+      }),
+      {
+        clear() { scrollbackEl.textContent = ""; },
+        help() {
+          out("ls · cd · cat · less · pwd · tree · open · find · grep · head · tail · wc · sort · uniq · diff · strings · echo · clear · help\nTab completes; ↑/↓ recalls history; | pipes.");
+        },
+        history() {
+          // engine tracks history; enumerate is not exposed — keep it simple
+          out('<span class="muted">history: use ↑/↓</span>');
+        },
+      },
+    );
+
+    const { run } = createRunner({
+      isBusy: () => busy, setBusy: (v) => { busy = v; },
+      bumpEpoch: () => ++epoch, abortedEpoch: (e) => e !== epoch,
+      sleep: (ms) => new Promise((r) => setTimeout(r, ms)),
+      out,
+      promptHtml: () => `<span class="cyan">${esc(prompt())}</span> `,
+      esc,
+      closeLess: () => {}, clearCompletions: () => { compCycle = 0; compBase = null; },
+      scrollToPrompt: () => window.scrollTo(0, document.body.scrollHeight),
+      pushHistory: (cmd) => history.push(cmd),
+      cmds,
+      setPipeStdin, beginCapture, endCapture, resetPipe,
+      prefersReducedMotion: () => matchMedia("(prefers-reduced-motion: reduce)").matches,
+    });
+
+    let busy = false;
+    let epoch = 0;
+    let compCycle = 0;
+    let compBase = null;
+
+    promptlineEl.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const v = cmdEl.value;
+      cmdEl.value = "";
+      compCycle = 0; compBase = null;
+      run(v);
+    });
+
+    cmdEl.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        const prev = history.back(cmdEl.value);
+        if (prev != null) cmdEl.value = prev;
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        const next = history.forward();
+        if (next != null) cmdEl.value = next;
+      } else if (e.key === "Tab") {
+        e.preventDefault();
+        if (compBase == null || !cmdEl.value.startsWith(compBase)) {
+          compBase = cmdEl.value;
+          compCycle = 0;
+        }
+        compCycle++;
+        const r = completeLine(compBase, { cmds, fs: FS, cwd, home: HOME }, compCycle);
+        cmdEl.value = r.line;
+        if (r.matches.length > 1 && compCycle === 1) {
+          out(`${esc(prompt())}${esc(compBase)}`);
+          out(`<span class="muted">${esc(r.matches.join("  "))}</span>`);
+        }
+      } else {
+        compCycle = 0; compBase = null;
+      }
+    });
+
+    document.body.addEventListener("click", () => cmdEl.focus());
     paintPrompt();
     cmdEl.focus();
-    const nodeAt = (parts) => {
-      let n = FS;
-      for (const p of parts) {
-        if (!n || n.t !== "d" || !n.children[p]) return null;
-        n = n.children[p];
-      }
-      return n;
-    };
-    const norm = (parts) => {
-      const acc = [];
-      for (const p of parts) {
-        if (!p || p === ".") continue;
-        if (p === "..") acc.pop();
-        else acc.push(p);
-      }
-      return acc;
-    };
-    const resolve = (arg) =>
-      norm(
-        !arg
-          ? cwd
-          : arg === "~"
-            ? HOME
-            : arg.startsWith("~/")
-              ? [...HOME, ...arg.slice(2).split("/")]
-              : arg.startsWith("/")
-                ? arg.slice(1).split("/")
-                : [...cwd, ...arg.split("/")],
-      );
-    const walk = (node, indent) => {
-      const lines = [];
-      for (const [k, v] of Object.entries(node.children)) {
-        lines.push(`${indent}${k}${v.t === "d" ? "/" : ""}`);
-        if (v.t === "d") lines.push(...walk(v, indent + "  "));
-      }
-      return lines;
-    };
-    const run = (raw) => {
-      out(`${prompt()} ${raw}`);
-      const [cmd, ...args] = raw.trim().split(/\s+/);
-      const arg = args.join(" ");
-      if (cmd === "ls") {
-        const node = nodeAt(resolve(arg));
-        if (!node) return out(`ls: ${arg}: no such file or directory`);
-        if (node.t !== "d") return out(arg);
-        out(Object.keys(node.children).map((k) => (node.children[k].t === "d" ? k + "/" : k)).join("  "));
-      } else if (cmd === "cd") {
-        const parts = resolve(arg);
-        const node = nodeAt(parts);
-        if (!node || node.t !== "d") return out(`cd: ${arg}: not a directory`);
-        cwd = parts;
-        paintPrompt();
-      } else if (cmd === "pwd") {
-        out("/" + cwd.slice(1).join("/"));
-      } else if (cmd === "cat") {
-        const node = nodeAt(resolve(arg));
-        if (!node) return out(`cat: ${arg}: no such file`);
-        if (node.t === "d") return out(`cat: ${arg}: is a directory`);
-        if (node.t === "bin") return out(node.url);
-        out(node.body || "");
-        if (node.url) out(`\n→ ${node.url.startsWith("/") ? base.replace(/\/$/, "") + node.url : node.url}`);
-        for (const l of node.links || []) out(`→ ${l.label}: ${l.href}`);
-      } else if (cmd === "tree") {
-        out(walk(nodeAt(resolve(arg)) ?? FS, "").join("\n"));
-      } else if (cmd === "help" || cmd === "?") {
-        out("ls [dir] · cd <dir> · cat <file> · pwd · tree [dir] · clear · help");
-      } else if (cmd === "clear") {
-        scroll.innerHTML = "";
-      } else if (cmd) {
-        out(`${cmd}: command not found (try help)`);
-      }
-    };
-    document.getElementById("promptline").addEventListener("submit", (e) => {
-      e.preventDefault();
-      run(cmdEl.value);
-      cmdEl.value = "";
-      cmdEl.focus();
-    });
-    // Click anywhere focuses the input; keep scroll pinned after output.
-    document.body.addEventListener("click", () => cmdEl.focus());
-    run("help");
-    run("ls");
+    run("help", { pace: false });
+    run("ls", { pace: false });
   </script>
 </body>
 </html>
