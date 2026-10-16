@@ -27,7 +27,7 @@ First marquee consumer: [charlesberret.net](https://github.com/charlesberret/cha
 
 | App | Role |
 |-----|------|
-| `apps/reference` | Minimal Astro host. Portfolio list and detail, plus plaintext over content collections |
+| `apps/reference` | Minimal Astro host. Portfolio list/detail, a read-only `/console` (`ls`/`cat` over the VFS), and `list.txt` plaintext — all over the same collections |
 
 ## Design pillars
 
@@ -52,7 +52,7 @@ See [docs/EXTRACTION_MAP.md](./docs/EXTRACTION_MAP.md).
 
 ## Status
 
-**R0 is declared**, 2026-10-11. Contracts are extracted and consumed. The marquee builds on vendored `@shellside/*` packages, in `vendor/shellside`, synced by `scripts/sync-marquee-vendor.mjs`. Details are in [docs/MARQUEE_SWITCH.md](./docs/MARQUEE_SWITCH.md). R0 also has the reference host, a toy fixture, a leak audit, CI, and marquee-content portability. Console VFS is R1.
+**R0 declared** 2026-10-11; **R1 in flight** — `@shellside/console-vfs` and a read-only `/console` in the reference app landed 2026-10-15 (104-page marquee export verified, leak audit green). The marquee builds on vendored `@shellside/*` packages in `vendor/shellside`, synced by `scripts/sync-marquee-vendor.mjs`. Details: [docs/MARQUEE_SWITCH.md](./docs/MARQUEE_SWITCH.md).
 
 **Roadmap and feature set.** [docs/ROADMAP.md](./docs/ROADMAP.md) covers the north star, the release bars, phased delivery, and the marquee sync protocol. The release bars run R0, contracts plus a content portability smoke, then R1, dual-surface with a marquee content fixture, then R2, publishable.
 
@@ -74,6 +74,26 @@ Each of `work`, `writing`, `records`, `profile`, and `page-copy` loads from a ro
 `npm run check` builds the reference app from the committed toy fixture when no export is present. After `npm run export`, the next reference build uses that tree instead. Force the toy with `REFERENCE_CONTENT=fixtures/toy/content`.
 
 Export source: `--source`, else `MARQUEE_ROOT`, else `../charlesberret.net`. Private directories are dropped: `archive`, `enigma`, `private`, `reading-rights`, `secrets`, `.env*`. See `scripts/redaction.mjs`.
+
+## Walkthrough
+
+**From zero to dual-surface** — the committed toy fixture proves the shape with no marquee checkout:
+
+```bash
+npm ci && npm run check        # builds packages, tests, reference prod build, leak audit
+npm run dev -w @shellside/reference
+```
+
+Routes: `/` portfolio, `/projects/<id>`, `/writing/<id>`, `/records/<id>`, `/console` (read-only shell over the VFS), `/list.txt`.
+
+**With marquee content** — the export is the R1 acceptance fixture:
+
+```bash
+npm run export                 # ../charlesberret.net or MARQUEE_ROOT=…
+npm run build:reference        # 104 public pages + /console; leak audit asserts the public set
+```
+
+**For a second site** — copy the marquee's consumption pattern: vendor the packages you use (`scripts/sync-marquee-vendor.mjs` is written for the marquee but the shape transfers), mount the DEV handler only in dev (`createDevContentHandler`), keep your own tokens/chrome. See [docs/ROADMAP.md](./docs/ROADMAP.md) §4 for the contract-level map.
 
 ## License
 
