@@ -1,4 +1,4 @@
-# Product notes (private)
+# Product notes
 
 ## Positioning (working)
 
@@ -19,14 +19,14 @@ People might care if:
 
 ## Open questions
 
-- Package name when public? (shellside is fine for private)  
+- Package name on registries — repo is public MIT since 2026-10-14; npm/PyPI `shellside` reservation is LAB-113 (patron creds)  
 - Astro-only vs surface-agnostic content layer  
 - Console as optional package vs core pillar  
 
 ## Release stance (see ROADMAP.md)
 
 - **R0** — internal kit **and** content portability smoke: (A) marquee on pure contracts; (B) scripted marquee **content** export loads into a shellside host and a **production build** renders the public graph correctly (structural fidelity, not visual twin)  
-- **R1** — private release: dual-surface reference (portfolio + console) with marquee public content as acceptance fixture + leak audit  
-- **R2** — publishable packaging (optional; product decision to open)  
+- **R1** — second-site release: dual-surface reference (portfolio + console) with marquee public content as acceptance fixture + leak audit — both landed 2026-10-15  
+- **R2** — publishable packaging (optional). Repo is already public; R2 is npm/registry + create-site ergonomics  
 
 Default engineering target: **R1**. Console **VFS contracts** are core pillar; console **personality** stays marquee-local. Export is **content only**—never a second marquee deploy.
