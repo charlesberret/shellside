@@ -7,7 +7,14 @@
  */
 
 /** Outbound link rendered under a file body (original publications, etc.). */
-export type VfsLink = { label: string; href: string; description?: string };
+export type VfsLink = {
+  label: string;
+  href: string;
+  description?: string;
+  /** data-edit paths so the desk can edit label/description in place. */
+  editLabel?: string;
+  editDesc?: string;
+};
 
 export type VfsDir = { t: "d"; children: Record<string, VfsNode> };
 
@@ -23,11 +30,15 @@ export type VfsFile = {
   compactLinks?: boolean;
 };
 
-/** Binary / downloadable file — `cat` prints the href, `ls -l` marks it. */
-export type VfsBin = { t: "bin"; href: string };
+/** Binary / downloadable file — `cat` prints the url, `ls -l` marks it. */
+export type VfsBin = { t: "bin"; url: string };
 
-/** Character device — body is computed on every read. */
-export type VfsChr = { t: "chr"; read: () => string };
+/**
+ * Character device — body is computed on every read via `gen()`.
+ * NOTE: a `gen` function cannot serialize to JSON; sites that embed the
+ * tree in a page must rehydrate chr nodes client-side.
+ */
+export type VfsChr = { t: "c"; gen: () => string };
 
 export type VfsNode = VfsDir | VfsFile | VfsBin | VfsChr;
 
@@ -39,15 +50,27 @@ export function file(
   body: string,
   opts: Omit<VfsFile, "t" | "body"> = {},
 ): VfsFile {
-  return { t: "f", body, ...opts };
+  return {
+    t: "f",
+    body,
+    html: !!opts.html,
+    url: opts.url || undefined,
+    links: Array.isArray(opts.links) ? opts.links : [],
+    compactLinks: !!opts.compactLinks,
+  };
 }
 
-export function bin(href: string): VfsBin {
-  return { t: "bin", href };
+/** Shortcut for an outbound-link file (`cat` shows the url line). */
+export function link(url: string, body?: string): VfsFile {
+  return file(body || `→ ${url}`, { url });
 }
 
-export function chr(read: () => string): VfsChr {
-  return { t: "chr", read };
+export function bin(url: string): VfsBin {
+  return { t: "bin", url };
+}
+
+export function chr(gen: () => string): VfsChr {
+  return { t: "c", gen };
 }
 
 /** mkdir -p then place `node` at `parts` inside `root`. Returns root. */

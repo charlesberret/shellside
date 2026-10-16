@@ -3,6 +3,7 @@ export {
   chr,
   dir,
   file,
+  link,
   mount,
   nodeAt,
   walk,

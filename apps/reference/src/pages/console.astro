@@ -150,7 +150,7 @@ const fsJson = JSON.stringify(root).replace(/</g, "\\u003c");
         const node = nodeAt(resolve(arg));
         if (!node) return out(`cat: ${arg}: no such file`);
         if (node.t === "d") return out(`cat: ${arg}: is a directory`);
-        if (node.t === "bin") return out(node.href);
+        if (node.t === "bin") return out(node.url);
         out(node.body || "");
         if (node.url) out(`\n→ ${node.url}`);
         for (const l of node.links || []) out(`→ ${l.label}: ${l.href}`);

@@ -5,6 +5,7 @@ import {
   chr,
   dir,
   file,
+  link,
   mount,
   nodeAt,
   projectCollections,
@@ -12,11 +13,14 @@ import {
 } from "./index.js";
 
 test("dir/file/bin/chr constructors", () => {
+  const f = file("body");
+  assert.deepEqual(f, { t: "f", body: "body", html: false, url: undefined, links: [], compactLinks: false });
+  assert.deepEqual(link("/u"), { t: "f", body: "→ /u", html: false, url: "/u", links: [], compactLinks: false });
   const d = dir({ a: file("hi") });
   assert.equal(d.t, "d");
   assert.equal((d.children.a as any).body, "hi");
-  assert.deepEqual(bin("/files/x.pdf"), { t: "bin", href: "/files/x.pdf" });
-  assert.equal(chr(() => "live").read(), "live");
+  assert.deepEqual(bin("/files/x.pdf"), { t: "bin", url: "/files/x.pdf" });
+  assert.equal(chr(() => "live").gen(), "live");
 });
 
 test("mount mkdir -p and nodeAt", () => {
@@ -80,6 +84,6 @@ test("projectCollections grouped by section", () => {
 test("chr bodies regenerate per read", () => {
   let n = 0;
   const c = chr(() => `read ${++n}`);
-  assert.equal(c.read(), "read 1");
-  assert.equal(c.read(), "read 2");
+  assert.equal(c.gen(), "read 1");
+  assert.equal(c.gen(), "read 2");
 });
