@@ -15,7 +15,7 @@ Private framework kit for dual-surface portfolio sites; charlesberret.net is the
 
 ## Next action
 
-- [x] Field-styles map I/O — `createFieldStyles` in `@shellside/look/fs` (2026-10-12). The marquee file still owns CSS
+- [x] Field-styles map I/O — `createFieldStyles` in `@shellside/look/fs`; marquee delegates map I/O as of 2026-10-15 (`781b8f5`)
 - [ ] Re-sync vendored packages after shellside package changes (`node scripts/sync-marquee-vendor.mjs`); marquee `check-vendor` flags staleness
 - [ ] R1: `@shellside/console-vfs` — VFS projection over the same collections
 

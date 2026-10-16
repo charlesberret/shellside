@@ -14,7 +14,7 @@ Full plan: [docs/ROADMAP.md](./docs/ROADMAP.md). Prefer small promotions that ma
 
 - [x] Marquee adopts `createLookHistory` — `src/lib/look-history.ts` is a thin adapter (2026-10-11)
 - [x] DEV API factory (`createDevContentHandler` + `createContentEditor`) — dev-content.ts thin; look surface injected (2026-10-11)
-- [x] Field-styles map I/O — `createFieldStyles` at `@shellside/look/fs` (2026-10-12). Marquee `field-styles.ts` still owns CSS and is not yet a thin adapter
+- [x] Field-styles map I/O — `createFieldStyles` at `@shellside/look/fs` (2026-10-12). marquee adopted 2026-10-15 (`781b8f5`, LAB-1287); the file is now thin (CSS maps + options)
 
 ## Open (R1)
 
