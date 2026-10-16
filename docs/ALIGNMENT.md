@@ -12,7 +12,7 @@
 |---|---|---|---|
 | **A — contract completion** | finish extracting the machinery the site still implements inline | kit | LAB-1415 (preview-bridge), LAB-1464 (console-engine), LAB-1463 (reference collections: reading/cv/resume) |
 | **B — site delegation** | marquee consumes the finished contracts; `console.astro` mounts `console-vfs` + engine; live-edit uses the typed bridge; adapters stay thin | marquee | requested via reply memo (see §Asks-answered) |
-| **C — site-instance contract** | design spike → `site.config.ts` shape (collections map, routes, nav, theme roots) + `@shellside/site` host; reference app becomes config-driven | kit | new: LAB-1465 (design → ADR), LAB-1466 (host) |
+| **C — site-instance contract** | design spike → `site.config.ts` shape (collections map, routes, nav, theme roots) + `@shellside/site` host; reference app becomes config-driven | kit | LAB-1465 done — ADR `docs/decisions/2026-10-16-site-instance-contract.md`; LAB-1466 (host) |
 | **D — inversion** | marquee builds on the host; `create-site` scaffold makes a second site | both | R2 window |
 
 ## Sequencing calls
