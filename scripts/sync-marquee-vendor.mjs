@@ -18,7 +18,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const PACKAGES = ["content-model", "edit-protocol", "look", "dev-api"];
+const PACKAGES = ["content-model", "edit-protocol", "look", "dev-api", "console-vfs", "console-engine"];
 
 const marquee =
   process.env.MARQUEE_ROOT ||
