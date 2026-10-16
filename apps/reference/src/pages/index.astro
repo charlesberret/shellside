@@ -1,7 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import Base from "../layouts/Base.astro";
-import { byTitle, entryId, publicEntries, type Listed } from "../lib/public";
+import { byTitle, entryId, publicEntries, type Listed } from "@shellside/site";
 
 const work = byTitle(publicEntries(await getCollection("work")) as Listed[]);
 const writing = byTitle(publicEntries(await getCollection("writing")) as Listed[]);

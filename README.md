@@ -22,6 +22,8 @@ First marquee consumer: [charlesberret.net](https://github.com/charlesberret/cha
 | `@shellside/edit-protocol` | `data-edit` path grammar, allowlists, entity parse |
 | `@shellside/console-vfs` | VFS node types + collection→tree projection for a second-site console (`ls`/`cat` data only — no personality) |
 | `@shellside/dev-api` | DEV-only desk machinery. `createContentEditor` is the fs write core. `createDevContentHandler` covers gates and actions. The site injects the look surface. |
+| `@shellside/console-engine` | Terminal mechanics — parse/path/pipeline/runner/io + fs/filter commands. Personality stays in the site. |
+| `@shellside/site` | Config-driven host: `shellsite()` Astro integration injects `/console` + `/list.txt`; site keeps chrome. |
 
 ## Apps
 

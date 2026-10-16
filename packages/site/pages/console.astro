@@ -1,19 +1,19 @@
 ---
+/**
+ * Packaged /console — a read-only shell over the public VFS.
+ * Collections + identity come from `virtual:shellsite/config`;
+ * lore/personality stays in the site's own console page if it has one.
+ */
 import { getCollection } from "astro:content";
-import Base from "../layouts/Base.astro";
-import { byTitle, entryId, publicEntries, type Listed } from "../lib/public";
+import config from "virtual:shellsite/config";
+import { byTitle, entryId, publicEntries } from "@shellside/site";
 import {
   dir,
   file,
   projectCollections,
-  type VfsNode,
 } from "@shellside/console-vfs";
 
-const profiles = await getCollection("profile");
-const name = profiles[0]?.data.name ?? "Reference";
-const dek = profiles[0]?.data.shortBio ?? profiles[0]?.data.tagline ?? "";
-
-function itemBody(item: Listed): string {
+function itemBody(item: { id: string; data: Record<string, unknown>; body?: string }): string {
   const meta = [
     item.data.kind,
     item.data.org,
@@ -25,66 +25,77 @@ function itemBody(item: Listed): string {
   ]
     .filter((p) => p != null && p !== "")
     .join(" · ");
-  const links = (item.data.links ?? [])
-    .map((l: { label?: string; href?: string }) => `  ${l.label ?? "link"}: ${l.href ?? ""}`)
+  const links = ((item.data.links ?? []) as { label?: string; href?: string }[])
+    .map((l) => `  ${l.label ?? "link"}: ${l.href ?? ""}`)
     .join("\n");
   return [
     item.data.title ?? entryId(item),
     meta && `${meta}\n`,
     item.data.summary && `${item.data.summary}\n`,
-    (item as { body?: string }).body,
+    item.body,
     links && `links:\n${links}`,
   ]
     .filter(Boolean)
     .join("\n");
 }
 
-const toItems = (items: Listed[], base: string) =>
-  byTitle(publicEntries(items)).map((item) => ({
-    slug: entryId(item),
-    body: itemBody(item),
-    url: `${base}/${entryId(item)}`,
-    section: item.data.type,
-  }));
+const collections = await Promise.all(
+  (config.console?.collections ?? []).map(async (spec) => ({
+    dir: spec.dir,
+    ext: spec.ext ?? "txt",
+    groupBySection: spec.groupBySection,
+    sectionField: spec.sectionField,
+    items: byTitle(publicEntries(await getCollection(spec.collection as never))).map((item) => ({
+      slug: entryId(item),
+      body: itemBody(item),
+      url: spec.urlPrefix ? `${spec.urlPrefix}/${entryId(item)}` : undefined,
+      section: spec.sectionField ? item.data[spec.sectionField] : item.data.type,
+    })),
+  })),
+);
 
-const root = dir({
-  "~": dir({
-    "about.txt": file(`${name}\n\n${dek}`),
-    "readme.txt": file(
-      "A console over the same public collections.\nls, cd, cat, pwd, tree, help. Portfolio view: /",
-    ),
-    "list.txt": file("", { url: "/list.txt" }),
-    ...projectCollections([
-      { dir: "projects", ext: "txt", items: toItems(await getCollection("work"), "/projects") },
-      { dir: "writing", ext: "txt", items: toItems(await getCollection("writing"), "/writing") },
-      {
-        dir: "index",
-        ext: "txt",
-        groupBySection: true,
-        items: toItems(await getCollection("records"), "/records"),
-      },
-    ]),
-  }),
-});
+const name = config.identity.name;
+const homeFiles: Record<string, ReturnType<typeof file>> = {
+  "about.txt": file(`${name}${config.identity.tagline ? `\n\n${config.identity.tagline}` : ""}`),
+  "readme.txt": file(
+    "A console over the same public collections.\nls, cd, cat, pwd, tree, help. Portfolio view: /",
+  ),
+  ...Object.fromEntries(
+    Object.entries(config.console?.homeFiles ?? {}).map(([k, v]) => [k, file(v)]),
+  ),
+};
 
+const root = dir({ "~": dir({ ...homeFiles, ...projectCollections(collections) }) });
 const fsJson = JSON.stringify(root).replace(/</g, "\\u003c");
 ---
-
-<Base title={`console — ${name}`}>
-  <div class="console">
-    <div id="scrollback"></div>
-    <form id="promptline">
-      <span id="prompt"></span>
-      <input id="cmd" autocomplete="off" spellcheck="false" />
-    </form>
-    <p class="hint">read-only console · <a href="/">portfolio</a></p>
-  </div>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>console — {name}</title>
+  <style>
+    body { background: #0b0d12; color: #d8d8e0; font-family: ui-monospace, monospace; font-size: 14px; padding: 1.5rem; max-width: 72ch; margin: 0 auto; }
+    #scrollback { white-space: pre-wrap; }
+    .out { margin: 0 0 0.5rem; }
+    #promptline { display: flex; gap: 0.5ch; margin-top: 0.5rem; }
+    #cmd { flex: 1; font: inherit; border: 0; background: transparent; color: inherit; }
+    #cmd:focus { outline: none; }
+    a { color: #7d9fc7; }
+    .hint { opacity: 0.6; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div id="scrollback"></div>
+  <form id="promptline">
+    <span id="prompt"></span>
+    <input id="cmd" autocomplete="off" spellcheck="false" />
+  </form>
+  <p class="hint">read-only console · <a href="/">portfolio</a></p>
   <script is:inline define:vars={{ fsJson }}>
     const FS = JSON.parse(fsJson);
     const HOME = ["~"];
     let cwd = [...HOME];
     const scroll = document.getElementById("scrollback");
-    const promptEl = document.getElementById("prompt");
     const cmdEl = document.getElementById("cmd");
     const out = (text) => {
       const div = document.createElement("div");
@@ -122,11 +133,11 @@ const fsJson = JSON.stringify(root).replace(/</g, "\\u003c");
                 ? arg.slice(1).split("/")
                 : [...cwd, ...arg.split("/")],
       );
-    const walk = (node, parts, indent) => {
+    const walk = (node, indent) => {
       const lines = [];
       for (const [k, v] of Object.entries(node.children)) {
         lines.push(`${indent}${k}${v.t === "d" ? "/" : ""}`);
-        if (v.t === "d") lines.push(...walk(v, [...parts, k], indent + "  "));
+        if (v.t === "d") lines.push(...walk(v, indent + "  "));
       }
       return lines;
     };
@@ -155,7 +166,7 @@ const fsJson = JSON.stringify(root).replace(/</g, "\\u003c");
         if (node.url) out(`\n→ ${node.url}`);
         for (const l of node.links || []) out(`→ ${l.label}: ${l.href}`);
       } else if (cmd === "tree") {
-        out(walk(nodeAt(resolve(arg)) ?? FS, [], "").join("\n"));
+        out(walk(nodeAt(resolve(arg)) ?? FS, "").join("\n"));
       } else if (cmd === "help" || cmd === "?") {
         out("ls [dir] · cd <dir> · cat <file> · pwd · tree [dir] · clear · help");
       } else if (cmd === "clear") {
@@ -173,13 +184,5 @@ const fsJson = JSON.stringify(root).replace(/</g, "\\u003c");
     run("help");
     run("ls");
   </script>
-  <style>
-    .console { font-family: ui-monospace, monospace; font-size: 0.9rem; }
-    #scrollback { white-space: pre-wrap; }
-    .out { margin: 0 0 0.5rem; }
-    #promptline { display: flex; gap: 0.5ch; }
-    #cmd { flex: 1; font: inherit; border: 0; background: transparent; color: inherit; }
-    #cmd:focus { outline: none; }
-    .hint { opacity: 0.6; font-size: 0.8rem; }
-  </style>
-</Base>
+</body>
+</html>

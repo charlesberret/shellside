@@ -1,7 +1,7 @@
 ---
 import { getCollection, render } from "astro:content";
 import Base from "../../layouts/Base.astro";
-import { entryId, publicEntries } from "../../lib/public";
+import { entryId, publicEntries } from "@shellside/site";
 
 export async function getStaticPaths() {
   const entries = publicEntries(await getCollection("writing"));

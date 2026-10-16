@@ -1,19 +1,10 @@
+/** Shared listing helpers for host pages (same filter as every surface). */
 import { filterByVisibility, type VisibilityFields } from "@shellside/content-model";
 
 export type Listed = {
   id: string;
-  data: VisibilityFields & {
-    title?: string;
-    summary?: string;
-    status?: string | null;
-    kind?: string;
-    org?: string;
-    dates?: string;
-    date?: string;
-    venue?: string;
-    year?: string | number;
-    type?: string;
-  };
+  body?: string;
+  data?: (VisibilityFields & Record<string, unknown>) | undefined;
 };
 
 export function entryId(entry: { id: string }): string {
@@ -26,6 +17,6 @@ export function publicEntries<T extends { data?: VisibilityFields }>(items: read
 
 export function byTitle<T extends Listed>(items: readonly T[]): T[] {
   return [...items].sort((a, b) =>
-    (a.data.title || a.id).localeCompare(b.data.title || b.id, "en"),
+    (String(a.data?.title || a.id)).localeCompare(String(b.data?.title || b.id), "en"),
   );
 }
