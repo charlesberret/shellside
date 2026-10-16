@@ -15,7 +15,7 @@ Private framework kit for dual-surface portfolio sites; charlesberret.net is the
 
 ## Next action
 
-- [ ] Phase 3 (R1 late): extract the typed preview-bridge protocol (live-edit event names/payloads) — see ROADMAP §Phase 3
+- [ ] Phase 3 (R1 late): extract the typed preview-bridge protocol (live-edit event names/payloads) — LAB-1415
 - [x] Design-tokens promote — `createDesignTokens`/`createPalettePresets` adopted by the marquee 2026-10-15 (`def5594`, LAB-1393)
 - [ ] Re-sync vendored packages after shellside package changes (`node scripts/sync-marquee-vendor.mjs`); marquee `check-vendor` flags staleness
 
