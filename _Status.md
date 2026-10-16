@@ -5,7 +5,7 @@ phase: active
 canonical: ~/cloud/git-projects/shellside
 deps: npm
 test_cmd: npm ci && npm run check
-test_signal: green — 118 package tests (content-model 10, edit-protocol 16, look 72, dev-api 14, console-vfs 6), 3 script tests, toy + marquee-export reference builds, leak audit ok; latest tag v0.2.0 (85d31e0, local)
+test_signal: green — 118 package tests (content-model 10, edit-protocol 16, look 72, dev-api 14, console-vfs 6), 3 script tests, toy (9pp) + marquee-export (119pp) reference builds, leak audit ok; latest tag v0.2.0 (85d31e0, local)
 healthbeacon: none
 ---
 

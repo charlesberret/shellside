@@ -13,6 +13,7 @@ the packaging milestone).
 
 ### Added
 
+- **Reference app** covers the full exported set: `reading/` collection + `/reading/[id]` detail pages, `/about/cv` + `/about/resume` from `cv.yaml`/`resume.yaml` (marquee export build: 119 pages). Toy fixture gained matching entries.
 - **`@shellside/edit-protocol`** gained the preview-bridge contract (`BRIDGE_*_SOURCE`, `BRIDGE_EDITOR_EVENT`, typed message unions, `shellMessage`/`previewMessage`/`isShellToPreview`/`isPreviewToShell`). Marquee call sites adopted (marquee `9616b54`; `live-edit.js` pending the in-flight session commit).
 - **`@shellside/edit-protocol`** gained the admin-preview flag helpers (`ADMIN_PREVIEW_PARAM`, `isAdminPreviewUrl`, `withAdminPreview`) — the desk/site param name is now contract.
 - **`@shellside/look/fs`** gained `createDesignTokens` and `createPalettePresets` — design-tokens.yaml load/merge/set with validated writes, palette-preset file I/O; site injects keys/defaults/builtins. Marquee delegates (marquee `def5594`).

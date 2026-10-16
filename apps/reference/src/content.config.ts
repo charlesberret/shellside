@@ -83,6 +83,7 @@ export const collections = {
   work: entryCollection("work"),
   writing: entryCollection("writing"),
   records: entryCollection("records"),
+  reading: entryCollection("reading"),
   profile,
   pageCopy,
 };
