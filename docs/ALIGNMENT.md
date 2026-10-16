@@ -31,7 +31,7 @@
 - LAB-1464 · `@shellside/console-engine`
 - LAB-1465 · site-instance design spike → ADR (`site.config.ts` + host boundary)
 - LAB-1466 · `@shellside/site` host — config-driven dual-surface host (blocked by LAB-1465, LAB-1464)
-- LAB-1467 · create-site scaffold — second site from zero (R2; blocked by LAB-1466)
+- ~~LAB-1467~~ create-site scaffold — done 2026-10-16 (`bd273ee`)
 
 ## Marquee-side issues (requested in reply memo)
 
