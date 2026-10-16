@@ -20,7 +20,7 @@ Marquee: `~/cloud/git-projects/charlesberret.net`
 
 | Marquee path | Adapter needed |
 |--------------|----------------|
-| `src/lib/design-tokens.ts` | paths, palette presets |
+| ~~`src/lib/design-tokens.ts`~~ done 2026-10-15 | `createDesignTokens`/`createPalettePresets`; site keeps values + CSS emitters (LAB-1393) |
 | `src/scripts/live-edit.js` | mount host, admin bridge; also duplicates `pathToLookRole` client-side (keep in sync with `@shellside/look`; `coauthors` is a kit extra) |
 | `src/scripts/admin-*.js` | site nav, preview origins |
 | console edit surfaces | VFS schema per site |

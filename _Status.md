@@ -5,7 +5,7 @@ phase: active
 canonical: ~/cloud/git-projects/shellside
 deps: npm
 test_cmd: npm ci && npm run check
-test_signal: green — 108 package tests (content-model 10, edit-protocol 11, look 67, dev-api 14, console-vfs 6), 3 script tests, toy + marquee-export reference builds, leak audit ok; latest tag v0.2.0 (85d31e0, local)
+test_signal: green — 113 package tests (content-model 10, edit-protocol 11, look 72, dev-api 14, console-vfs 6), 3 script tests, toy + marquee-export reference builds, leak audit ok; latest tag v0.2.0 (85d31e0, local)
 healthbeacon: none
 ---
 
@@ -16,7 +16,7 @@ Private framework kit for dual-surface portfolio sites; charlesberret.net is the
 ## Next action
 
 - [ ] Phase 3 (R1 late): extract the typed preview-bridge protocol (live-edit event names/payloads) — see ROADMAP §Phase 3
-- [ ] Promote design-tokens load/set validation to `@shellside/look/fs` (marquee keeps defaults + palettes) — LAB-1393
+- [x] Design-tokens promote — `createDesignTokens`/`createPalettePresets` adopted by the marquee 2026-10-15 (`def5594`, LAB-1393)
 - [ ] Re-sync vendored packages after shellside package changes (`node scripts/sync-marquee-vendor.mjs`); marquee `check-vendor` flags staleness
 
 ## Known gaps
