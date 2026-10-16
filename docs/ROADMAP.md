@@ -2,7 +2,7 @@
 
 **Audience:** humans and agents working this kit and the marquee consumer.  
 **Marquee:** `~/cloud/git-projects/charlesberret.net` (first and primary consumer).  
-**Status today:** private monorepo scaffold; packages are mostly **contracts + pure helpers**; full dual-surface runtime still lives in the marquee.
+**Status today:** public MIT monorepo (since 2026-10-14, `a8a8577`); four extracted packages (`content-model`, `edit-protocol`, `look`, `dev-api`) with real machinery, vendored into the marquee; full dual-surface runtime (console VFS, live-edit client) still lives in the marquee.
 
 This document defines **what release means**, the **feature set**, phased delivery, and a **sync protocol** so framework work tracks marquee refinements instead of forking them.
 
@@ -465,7 +465,7 @@ Optional later: `live-edit-protocol` (message types only), `create-shellside` CL
 - [ ] Semver tags / changelog  
 - [ ] Install without sibling `file:` path  
 - [ ] Create-site path  
-- [ ] Public/private decision recorded  
+- [x] Public/private decision recorded — public, `a8a8577` (2026-10-14) + `LICENSE` MIT; `gh` visibility PUBLIC  
 
 ---
 
