@@ -35,12 +35,12 @@ Shellside has three nested release bars. Ship when the bar is met; do not wait f
 | Bar | Name | Definition of done |
 |-----|------|--------------------|
 | **R0** | **Internal kit + content portability (smoke)** | **Both** directions of proof: (A) marquee depends on shellside for stable pure contracts; (B) scripted export of marquee **content** loads into a shellside-hosted app and a **production build** renders the public graph correctly (structural fidelity, not visual twin). Docs + `npm run check` green. |
-| **R1** | **Private release + full content portability** | Dual-surface reference app (portfolio + console + leak audit) on packages only; marquee content export (or large public subset) is the acceptance fixture; marquee has deleted local duplicates for promoted code; boring chrome is fine. |
+| **R1** | **Second-site release + full content portability** | Dual-surface reference app (portfolio + console + leak audit) on packages only; marquee content export (or large public subset) is the acceptance fixture; marquee has deleted local duplicates for promoted code; boring chrome is fine. |
 | **R2** | **Publishable kit** | Packages versioned and installable without monorepo path hacks (`file:../shellside`); create-site path documented; optional public GitHub/npm later |
 
 **Default goal for this roadmap:** **R1**. R2 is optional and gated on “second real site or deliberate open.”
 
-Private is fine through R1. Opening the name/repo is a product decision, not a technical prerequisite.
+The repo went public MIT on 2026-10-14 (`a8a8577`). "Private" no longer describes the repo; releases stay deliberate (no npm publish before R2 packaging).
 
 ### 2.1 Content portability (acceptance fixture)
 
@@ -304,7 +304,7 @@ Each phase has **exit criteria**. Prefer small promotions that marquee can absor
 | Admin preview context | Document + share pure URL flag helper if still duplicated |
 | Export policy | Document which paths are always redacted; keep in sync with marquee private surfaces |
 
-**Exit:** Portfolio + console + leak audit green on marquee public export. **R1 declared (private release).**
+**Exit:** Portfolio + console + leak audit green on marquee public export. **R1 declared.**
 
 ### Phase 3 — Editorial desk portability *(R1 late / R2 early)*
 
@@ -450,7 +450,7 @@ Optional later: `live-edit-protocol` (message types only), `create-shellside` CL
 - [x] look-history factory with `contentRoot` (`@shellside/look/fs`; marquee adopted 2026-10-11)  
 - [x] DEV API factory used by marquee (`createDevContentHandler`; content-edit promoted as `createContentEditor`, 2026-10-11)  
 
-### R1 — Private release + full content portability
+### R1 — Second-site release + full content portability
 
 - [ ] Reference Astro app: **portfolio + console** over marquee public export  
 - [ ] console-vfs (or equivalent) package with tests  
