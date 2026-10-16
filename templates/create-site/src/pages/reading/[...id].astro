@@ -1,0 +1,32 @@
+---
+import { getCollection, render } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import { entryId, publicEntries } from "@shellside/site";
+
+export async function getStaticPaths() {
+  const entries = publicEntries(await getCollection("reading"));
+  return entries.map((entry) => ({
+    params: { id: entryId(entry) },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const title = entry.data.title ?? entryId(entry);
+---
+
+<Base title={title}>
+  <p class="meta"><a href="/">Portfolio</a></p>
+  <h1>{title}</h1>
+  {
+    entry.data.sourceUrl ? (
+      <p class="meta">
+        Source:{" "}
+        <a href={entry.data.sourceUrl}>{entry.data.sourceLabel ?? "original"}</a>
+        {entry.data.rightsNote ? ` — ${entry.data.rightsNote}` : ""}
+      </p>
+    ) : null
+  }
+  <Content />
+</Base>

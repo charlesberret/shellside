@@ -27,5 +27,8 @@
   },
   "dependencies": {
     "js-yaml": "4.3.2"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }

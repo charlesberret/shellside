@@ -1,0 +1,14 @@
+{
+  "name": "{{SLUG}}",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "check": "node scripts/check.mjs"
+  },
+  "dependencies": {
+    "astro": "5.16.16"
+  }
+}

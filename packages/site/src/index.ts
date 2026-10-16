@@ -16,6 +16,7 @@ export type {
   CollectionShape,
   ConsoleCollectionSpec,
 } from "./config.js";
+export { leakAudit, type LeakAuditOptions } from "./leak-audit.js";
 export {
   publicEntries,
   byTitle,

@@ -17,6 +17,11 @@
   },
   "dependencies": {
     "@shellside/console-vfs": "0.1.0",
-    "@shellside/content-model": "0.1.0"
-  }
+    "@shellside/content-model": "0.1.0",
+    "js-yaml": "4.3.2"
+  },
+  "files": [
+    "dist",
+    "pages"
+  ]
 }

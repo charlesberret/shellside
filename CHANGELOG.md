@@ -13,6 +13,8 @@ the packaging milestone).
 
 ### Added
 
+- **`@shellside/site`** gained `leakAudit` — the draft/private-content leak audit as a library function; `scripts/check-public-output.mjs` delegates, scaffolded sites get `scripts/check.mjs`.
+- **`scripts/create-site.mjs` + `templates/create-site/`** — scaffold a second site: `npm pack` tarballs into `vendor/` (no sibling `file:` links, no registry publish), template copied with `{{NAME}}`/`{{SLUG}}` tokens. Verified end-to-end in a fresh dir: install → build → leak audit green.
 - **`@shellside/site`** — config-driven dual-surface host: `shellsite(config)` Astro integration injects `/console` (packaged read-only VFS shell) and `/list.txt`; `virtual:shellsite/config` carries plain-data config (`defineShellsiteConfig`); shared `publicEntries`/`byTitle`/`entryId`. Reference app now builds on it (marquee export: 119 pages, leak audit green).
 - **`@shellside/console-engine`** — extracted the marquee engine mechanics: `parse`/`path`/`pipeline`/`runner`/`io` + `createFsCommands`/`createFilterCommands`, ported to TS with the marquee's test suites; path aliases injectable. Marquee delegates (marquee `5fc9228`); session/site/help/man-pages/lore stay site.
 - **Reference app** covers the full exported set: `reading/` collection + `/reading/[id]` detail pages, `/about/cv` + `/about/resume` from `cv.yaml`/`resume.yaml` (marquee export build: 119 pages). Toy fixture gained matching entries.

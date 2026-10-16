@@ -1,0 +1,90 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../layouts/Base.astro";
+import { byTitle, entryId, publicEntries, type Listed } from "@shellside/site";
+
+const work = byTitle(publicEntries(await getCollection("work")) as Listed[]);
+const writing = byTitle(publicEntries(await getCollection("writing")) as Listed[]);
+const records = byTitle(publicEntries(await getCollection("records")) as Listed[]);
+const reading = byTitle(publicEntries(await getCollection("reading")) as Listed[]);
+const profiles = await getCollection("profile");
+const name = profiles[0]?.data.name ?? "Reference";
+const dek = profiles[0]?.data.shortBio ?? profiles[0]?.data.tagline ?? "";
+
+const current = work.filter((item) => item.data.status === "current");
+const complete = work.filter((item) => item.data.status !== "current");
+
+function meta(item: Listed): string {
+  return [item.data.kind, item.data.org, item.data.dates, item.data.venue, item.data.year, item.data.date]
+    .filter((part) => part != null && part !== "")
+    .join(" · ");
+}
+---
+
+<Base title={name}>
+  <h1>{name}</h1>
+  {dek ? <p class="dek">{dek}</p> : null}
+
+  <h2>Current</h2>
+  <ul>
+    {
+      current.map((item) => (
+        <li>
+          <a href={`/projects/${entryId(item)}`}>{item.data.title ?? entryId(item)}</a>
+          {meta(item) ? <div class="meta">{meta(item)}</div> : null}
+        </li>
+      ))
+    }
+  </ul>
+
+  <h2>Complete</h2>
+  <ul>
+    {
+      complete.map((item) => (
+        <li>
+          <a href={`/projects/${entryId(item)}`}>{item.data.title ?? entryId(item)}</a>
+          {item.data.summary ? <div>{item.data.summary}</div> : null}
+          {meta(item) ? <div class="meta">{meta(item)}</div> : null}
+        </li>
+      ))
+    }
+  </ul>
+
+  <h2>Writing</h2>
+  <ul>
+    {
+      writing.map((item) => (
+        <li>
+          <a href={`/writing/${entryId(item)}`}>{item.data.title ?? entryId(item)}</a>
+          {item.data.summary ? <div>{item.data.summary}</div> : null}
+        </li>
+      ))
+    }
+  </ul>
+
+  <h2>Reading</h2>
+  <ul>
+    {
+      reading.map((item) => (
+        <li>
+          <a href={`/reading/${entryId(item)}`}>{item.data.title ?? entryId(item)}</a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <h2>Records</h2>
+  <ul>
+    {
+      records.map((item) => (
+        <li>
+          <a href={`/records/${entryId(item)}`}>{item.data.title ?? entryId(item)}</a>
+          {item.data.summary ? <div>{item.data.summary}</div> : null}
+        </li>
+      ))
+    }
+  </ul>
+  <p class="meta">
+    <a href="/about/cv">CV</a> · <a href="/about/resume">Resume</a> · <a href="/console">Console</a>
+  </p>
+</Base>
