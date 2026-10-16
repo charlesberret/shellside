@@ -9,6 +9,7 @@ the packaging milestone).
 
 ### Added
 
+- **`@shellside/edit-protocol`** gained the admin-preview flag helpers (`ADMIN_PREVIEW_PARAM`, `isAdminPreviewUrl`, `withAdminPreview`) — the desk/site param name is now contract.
 - **`@shellside/look/fs`** gained `createDesignTokens` and `createPalettePresets` — design-tokens.yaml load/merge/set with validated writes, palette-preset file I/O; site injects keys/defaults/builtins. Marquee delegates (marquee `def5594`).
 
 ## [0.2.0] — 2026-10-15

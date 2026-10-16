@@ -25,6 +25,8 @@ Marquee: `~/cloud/git-projects/charlesberret.net`
 | `src/scripts/admin-*.js` | site nav, preview origins |
 | console edit surfaces | VFS schema per site |
 
+New since 2026-10-15: `@shellside/edit-protocol` owns `ADMIN_PREVIEW_PARAM` + URL flag helpers.
+
 ## Stay site-local forever (probably)
 
 - Console personality, easter eggs, monome/lattice  

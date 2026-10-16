@@ -301,7 +301,7 @@ Each phase has **exit criteria**. Prefer small promotions that marquee can absor
 | Reference Astro app | Portfolio + console over **exported marquee content**; toy fixture remains for CI |
 | Plaintext helper | Optional `toPlaintextListing(items)` — same public set as portfolio/console |
 | Leak audit script in kit | Runnable against reference build; marquee may wrap with site-specific rules (Enigma paths stay site) |
-| Admin preview context | Document + share pure URL flag helper if still duplicated |
+| Admin preview context | Done — `ADMIN_PREVIEW_PARAM`/`isAdminPreviewUrl`/`withAdminPreview` in edit-protocol; marquee call sites migrated (2026-10-15) |
 | Export policy | Document which paths are always redacted; keep in sync with marquee private surfaces |
 
 **Exit:** Portfolio + console + leak audit green on marquee public export. **R1 declared.**
