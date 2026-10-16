@@ -14,6 +14,10 @@ Marquee: `~/cloud/git-projects/charlesberret.net`
 | `src/lib/public-content.ts` | `packages/content-model` | **Done 2026-10-11** — filters re-exported; site keeps Astro context helpers |
 | `src/pages/api/dev-content.ts` | `packages/dev-api` (`createDevContentHandler`) | **Done 2026-10-11** — gates + content actions in kit; look surface injected |
 | `src/lib/field-styles.ts` load/save/merge | `packages/look` (`@shellside/look/fs`) | **Done 2026-10-15** — `createFieldStyles`; marquee file (781b8f5) delegates map I/O, keeps CSS maps/options |
+| `src/lib/console-engine/` (parse/path/pipeline/runner/io + fs/filters) | `packages/console-engine` | **Done 2026-10-16** — `@shellside/console-engine` (marquee 5fc9228); session/site/help/man/lore commands stay site; path aliases injected |
+| `src/lib/design-tokens.ts` I/O + presets | `packages/look` (`@shellside/look/fs`) | **Done 2026-10-15** — `createDesignTokens`/`createPalettePresets`; marquee (def5594) keeps values + emitters |
+| preview-bridge wire contract | `packages/edit-protocol` (`preview-bridge.ts`) | **Done 2026-10-16** — typed channels + guards; marquee adopts (9616b54; live-edit import rides in-flight commit) |
+| preview flag | `packages/edit-protocol` (`preview.ts`) | **Done 2026-10-15** — `ADMIN_PREVIEW_PARAM`/`isAdminPreviewUrl`/`withAdminPreview` (marquee 25ee9b2) |
 | Look weight/size/font option lists | `packages/look` | `WEIGHT_*`, `SIZE_*`, `FONT_*` slot names (not typefaces) |
 
 ## Promote later (works, needs adapters)
