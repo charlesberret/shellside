@@ -7,6 +7,10 @@ the packaging milestone).
 
 ## [Unreleased]
 
+### Changed
+
+- **`@shellside/console-vfs`** adopted the marquee's node vocabulary (breaking within 0.x): `t:"c"`/`gen()` char devices, `bin.url`, `file()` emits `html`/`links`/`compactLinks` defaults; `VfsLink` gains `editLabel`/`editDesc`; `link()` shortcut. New `docs/DIVERGENCES.md` tracks marquee↔kit alignment.
+
 ### Added
 
 - **`@shellside/edit-protocol`** gained the admin-preview flag helpers (`ADMIN_PREVIEW_PARAM`, `isAdminPreviewUrl`, `withAdminPreview`) — the desk/site param name is now contract.
