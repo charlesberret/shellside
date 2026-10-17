@@ -16,3 +16,14 @@ the site is product truth; the kit extracts *its* vocabulary.
 | Role map | live-edit client map pinned to `@shellside/look` via `check-live-edit-map` (62 probes) | pin test | verified 2026-10-15 |
 | Schemas | marquee `schemas.mjs` (strict, zod) vs reference `.passthrough()` entry schema | deliberate: kit tolerates marquee fields rather than claiming them | by design |
 | `adminPreview` in `is:inline` scripts | module call sites use `ADMIN_PREVIEW_PARAM`; `is:inline` scripts keep the literal | no imports inside `is:inline` — document, not drift | by design |
+
+## 2026-10-17 — filesystem-IA (kit ahead of marquee)
+
+The kit now treats the content tree as information architecture
+(`docs/decisions/2026-10-17-filesystem-ia.md`): dirs → page sections,
+files → entries, dotfiles console-only, `.site`/`.meta` hidden plaintext
+config. `projectSiteTree()` lives in `@shellside/site`; the demo and the
+create-site scaffold consume it. The marquee keeps its typed-collection
+model — adopting IA there means deciding how singletons like
+`profile.yaml` and hand-rolled surfaces (`/projects`, `/writing`) map
+onto tree sections. An adoption note for the marquee seat, not drift.

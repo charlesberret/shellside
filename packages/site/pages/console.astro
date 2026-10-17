@@ -60,7 +60,7 @@ const name = config.identity.name;
 const homeFiles: Record<string, ReturnType<typeof file>> = {
   "about.txt": file(`${name}${config.identity.tagline ? `\n\n${config.identity.tagline}` : ""}`),
   "readme.txt": file(
-    "A console over the same public collections.\nls, cd, cat, pwd, tree, help. Portfolio view: /",
+    "A console over the same public content tree.\nls, cd, cat, pwd, tree, help — `ls -a` shows hidden files.",
   ),
   ...Object.fromEntries(
     Object.entries(config.console?.homeFiles ?? {}).map(([k, v]) => [k, file(v)]),
