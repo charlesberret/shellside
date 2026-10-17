@@ -35,6 +35,13 @@ if (hasCollection) {
   <p class="meta"><a href={base}>Home</a> · <a href={`${base}#${dir}`}>{section.title}</a></p>
   <h1>{entry.title ?? id}</h1>
   {entry.data.summary ? <p class="dek">{String(entry.data.summary)}</p> : null}
-  {Content ? <Content /> : <pre class="catout">{entry.body}</pre>}
+  {Content ? <Content /> : entry.body ? <pre class="catout">{entry.body}</pre> : null}
+  {Array.isArray(entry.data.items) ? (
+    <ul>
+      {(entry.data.items as unknown[]).map((it) => (
+        <li>{typeof it === "string" ? it : (it as {title?:string; summary?:string}).title ?? String(it)}{(it as {summary?:string}).summary ? <div>{String((it as {summary?:string}).summary)}</div> : null}</li>
+      ))}
+    </ul>
+  ) : null}
   {entry.data.url ? <p><a href={String(entry.data.url)}>External link →</a></p> : null}
 </Base>
