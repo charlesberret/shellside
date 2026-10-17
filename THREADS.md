@@ -16,11 +16,12 @@ Full plan: [docs/ROADMAP.md](./docs/ROADMAP.md). Prefer small promotions that ma
 - [x] DEV API factory (`createDevContentHandler` + `createContentEditor`) — dev-content.ts thin; look surface injected (2026-10-11)
 - [x] Field-styles map I/O — `createFieldStyles` at `@shellside/look/fs` (2026-10-12). marquee adopted 2026-10-15 (`781b8f5`, LAB-1287); the file is now thin (CSS maps + options)
 
-## Open (R1)
+## Open (R1 done → R2)
 
-- [x] `@shellside/console-vfs` — node constructors + mount/nodeAt/walk + `projectCollections` (2026-10-15, 6 tests)
-- [x] Reference: portfolio + console over marquee public export — `/console` serves ls/cat/cd/tree over the VFS; 104 pages, leak audit green (2026-10-15)
-- [ ] Optional R2: file: dep → npm workspace / published private package
+- [x] `@shellside/site` host (LAB-1466), demo on GitHub Pages, create-site scaffold (LAB-1467)
+- [x] Filesystem-IA (LAB-1511): `projectSiteTree`, demo + scaffold consume it; dotfiles console-only
+- [ ] Default skin sign-off — built + deployed (LAB-1517); the look needs patron eyes
+- [ ] Optional R2: tarball vendor → published packages (waits on LAB-113 name ruling)
 
 ## Marquee sync (§6)
 
