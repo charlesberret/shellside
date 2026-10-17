@@ -38,7 +38,7 @@ test("virtual config plugin emits the config", () => {
     injectRoute: (r: { pattern: string }) => routes.push(r.pattern),
     updateConfig: (u: typeof viteCfg) => { viteCfg = u; },
   });
-  assert.deepEqual(routes, ["/list.txt"]);
+  assert.deepEqual(routes, ["/list.txt", "/[section].txt"]);
   const plugin = viteCfg!.vite!.plugins![0];
   const id = plugin.resolveId("virtual:shellsite/config")!;
   assert.ok(id.startsWith("\0"));
