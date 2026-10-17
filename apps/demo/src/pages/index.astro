@@ -1,23 +1,13 @@
 ---
-import { getCollection } from "astro:content";
 import Base from "../layouts/Base.astro";
-import { byTitle, entryId, publicEntries, type Listed } from "@shellside/site";
+import { projectSiteTree } from "@shellside/site";
+import path from "node:path";
 
-const work = byTitle(publicEntries(await getCollection("work")) as Listed[]);
-const writing = byTitle(publicEntries(await getCollection("writing")) as Listed[]);
-const records = byTitle(publicEntries(await getCollection("records")) as Listed[]);
-const reading = byTitle(publicEntries(await getCollection("reading")) as Listed[]);
-const profiles = await getCollection("profile");
-const name = profiles[0]?.data.name ?? "Reference";
-const dek = profiles[0]?.data.shortBio ?? profiles[0]?.data.tagline ?? "";
-
-
-
-function meta(item: Listed): string {
-  return [item.data.kind, item.data.org, item.data.dates, item.data.venue, item.data.year, item.data.date]
-    .filter((part) => part != null && part !== "")
-    .join(" · ");
-}
+const tree = projectSiteTree(path.join(process.cwd(), "src", "content"));
+const name = tree.site.name ?? "Site";
+const dek = tree.site.shortBio ?? tree.site.tagline ?? "";
+const isPublic = (e: { data: Record<string, unknown> }) =>
+  e.data.visibility !== "draft" && !(e.data.visibility == null && ["draft", "unpublished"].includes(String(e.data.status)));
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 ---
 
@@ -25,54 +15,28 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
   <h1>{name}</h1>
   {dek ? <p class="dek">{dek}</p> : null}
 
-  <h2>Packages</h2>
-  <ul>
-    {
-      work.map((item) => (
-        <li>
-          <a href={`${base}projects/${entryId(item)}`}>{item.data.title ?? entryId(item)}</a>
-          {item.data.summary ? <div>{item.data.summary}</div> : null}
-          {meta(item) ? <div class="meta">{meta(item)}</div> : null}
-        </li>
-      ))
-    }
-  </ul>
+  {tree.entries.filter(isPublic).map((e) => (
+    <section>
+      <h2><a href={`${base}${e.slug}`}>{e.title}</a></h2>
+    </section>
+  ))}
 
-  <h2>Docs</h2>
-  <ul>
-    {
-      writing.map((item) => (
-        <li>
-          <a href={`${base}writing/${entryId(item)}`}>{item.data.title ?? entryId(item)}</a>
-          {item.data.summary ? <div>{item.data.summary}</div> : null}
-        </li>
-      ))
-    }
-  </ul>
+  {tree.sections.map((s) => (
+    <section>
+      <h2 id={s.dir}>{s.title}</h2>
+      {s.blurb ? <p class="meta">{s.blurb}</p> : null}
+      <ul>
+        {s.entries.filter(isPublic).map((e) => (
+          <li>
+            <a href={e.data.url ? String(e.data.url) : `${base}${e.slug}`}>{e.title ?? e.slug}</a>
+            {e.data.summary ? <div>{String(e.data.summary)}</div> : null}
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
 
-  <h2>Reading</h2>
-  <ul>
-    {
-      reading.map((item) => (
-        <li>
-          <a href={`${base}reading/${entryId(item)}`}>{item.data.title ?? entryId(item)}</a>
-        </li>
-      ))
-    }
-  </ul>
-
-  <h2>Index</h2>
-  <ul>
-    {
-      records.map((item) => (
-        <li>
-          <a href={`${base}records/${entryId(item)}`}>{item.data.title ?? entryId(item)}</a>
-          {item.data.summary ? <div>{item.data.summary}</div> : null}
-        </li>
-      ))
-    }
-  </ul>
   <p class="meta">
-    <a href={`${base}about/cv`}>CV</a> · <a href={`${base}about/resume`}>Resume</a> · <a href={`${base}console`}>Console</a>
+    <a href={`${base}console`}>Console</a> · <a href={`${base}list.txt`}>Plaintext</a> · <a href={`${base}llms.txt`}>llms.txt</a>
   </p>
 </Base>

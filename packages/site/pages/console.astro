@@ -5,8 +5,9 @@
  * lore/personality stays in the site's own console page if it has one.
  */
 import { getCollection } from "astro:content";
+import path from "node:path";
 import config from "virtual:shellsite/config";
-import { byTitle, entryId, publicEntries } from "@shellside/site";
+import { byTitle, entryId, projectSiteTree, publicEntries, type VfsNode } from "@shellside/site";
 import {
   dir,
   file,
@@ -66,7 +67,23 @@ const homeFiles: Record<string, ReturnType<typeof file>> = {
   ),
 };
 
-const root = dir({ "~": dir({ ...homeFiles, ...projectCollections(collections) }) });
+/**
+ * Filesystem-IA (docs/decisions/2026-10-17): dotfiles/hidden dirs live in
+ * the console only. The site tree's `hidden` entries are merged under ~/
+ * here — the page surface never sees them.
+ */
+const hiddenChildren: Record<string, VfsNode> = {};
+const tree = projectSiteTree(path.resolve("src", "content"));
+for (const h of tree.hidden) {
+  const segs = h.path.replace(/^~\//, "").split("/");
+  let scope = hiddenChildren;
+  for (let i = 0; i < segs.length - 1; i++) {
+    scope[segs[i]] ??= dir({});
+    scope = (scope[segs[i]] as { children: Record<string, VfsNode> }).children;
+  }
+  scope[segs[segs.length - 1]] = file(h.body);
+}
+const root = dir({ "~": dir({ ...homeFiles, ...projectCollections(collections), ...hiddenChildren }) });
 const fsJson = JSON.stringify(root).replace(/</g, "\\u003c");
 const helpTopics = config.console?.helpTopics ?? {};
 ---

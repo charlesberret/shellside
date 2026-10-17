@@ -7,7 +7,7 @@ import Base from "../../layouts/Base.astro";
 const raw = yaml.load(
   await fs.readFile(path.join(process.cwd(), "src", "content", "cv.yaml"), "utf8"),
 );
-const sections = Array.isArray(raw) ? raw : [];
+const sections = Array.isArray(raw) ? raw : raw?.items ?? [];
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 ---
 

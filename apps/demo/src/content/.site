@@ -1,0 +1,4 @@
+name: Shellside
+tagline: a kit for dual-surface portfolio sites
+shortBio: Shellside extracts the stable contracts out of a working dual-surface portfolio — content model, look roles, edit protocol, console VFS and engine — so the next site is config + content + taste.
+stack: Astro, TypeScript, zod

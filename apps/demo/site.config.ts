@@ -2,24 +2,14 @@ import { defineShellsiteConfig } from "@shellside/site";
 
 export default defineShellsiteConfig({
   identity: { name: "Shellside", tagline: "a kit for dual-surface portfolio sites" },
-  collections: {
-    work: "entries-md",
-    writing: "list-yaml",
-    records: "list-yaml",
-    reading: "entries-md",
-  },
+  collections: {},
   surfaces: { portfolio: true, console: true, plaintext: true, llmsTxt: true },
   console: {
     collections: [
-      { dir: "packages", collection: "work", ext: "txt", urlPrefix: "/projects" },
-      { dir: "docs", collection: "writing", ext: "txt", urlPrefix: "/writing" },
-      {
-        dir: "index",
-        collection: "records",
-        ext: "txt",
-        groupBySection: true,
-        urlPrefix: "/records",
-      },
+      { dir: "packages", collection: "packages", ext: "txt", urlPrefix: "/packages" },
+      { dir: "docs", collection: "docs", ext: "txt", urlPrefix: "/docs" },
+      { dir: "releases", collection: "releases", ext: "txt", urlPrefix: "/releases" },
+      { dir: "notes", collection: "notes", ext: "txt", urlPrefix: "/notes" },
     ],
     helpTopics: {
       lore: { short: "why this console exists", long: "The console surface reads the same content tree as the pages. ls, cat, grep — the text is the site's own." },

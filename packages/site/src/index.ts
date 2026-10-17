@@ -73,3 +73,4 @@ export function shellsite(config: ShellsiteConfig): AstroIntegration {
     },
   };
 }
+export { projectSiteTree, parseDotConfig, type SiteTree, type TreeSection, type TreeEntry } from "./site-tree.js";
