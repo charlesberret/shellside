@@ -1,0 +1,7 @@
+title: Index
+items:
+  - id: launch
+    title: Launch card
+    summary: A row in a list-file section — linked or detail-paged.
+    url: "#"
+    visibility: published

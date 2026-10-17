@@ -1,0 +1,3 @@
+name: {{NAME}}
+tagline: a shellside site
+shortBio: Replace this line in src/content/.site — the console reads it too (cat ~/.site).

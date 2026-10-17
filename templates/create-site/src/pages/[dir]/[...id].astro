@@ -1,0 +1,40 @@
+---
+import { getCollection, render } from "astro:content";
+import { projectSiteTree } from "@shellside/site";
+import Base from "../../layouts/Base.astro";
+import path from "node:path";
+import fs from "node:fs";
+
+export async function getStaticPaths() {
+  const tree = projectSiteTree(path.join(process.cwd(), "src", "content"));
+  const paths = [];
+  for (const section of tree.sections) {
+    for (const entry of section.entries) {
+      if (entry.data.visibility === "draft") continue;
+      const id = entry.slug.slice(section.dir.length + 1);
+      const hasCollection = fs.existsSync(path.join(process.cwd(), "src", "content", section.dir));
+      paths.push({ params: { dir: section.dir, id }, props: { entry, section, hasCollection } });
+    }
+  }
+  return paths;
+}
+
+const { dir, id } = Astro.params;
+const { entry, section, hasCollection } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+
+let Content: unknown = null;
+if (hasCollection) {
+  const coll = await getCollection(dir);
+  const hit = coll.find((e) => e.id.replace(/\.(md|mdx|markdown)$/i, "") === id);
+  if (hit) Content = (await render(hit)).Content;
+}
+---
+
+<Base title={entry.title ?? id}>
+  <p class="meta"><a href={base}>Home</a> · <a href={`${base}#${dir}`}>{section.title}</a></p>
+  <h1>{entry.title ?? id}</h1>
+  {entry.data.summary ? <p class="dek">{String(entry.data.summary)}</p> : null}
+  {Content ? <Content /> : <pre class="catout">{entry.body}</pre>}
+  {entry.data.url ? <p><a href={String(entry.data.url)}>External link →</a></p> : null}
+</Base>

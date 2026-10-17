@@ -1,28 +1,19 @@
 import fs from "node:fs";
+import yaml from "js-yaml";
 import { defineCollection, z } from "astro:content";
 import { file, glob } from "astro/loaders";
 
 const contentRoot = "./src/content";
 
-/** Marquee shape: `<name>.yaml` list at the content root. Toy shape: `<name>/*.md`. */
-function loaderFor(name: string, pattern: string) {
-  const single = `${contentRoot}/${name}.yaml`;
-  return fs.existsSync(single) ? file(single) : glob({ pattern, base: `${contentRoot}/${name}` });
-}
-
 const link = z
-  .object({
-    label: z.string().optional(),
-    href: z.string().optional(),
-    description: z.string().optional(),
-  })
+  .object({ label: z.string().optional(), href: z.string().optional(), description: z.string().optional() })
   .passthrough();
 
 const yamlScalar = z
   .union([z.string(), z.number(), z.date()])
   .transform((v) => (v instanceof Date ? v.toISOString().slice(0, 10) : String(v)));
 
-/** Loose on purpose: a marquee export may carry extra keys. */
+/** Loose on purpose: a site may carry extra keys. */
 const entrySchema = z
   .object({
     title: z.string().optional(),
@@ -50,40 +41,43 @@ const entrySchema = z
   })
   .passthrough();
 
-function entryCollection(name: string) {
-  return defineCollection({
-    loader: loaderFor(name, "**/*.md"),
-    schema: entrySchema,
-  });
-}
+/**
+ * Filesystem-IA (docs/decisions/2026-10-17-filesystem-ia.md):
+ * every non-hidden top-level dir of content files is a collection —
+ * the tree IS the collection map.
+ */
+const rootEntries = fs.readdirSync(contentRoot, { withFileTypes: true });
 
-const profile = defineCollection({
-  loader: loaderFor("profile", "*.{yaml,yml}"),
-  schema: z
-    .object({
-      name: z.string().optional(),
-      tagline: z.string().optional(),
-      shortBio: z.string().optional(),
-    })
-    .passthrough(),
-});
-
-const pageCopy = defineCollection({
-  loader: loaderFor("page-copy", "*.{yaml,yml}"),
-  schema: z
-    .object({
-      title: z.string().optional(),
-      kicker: z.string().optional(),
-      sub: z.string().optional(),
-    })
-    .passthrough(),
-});
-
-export const collections = {
-  work: entryCollection("work"),
-  writing: entryCollection("writing"),
-  records: entryCollection("records"),
-  reading: entryCollection("reading"),
-  profile,
-  pageCopy,
-};
+export const collections = Object.fromEntries([
+  // dirs → markdown-glob collections
+  ...rootEntries
+    .filter((e) => e.isDirectory() && !e.name.startsWith("."))
+    .map((d) => [
+      d.name,
+      defineCollection({
+        loader: glob({ pattern: "**/*.{md,mdx,markdown}", base: `${contentRoot}/${d.name}` }),
+        schema: entrySchema,
+      }),
+    ]),
+  // root *.yaml lists → file collections; {title, items} or bare array
+  ...rootEntries
+    .filter((e) => e.isFile() && /\.ya?ml$/i.test(e.name) && !e.name.startsWith("."))
+    .map((e) => [
+      e.name.replace(/\.[^.]+$/, ""),
+      defineCollection({
+        loader: file(`${contentRoot}/${e.name}`, {
+          parser: (raw) => {
+            const parsed = yaml.load(raw) as unknown;
+            const items = Array.isArray(parsed)
+              ? parsed
+              : (parsed as { items?: unknown[] })?.items ?? [];
+            return items.map((row: Record<string, unknown>, i: number) => ({
+              id: row.id ?? row.slug ?? String(row.title ?? i).toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+              ...row,
+            }));
+          },
+        }),
+        schema: entrySchema.extend({ id: z.string().optional() }).passthrough(),
+      }),
+    ]),
+]);
