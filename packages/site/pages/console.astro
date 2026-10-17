@@ -68,6 +68,7 @@ const homeFiles: Record<string, ReturnType<typeof file>> = {
 
 const root = dir({ "~": dir({ ...homeFiles, ...projectCollections(collections) }) });
 const fsJson = JSON.stringify(root).replace(/</g, "\\u003c");
+const helpTopics = config.console?.helpTopics ?? {};
 ---
 <html>
 <head>
@@ -84,6 +85,13 @@ const fsJson = JSON.stringify(root).replace(/</g, "\\u003c");
     #cmd:focus { outline: none; }
     a { color: #7d9fc7; }
     .hint { opacity: 0.6; font-size: 12px; }
+    .cyan { color: #7d9fc7; } .x { color: #c99a6b; } .red { color: #d97a7a; } .muted { opacity: 0.6; }
+    .fs-entry { color: inherit; text-decoration: none; cursor: pointer; }
+    .fs-entry:hover { text-decoration: underline; }
+    #less-overlay { position: fixed; inset: 0; background: #0b0d12; z-index: 10; display: flex; flex-direction: column; padding: 1rem; }
+    #less-overlay[hidden] { display: none; }
+    #less-body { flex: 1; overflow-y: auto; white-space: pre-wrap; font: inherit; margin: 0.5rem 0 0; }
+    .less-head { opacity: 0.7; border-bottom: 1px solid #333; padding-bottom: 0.4rem; }
   </style>
 </head>
 <body>
@@ -94,6 +102,11 @@ const fsJson = JSON.stringify(root).replace(/</g, "\\u003c");
   </form>
   <p class="hint">read-only console · <a href={import.meta.env.BASE_URL.replace(/\/?$/, "/")}>home</a></p>
   <div id="vfs-data" data-json={fsJson} hidden />
+  <div id="help-data" data-json={JSON.stringify(helpTopics)} hidden />
+  <div id="less-overlay" hidden>
+    <div class="less-head"><span id="less-title"></span> <span class="hint">— less: j/k scroll, q/Esc quits —</span></div>
+    <pre id="less-body"></pre>
+  </div>
   <script>
     import {
       createFsCommands,
@@ -112,6 +125,7 @@ const fsJson = JSON.stringify(root).replace(/</g, "\\u003c");
     } from "@shellside/console-engine";
 
     const FS = JSON.parse(document.getElementById("vfs-data").dataset.json);
+    const base = import.meta.env.BASE_URL.replace(/\/$/, "") + "/";
     const HOME = ["~"];
     let cwd = [...HOME];
     const scrollEl = document.body;
@@ -163,9 +177,28 @@ const fsJson = JSON.stringify(root).replace(/</g, "\\u003c");
     const resolvePath = (arg) => resolvePathFs(cwd, HOME, FS, arg);
     const resolveRel = (arg) => resolveSegments(cwd, HOME, arg);
 
+    const HELP_TOPICS = JSON.parse(document.getElementById("help-data").dataset.json || "{}");
     const fileViewCmd = (name) => (/\.md$/i.test(name) ? "less" : "cat");
-    const openExternal = (url) => { window.open(url, "_blank", "noopener"); };
-    const openLess = (body) => out(`<pre class="lessout">${esc(body)}</pre>`);
+    const openExternal = (url) => {
+      if (url.startsWith("/")) location.href = base.replace(/\/$/, "") + url;
+      else window.open(url, "_blank", "noopener");
+    };
+    const lessOverlay = document.getElementById("less-overlay");
+    const lessTitle = document.getElementById("less-title");
+    const lessBody = document.getElementById("less-body");
+    const openLess = (body, title) => {
+      lessTitle.textContent = title || "";
+      lessBody.textContent = body;
+      lessOverlay.hidden = false;
+      lessBody.scrollTop = 0;
+    };
+    const closeLess = () => { lessOverlay.hidden = true; cmdEl.focus(); };
+    document.addEventListener("keydown", (e) => {
+      if (lessOverlay.hidden) return;
+      if (e.key === "q" || e.key === "Escape") closeLess();
+      else if (e.key === "j" || e.key === "ArrowDown") lessBody.scrollTop += 40;
+      else if (e.key === "k" || e.key === "ArrowUp") lessBody.scrollTop -= 40;
+    });
     const rawTextFile = (pathArg, verb) => {
       const node = nodeAt(resolvePath(pathArg));
       if (!node) return { err: `${verb}: ${esc(pathArg)}: no such file`, cls: "red" };
@@ -198,13 +231,15 @@ const fsJson = JSON.stringify(root).replace(/</g, "\\u003c");
       walk(parts, nodeAt(parts) ?? {});
       return rows;
     };
-    const lsShortEntry = (node, name) => {
-      if (node.t === "d") return `<span class="cyan">${esc(name)}/</span>`;
-      if (node.t === "bin") return `<span class="x">${esc(name)}*</span>`;
-      return esc(name);
+    const lsShortEntry = (node, name, parentParts) => {
+      const path = prettyPath([...parentParts, name]);
+      const cmd = node.t === "d" ? "cd" : node.t === "bin" ? "open" : fileViewCmd(name);
+      const label = node.t === "d" ? name + "/" : name;
+      const cls = node.t === "d" ? " d" : node.t === "bin" ? " x" : "";
+      return `<a href="#" class="fs-entry${cls}" data-fs-path="${esc(path)}" data-fs-cmd="${cmd}">${esc(label)}</a>`;
     };
-    const lsLongRow = (node, name) =>
-      `<span class="muted">${node.t === "d" ? "drwx" : "-r--"}</span> ${lsShortEntry(node, name)}`;
+    const lsLongRow = (node, name, parentParts) =>
+      `<span class="muted">${node.t === "d" ? "drwx" : "-r--"}</span> ${lsShortEntry(node, name, parentParts)}`;
 
     const history = createHistory();
     const cmds = registerCommands(
@@ -220,8 +255,13 @@ const fsJson = JSON.stringify(root).replace(/</g, "\\u003c");
       }),
       {
         clear() { scrollbackEl.textContent = ""; },
-        help() {
-          out("ls · cd · cat · less · pwd · tree · open · find · grep · head · tail · wc · sort · uniq · diff · strings · echo · clear · help\nTab completes; ↑/↓ recalls history; | pipes.");
+        help(args) {
+          const topic = args[0] && HELP_TOPICS[args[0]];
+          if (topic) { out(topic.long ?? topic); return; }
+          const extra = Object.keys(HELP_TOPICS).length
+            ? `\nSite commands: ${Object.keys(HELP_TOPICS).map((k) => `${k}${HELP_TOPICS[k].short ? ` — ${HELP_TOPICS[k].short}` : ""}`).join(", ")}`
+            : "";
+          out("ls · cd · cat · less · pwd · tree · open · find · grep · head · tail · wc · sort · uniq · diff · strings · echo · clear · help [topic]" + extra + "\nTab completes; ↑/↓ recalls history; | pipes.");
         },
         history() {
           // engine tracks history; enumerate is not exposed — keep it simple
@@ -237,7 +277,7 @@ const fsJson = JSON.stringify(root).replace(/</g, "\\u003c");
       out,
       promptHtml: () => `<span class="cyan">${esc(prompt())}</span> `,
       esc,
-      closeLess: () => {}, clearCompletions: () => { compCycle = 0; compBase = null; },
+      closeLess, clearCompletions: () => { compCycle = 0; compBase = null; },
       scrollToPrompt: () => window.scrollTo(0, document.body.scrollHeight),
       pushHistory: (cmd) => history.push(cmd),
       cmds,
@@ -285,7 +325,18 @@ const fsJson = JSON.stringify(root).replace(/</g, "\\u003c");
       }
     });
 
-    document.body.addEventListener("click", () => cmdEl.focus());
+    scrollbackEl.addEventListener("click", (e) => {
+      const a = e.target.closest("[data-fs-path]");
+      if (a) {
+        e.preventDefault();
+        run(`${a.dataset.fsCmd} ${a.dataset.fsPath}`, { echo: true, pace: false });
+        return;
+      }
+      cmdEl.focus();
+    });
+    document.body.addEventListener("click", (e) => {
+      if (!e.target.closest("#scrollback") && !e.target.closest("#less-overlay")) cmdEl.focus();
+    });
     paintPrompt();
     cmdEl.focus();
     run("help", { pace: false });

@@ -56,6 +56,8 @@ export type ShellsiteConfig = {
     collections?: ConsoleCollectionSpec[];
     /** Extra home files from config (e.g. readme.txt). */
     homeFiles?: Record<string, string>;
+    /** `help <name>` topics — sites register lore/command docs here. */
+    helpTopics?: Record<string, { short?: string; long?: string } | string>;
   };
   edit?: {
     /** Path to the site's allowlist module. */
