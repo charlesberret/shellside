@@ -10,6 +10,8 @@ export default defineShellsiteConfig({
       { dir: "docs", collection: "docs", ext: "txt", urlPrefix: "/docs" },
       { dir: "releases", collection: "releases", ext: "txt", urlPrefix: "/releases" },
       { dir: "notes", collection: "notes", ext: "txt", urlPrefix: "/notes" },
+      { dir: "cv", collection: "cv", ext: "txt", urlPrefix: "/cv" },
+      { dir: "resume", collection: "resume", ext: "txt", urlPrefix: "/resume" },
     ],
     helpTopics: {
       lore: { short: "why this console exists", long: "The console surface reads the same content tree as the pages. ls, cat, grep — the text is the site's own." },

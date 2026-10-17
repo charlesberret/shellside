@@ -7,7 +7,8 @@
     ".": "./dist/index.js",
     "./console-page": "./pages/console.astro",
     "./list.txt": "./dist/endpoints/list-txt.js",
-    "./llms.txt": "./dist/endpoints/llms-txt.js"
+    "./llms.txt": "./dist/endpoints/llms-txt.js",
+    "./section.txt": "./dist/endpoints/section-txt.js"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",

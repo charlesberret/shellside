@@ -60,6 +60,12 @@ export function shellsite(config: ShellsiteConfig): AstroIntegration {
             entrypoint: "@shellside/site/list.txt",
           });
         }
+        if (config.surfaces.plaintext) {
+          injectRoute({
+            pattern: "/[section].txt",
+            entrypoint: "@shellside/site/section.txt",
+          });
+        }
         if (config.surfaces.llmsTxt) {
           injectRoute({
             pattern: "/llms.txt",
