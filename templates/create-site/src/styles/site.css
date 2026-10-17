@@ -70,3 +70,23 @@ li {
   color: #5c564e;
   font-size: 0.85rem;
 }
+
+li > a {
+  font-weight: 600;
+  text-decoration: none;
+}
+li > a:hover { text-decoration: underline; }
+li > div { color: #5c564e; font-size: 0.9rem; margin-top: 0.15rem; }
+
+:focus-visible {
+  outline: 2px solid #1d4e89;
+  outline-offset: 2px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root { color: #e6e1d8; background: #14120e; }
+  a { color: #9db8d9; }
+  .dek, .meta, li > div { color: #9a9285; }
+  li { border-top-color: #2b2820; }
+  :focus-visible { outline-color: #9db8d9; }
+}
