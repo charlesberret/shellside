@@ -7,6 +7,14 @@ the packaging milestone).
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-10-17
+
+The filesystem-IA + public-surface release: the content tree is now the
+site's information architecture, and the packaged console became a real
+engine-driven shell.
+
+
+
 - **Filesystem-IA** (`docs/decisions/2026-10-17-filesystem-ia.md`): the content tree is the site structure — dirs → sections/headings, files → entries, root `*.yaml` lists → sections, dotfiles console-only. `projectSiteTree()` in `@shellside/site`; demo index + `[dir]/[...id]` consume it; `.site`/`.meta` hidden plaintext config readable via `cat` in console.
 - **`/llms.txt`** surface behind `surfaces.llmsTxt`; `surfaces.devDesk` marked planned (LAB-1519).
 - **Packaged console**: `less` overlay pager, clickable fs entries, `open <file>` follows `node.url`, `console.helpTopics` config.
