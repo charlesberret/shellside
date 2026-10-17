@@ -8,7 +8,7 @@ export default defineShellsiteConfig({
     records: "list-yaml",
     reading: "entries-md",
   },
-  surfaces: { portfolio: true, console: true, plaintext: true },
+  surfaces: { portfolio: true, console: true, plaintext: true, llmsTxt: true },
   console: {
     collections: [
       { dir: "packages", collection: "work", ext: "txt", urlPrefix: "/projects" },

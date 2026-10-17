@@ -6,3 +6,4 @@ declare module "virtual:shellsite/config" {
 declare module "astro:content" {
   export function getCollection(name: string): Promise<{ id: string; data?: Record<string, unknown>; body?: string }[]>;
 }
+interface ImportMeta { env: { BASE_URL: string } }

@@ -8,7 +8,7 @@ Full operational notes for the marquee implementation live in
 | Concern | Contract |
 |---------|----------|
 | Availability | DEV only; production build must not expose write API |
-| Host | Prefer localhost / loopback until real auth exists |
+| Host | `isLoopbackHost` checks the `Host` header (`localhost` or `127.0.0.1`), not the socket. No accounts. Full account: [Are you insane? This is a really bad idea.](./ARE_YOU_INSANE.md) |
 | Storage | Content → site `src/content/*`; Look → `field-styles.yaml`; tokens → `design-tokens.yaml` |
 | Path grammar | `@shellside/edit-protocol` (`work:id:field`, `writing:id:field`, …) |
 | Look scope | Role-scoped via `@shellside/look` |

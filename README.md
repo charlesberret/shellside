@@ -43,6 +43,10 @@ https://charlesberret.github.io/shellside/ — a `@shellside/site` instance whos
 4. **Admin is DEV-only.** No production write surface. Drafts never ship if filters are correct
 5. **Site owns taste.** Type, palette, and chrome stay in the marquee site. Shellside owns *structure*
 
+## Are you insane? This is a really bad idea.
+
+The console looks like a shell on the site. It is a browser over the public content, baked into the HTML at build time. The editorial desk is a real write API, and it has no accounts: `isDev()` plus a `Host` header of `localhost`. The full account is [docs/ARE_YOU_INSANE.md](./docs/ARE_YOU_INSANE.md).
+
 ## Relationship to charlesberret.net
 
 ```

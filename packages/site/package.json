@@ -6,7 +6,8 @@
   "exports": {
     ".": "./dist/index.js",
     "./console-page": "./pages/console.astro",
-    "./list.txt": "./dist/endpoints/list-txt.js"
+    "./list.txt": "./dist/endpoints/list-txt.js",
+    "./llms.txt": "./dist/endpoints/llms-txt.js"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",

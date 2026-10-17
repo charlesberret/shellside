@@ -41,7 +41,13 @@ export type ShellsiteConfig = {
     console?: boolean;
     plaintext?: boolean;
     llmsTxt?: boolean;
-    /** Dev desk mount — DEV only, never production. */
+    /**
+     * Dev desk mount — DEV only, never production.
+     * PLANNED (LAB-1519, deferred): injecting the write API needs the site's
+     * edit surface (allowlist module, look writers) wired through `edit.*`;
+     * until then the desk is site-mounted, as in the marquee's
+     * `src/pages/api/dev-content.ts`.
+     */
     devDesk?: boolean;
   };
   nav?: { key: string; label: string; href: string; editPath?: string }[];

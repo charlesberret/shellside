@@ -18,6 +18,7 @@ A **private** framework repo for dual-surface portfolio sites + dev editorial de
 - `docs/ARCHITECTURE.md` — system diagram
 - `docs/VISIBILITY.md` — draft/published model (incl. how admin sees drafts)
 - `docs/LIVE_EDIT.md` — editorial desk contract
+- `docs/ARE_YOU_INSANE.md` — what `/console` and the desk actually expose
 - `docs/EXTRACTION_MAP.md` — what stays site-local vs kit
 
 ## Marquee path

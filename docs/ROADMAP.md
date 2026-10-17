@@ -476,7 +476,7 @@ Optional later: `live-edit-protocol` (message types only), `create-shellside` CL
 | Kit becomes “clone of charlesberret.net” | Extraction map “stay site-local”; reference chrome deliberately boring; export is content-only |
 | Content export becomes a second marquee | Redaction list; no deploy runners; structural fidelity only (§2.1) |
 | Draft leaks via console / txt / llms | Leak audit as R0/R1 gate; same `isPublicItem` everywhere |
-| Write API ships to production | DEV gate + loopback; build-time strip; fail-closed helpers |
+| Write API ships to production | `isDev()` 404s when false; the host gate reads the `Host` header, not the socket. See [Are you insane? This is a really bad idea.](./ARE_YOU_INSANE.md) |
 | Divergent path parsers | Single package; marquee deletes local |
 | Marquee velocity leaves kit stale | Sync protocol §6; re-export after content-model changes |
 | Scope creep (CMS, auth, multi-tenant) | Non-goals §4.9; park in PRODUCT_NOTES |
