@@ -40,3 +40,11 @@
 3. LAB-1454 handshake — keep as Phase-2 closeout; run LAB-1459 right after the tranche
 4. LAB-1461 with the manifest shape above (confirmed stable)
 5. Phase-4 prep: collect the site-config surface (nav, per-page meta from LAB-1453, theme roots) as input to the kit's design spike
+
+## IA mapping (2026-10-18)
+
+Memo delivered at `charlesberret.net/handoff-shellside-charlesberretnet-ia-mapping.md`:
+per-collection fate under filesystem-IA (dirs→sections, yaml lists→sections,
+`.site` for singletons, `.meta` for ordering), plus four open questions the
+marquee seat decides (singleton fold, intra-section ordering, lore stays
+site-side, route aliases vs dir renames).
