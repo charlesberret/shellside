@@ -26,6 +26,11 @@
     "js-yaml": "4.3.2"
   },
   "files": [
+    "LICENSE",
+    "README.md",
     "dist"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }

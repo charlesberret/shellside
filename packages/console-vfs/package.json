@@ -20,6 +20,11 @@
     "typescript": "^5.6.0"
   },
   "files": [
+    "LICENSE",
+    "README.md",
     "dist"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }

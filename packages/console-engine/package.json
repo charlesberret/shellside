@@ -13,6 +13,11 @@
     "test": "node --import tsx --test src/*.test.ts src/commands/*.test.ts"
   },
   "files": [
+    "LICENSE",
+    "README.md",
     "dist"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }
