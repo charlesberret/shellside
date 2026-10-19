@@ -1,17 +1,17 @@
 # Shellside
 
-Site framework for dual-surface personal portfolios, content collections, and a **dev-only** editorial desk. A dual-surface portfolio is a readable site plus an optional console.
+A filesystem-first Astro kit for dual-surface personal portfolios: a readable site plus an optional terminal-style console, built from the same content collections, with a **dev-only** editorial desk. It is for people who want a personal site whose content is plain YAML and Markdown files and whose structure is documented enough for an agent to work on safely.
 
-Shellside is **not** a hosted CMS. It is a **filesystem-first kit**. Content lives as YAML/Markdown. The public site is a static or node Astro build. The admin and live-edit surface exists only in development.
+Shellside is **not** a hosted CMS. Content lives as YAML/Markdown. The public site is a static or node Astro build. The admin and live-edit surface exists only in development.
 
-First marquee consumer: [charlesberret.net](https://github.com/charlesberret/charlesberret.net), or the local tree `~/cloud/git-projects/charlesberret.net`.
+First consumer (the "marquee" site): [charlesberret.net](https://charlesberret.net).
 
 ## Why this exists
 
 - Capture schematics that would otherwise stay as local idiosyncrasies
 - Make the dual-surface + look + content-edit stack **portable** to the next site
-- Give agents a documented contract so they can contribute without rediscovering the house style
-- Periodically ask: *what would it take for people to notice, appreciate, and use this?* Do that without sidelining the portfolio itself
+- Give agents a documented contract so they can contribute without rediscovering the conventions
+- Keep the portfolio itself first: the kit exists to serve the site, not the other way round
 
 ## Live demo
 
@@ -34,6 +34,7 @@ https://charlesberret.github.io/shellside/ — a `@shellside/site` instance whos
 | App | Role |
 |-----|------|
 | `apps/reference` | Minimal Astro host. Portfolio list/detail, a read-only `/console` (`ls`/`cat` over the VFS), and `list.txt` plaintext — all over the same collections |
+| `apps/demo` | The live demo above: the kit described by its own content |
 
 ## Design pillars
 
@@ -62,15 +63,17 @@ See [docs/EXTRACTION_MAP.md](./docs/EXTRACTION_MAP.md).
 
 ## Status
 
-**R0 declared** 2026-10-11; **R1 in flight** — `@shellside/console-vfs` and a read-only `/console` in the reference app landed 2026-10-15 (104-page marquee export verified, leak audit green). The marquee builds on vendored `@shellside/*` packages in `vendor/shellside`, synced by `scripts/sync-marquee-vendor.mjs`. Details: [docs/MARQUEE_SWITCH.md](./docs/MARQUEE_SWITCH.md).
+Pre-1.0; releases are `0.x` tags listed in [CHANGELOG.md](./CHANGELOG.md). **R0 was declared 2026-10-11 and R1 on 2026-10-18**: a reference host, a packaged read-only console, the config-driven `@shellside/site` host, a `create-site` scaffold, a filesystem-as-information-architecture projection, a dev-only desk route, and a leak audit that runs against the marquee's public export (about 119 pages, green). The marquee builds on vendored `@shellside/*` packages in `vendor/shellside`, synced by `scripts/sync-marquee-vendor.mjs`. Details: [docs/MARQUEE_SWITCH.md](./docs/MARQUEE_SWITCH.md).
 
-**Roadmap and feature set.** [docs/ROADMAP.md](./docs/ROADMAP.md) covers the north star, the release bars, phased delivery, and the marquee sync protocol. The release bars run R0, contracts plus a content portability smoke, then R1, dual-surface with a marquee content fixture, then R2, publishable.
+**Next is R2, a publishable kit**: packages installable without vendoring. Nothing is published to npm yet, and no second real site has run the scaffold. [docs/ROADMAP.md](./docs/ROADMAP.md) covers the north star, the release bars, phased delivery, and the marquee sync protocol. The release bars run R0, contracts plus a content portability smoke, then R1, dual-surface with a marquee content fixture, then R2, publishable.
 
 ## What "renders correctly" means
 
 A production build of the reference host shows the **public** work, writing, and records graph with boring chrome. Drafts stay out of `dist` when `visibility` is `draft`, or when `visibility` is absent and legacy `status` is `draft` or `unpublished`. Redacted private paths stay out of `dist`. It is not a visual twin of charlesberret.net.
 
 ## Commands
+
+Requires Node 20 or newer.
 
 ```bash
 npm ci
@@ -100,10 +103,16 @@ Routes: `/` portfolio, `/projects/<id>`, `/writing/<id>`, `/records/<id>`, `/con
 
 ```bash
 npm run export                 # ../charlesberret.net or MARQUEE_ROOT=…
-npm run build:reference        # 104 public pages + /console; leak audit asserts the public set
+npm run build:reference        # public pages + /console; leak audit asserts the public set
 ```
 
-**For a second site** — copy the marquee's consumption pattern: vendor the packages you use (`scripts/sync-marquee-vendor.mjs` is written for the marquee but the shape transfers), mount the DEV handler only in dev (`createDevContentHandler`), keep your own tokens/chrome. See [docs/ROADMAP.md](./docs/ROADMAP.md) §4 for the contract-level map.
+**For a second site** — scaffold one from the template. From a built checkout (`npm ci && npm run build`), the script packs the packages as tarballs into the new site's `vendor/` (no sibling checkouts needed), then installs, builds and runs the leak audit there:
+
+```bash
+node scripts/create-site.mjs ../my-site --name "My Site"
+```
+
+Then follow the generated site's README (`npm run dev`, `npm run build`, `npm run check`). Mount the DEV handler only in dev, and keep your own tokens and chrome. See [docs/ROADMAP.md](./docs/ROADMAP.md) §4 for the contract-level map.
 
 ## License
 
