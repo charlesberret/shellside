@@ -70,7 +70,7 @@ async function seed() {
       experience: [{ role: "Editor" }] }]),
   );
   await fs.writeFile(path.join(root, "page-copy.yaml"), yaml.dump({ portfolio: { hero: "Hi" }, nav: { p: "P" } }));
-  await fs.writeFile(path.join(root, "cv.yaml"), yaml.dump([{ title: "Edu", items: ["PhD"] }]));
+  await fs.writeFile(path.join(root, "cv.yaml"), yaml.dump({ title: "CV", items: [{ title: "Edu", items: ["PhD"] }] }));
   await fs.writeFile(path.join(root, "resume.yaml"), yaml.dump([{ title: "Work", items: ["Job"] }]));
 }
 
@@ -115,6 +115,22 @@ describe("createContentEditor", () => {
     await assert.rejects(editor.getEditPayload("writing:missing:title"), /not found|bad_path/);
   });
 
+  it("treats kinds with no backing file as not configured", async () => {
+    const partial = createContentEditor({
+      contentRoot: root,
+      files: { work: { dir: "work" } },
+      allowlist: { work: true },
+    });
+    assert.equal(partial.isAllowed(parseContentPath("work:kettle:title")!), true);
+    assert.equal(partial.isAllowed(parseContentPath("writing:essay-one:title")!), false);
+    assert.equal(partial.isAllowed(parseContentPath("profile:name")!), false);
+    assert.equal(await partial.getValue(parseContentPath("work:kettle:title")!), "Kettle");
+    await assert.rejects(
+      partial.setValue(parseContentPath("writing:essay-one:title")!, "x"),
+      /not configured/,
+    );
+  });
+
   it("joins and splits profile list fields, refusing accidental clears", async () => {
     const ref = parseContentPath("profile:roles")!;
     assert.equal(await editor.getValue(ref), "Writer · Researcher");
@@ -140,6 +156,29 @@ describe("createContentEditor", () => {
     await editor.setValue(parseContentPath("writing:essay-one:byline")!, "Ada Lovelace and Grace Hopper");
     docs = yaml.load(await fs.readFile(path.join(root, "writing.yaml"), "utf8")) as any[];
     assert.deepEqual(docs[0].byline, ["Ada Lovelace", "Grace Hopper"]);
+  });
+
+  it("reads and writes {title, items} map-shaped list files", async () => {
+    await fs.writeFile(
+      path.join(root, "docs.yaml"),
+      yaml.dump({
+        title: "Docs",
+        blurb: "sibling kept",
+        items: [{ id: "readme", title: "README", visibility: "published" }],
+      }),
+    );
+    const mapEditor = createContentEditor({
+      contentRoot: root,
+      files: { writing: { file: "docs.yaml", header: "# docs\n" } },
+      allowlist: { writing: ["title", "visibility"] },
+    });
+    assert.equal(await mapEditor.getValue(parseContentPath("writing:readme:title")!), "README");
+    await mapEditor.setValue(parseContentPath("writing:readme:title")!, "README v2");
+    const back = yaml.load(await fs.readFile(path.join(root, "docs.yaml"), "utf8")) as any;
+    assert.equal(back.title, "Docs");
+    assert.equal(back.blurb, "sibling kept");
+    assert.equal(back.items[0].title, "README v2");
+    assert.match(await fs.readFile(path.join(root, "docs.yaml"), "utf8"), /^# docs\n/);
   });
 
   it("writes keyed writing links and scalar fields", async () => {

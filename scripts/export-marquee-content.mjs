@@ -6,7 +6,7 @@
  *   node scripts/export-marquee-content.mjs --optional
  *
  * Source resolution: --source, then MARQUEE_ROOT, then ../charlesberret.net,
- * then ~/cloud/git-projects/charlesberret.net.
+ * then the house checkout under the user's cloud/git-projects directory.
  * The content directory is `<source>/src/content`, or `source` itself when
  * that directory already holds collection folders.
  *

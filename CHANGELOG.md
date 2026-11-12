@@ -7,6 +7,29 @@ the packaging milestone).
 
 ## [Unreleased]
 
+### Changed
+
+- **Console projects the content tree by default** — the packaged `/console` builds its VFS from `projectSiteTree`: dirs → dirs, entries → `<name>.txt` (nested slugs nested), `dir/index.*` → `index.txt` → `/<dir>/`, root loose files → `~/<slug>.txt`. `console.collections` is now an opt-in override (rename, `groupBySection`, custom `urlPrefix`, or collections outside `src/content`); a spec claims its collection's tree section so nothing duplicates. Demo + template no longer declare it.
+
+### Fixed
+
+- **Hidden files clobbering dirs** — `~/.meta`-style hidden children were spread over projected dirs, so `ls packages/` showed empty. They're now `mount`ed into dirs.
+
+### Added
+
+- **`index.*` = the directory's own page** — `dir/index.md` renders at `/<dir>/`; root `index.md` is the index page's own body. Both detach from entry lists into `indexEntry` on the tree, so list/llms/console surfaces stay clean; the console node's `url` points at `/<dir>/`.
+- **Landing gate** — demo and create-site `index.astro` is a two-button picker (plain | console); the IA index moved to `/plain/`. Deleting it and restoring the index at `/` is one file move.
+- **`headline` in `.site`** — optional key rendered as the index `h1` and printed as the console's boot line; `\n` in dot-config values decodes to a newline (`parseDotConfig`). Demo sets "Business in the front,\nTTY in the back."
+- **devDesk surface mounted**: `ShellsiteConfig.edit` declares the site's edit surface — `contentRoot`, plain-data `files` map, `policy` module path (allowlist/drafts/coercions/`archive` resolver, or a prebuilt `editor`), optional `look` module (`DevLookHandlers`). With `surfaces.devDesk` set, the host injects `/api/dev-content` in `astro dev` only, assembled by a generated `virtual:shellsite/dev-desk` module; production builds carry no route or policy path. Reference and demo apps both declare it.
+
+### Changed
+
+- **`EditorFiles` fields are all optional.** A kind with no backing file is not editable — `isAllowed` returns false, writes error `kind not configured` — instead of requiring the fixed five-file portfolio layout.
+
+### Fixed
+
+- **Default skin**: entry-row styling scoped to `.entries` so markdown lists in entry bodies keep bullets; `pre`/`.catout` wrap; `code`/`h3`/`blockquote`/`hr`/`img` styled; muted nav; dark scheme extended.
+
 ## [0.4.0] — 2026-10-17
 
 The filesystem-IA + public-surface release: the content tree is now the
@@ -16,7 +39,7 @@ engine-driven shell.
 
 
 - **Filesystem-IA** (`docs/decisions/2026-10-17-filesystem-ia.md`): the content tree is the site structure — dirs → sections/headings, files → entries, root `*.yaml` lists → sections, dotfiles console-only. `projectSiteTree()` in `@shellside/site`; demo index + `[dir]/[...id]` consume it; `.site`/`.meta` hidden plaintext config readable via `cat` in console.
-- **`/llms.txt`** surface behind `surfaces.llmsTxt`; `surfaces.devDesk` marked planned (LAB-1519).
+- **`/llms.txt`** surface behind `surfaces.llmsTxt`; `surfaces.devDesk` marked planned (deferred — now shipped, see Unreleased).
 - **Packaged console**: `less` overlay pager, clickable fs entries, `open <file>` follows `node.url`, `console.helpTopics` config.
 - **Default skin**: dark-mode + focus-visible pass on demo/template css.
 

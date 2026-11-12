@@ -1,0 +1,57 @@
+---
+import { getCollection, render } from "astro:content";
+import Base from "../layouts/Base.astro";
+import { isPublicItem, projectSiteTree } from "@shellside/site";
+import path from "node:path";
+
+const tree = projectSiteTree(path.join(process.cwd(), "src", "content"));
+const name = tree.site.name ?? "Site";
+const dek = tree.site.shortBio ?? tree.site.tagline ?? "";
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+
+let IndexContent: unknown = null;
+if (tree.indexEntry) {
+  const hit = (await getCollection("pages")).find(
+    (e) => e.id.replace(/\.(md|mdx|markdown)$/i, "") === "index",
+  );
+  if (hit) IndexContent = (await render(hit)).Content;
+}
+---
+
+<Base title={name}>
+  {IndexContent ? (
+    <IndexContent />
+  ) : (
+    <Fragment>
+      <h1>{name}</h1>
+      {dek ? <p class="dek">{dek}</p> : null}
+    </Fragment>
+  )}
+
+  {tree.entries.filter(isPublicItem).map((e) => (
+    <section>
+      <h2><a href={`${base}${e.slug}`}>{e.title}</a></h2>
+    </section>
+  ))}
+
+  {tree.sections.map((s) => (
+    <section>
+      <h2 id={s.dir}>
+        {s.indexEntry ? <a href={`${base}${s.dir}/`}>{s.title}</a> : s.title}
+      </h2>
+      {s.blurb ? <p class="meta">{s.blurb}</p> : null}
+      <ul class="entries">
+        {s.entries.filter(isPublicItem).map((e) => (
+          <li>
+            <a href={e.data.url ? String(e.data.url) : `${base}${e.slug}`}>{e.title ?? e.slug}</a>
+            {e.data.summary ? <div>{String(e.data.summary)}</div> : null}
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
+
+  <p class="meta">
+    <a href={`${base}console`}>Console</a> · <a href={`${base}list.txt`}>Plaintext</a> · <a href={`${base}llms.txt`}>llms.txt</a>
+  </p>
+</Base>

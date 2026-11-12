@@ -10,11 +10,21 @@ export default defineShellsiteConfig({
     profile: "list-yaml",
     "page-copy": "list-yaml",
   },
-  surfaces: { portfolio: true, console: true, plaintext: true },
+  surfaces: { portfolio: true, console: true, plaintext: true, devDesk: true },
+  edit: {
+    contentRoot: "src/content",
+    files: {
+      work: "work",
+      writing: "writing.yaml",
+      records: "records.yaml",
+      profile: "profile.yaml",
+      pageCopy: "page-copy.yaml",
+    },
+    policy: "./src/lib/edit-policy.ts",
+  },
   console: {
     collections: [
       { dir: "projects", collection: "work", ext: "txt", urlPrefix: "/projects" },
-      { dir: "writing", collection: "writing", ext: "txt", urlPrefix: "/writing" },
       {
         dir: "index",
         collection: "records",

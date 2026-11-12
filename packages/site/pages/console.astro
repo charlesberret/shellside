@@ -7,27 +7,28 @@
 import { getCollection } from "astro:content";
 import path from "node:path";
 import config from "virtual:shellsite/config";
-import { byTitle, entryId, projectSiteTree, publicEntries, type VfsNode } from "@shellside/site";
+import {
+  byTitle,
+  entryId,
+  entryLinks,
+  entryMeta,
+  isPublicItem,
+  projectSiteTree,
+  publicEntries,
+  type TreeSection,
+  type VfsNode,
+} from "@shellside/site";
 import {
   dir,
   file,
+  mount,
   projectCollections,
 } from "@shellside/console-vfs";
 
 function itemBody(item: { id: string; data: Record<string, unknown>; body?: string }): string {
-  const meta = [
-    item.data.kind,
-    item.data.org,
-    item.data.dates,
-    item.data.venue,
-    item.data.role,
-    item.data.year,
-    item.data.date,
-  ]
-    .filter((p) => p != null && p !== "")
-    .join(" · ");
-  const links = ((item.data.links ?? []) as { label?: string; href?: string }[])
-    .map((l) => `  ${l.label ?? "link"}: ${l.href ?? ""}`)
+  const meta = entryMeta(item.data);
+  const links = entryLinks(item.data.links)
+    .map((l) => `  ${l.label}: ${l.href}`)
     .join("\n");
   return [
     item.data.title ?? entryId(item),
@@ -40,6 +41,51 @@ function itemBody(item: { id: string; data: Record<string, unknown>; body?: stri
     .join("\n");
 }
 
+const tree = projectSiteTree(path.resolve("src", "content"));
+
+/** TreeEntry → console file body: title, meta line, summary, body, links. */
+function treeEntryBody(e: { slug: string; title?: string; body: string; data: Record<string, unknown> }): string {
+  const meta = entryMeta(e.data);
+  const links = entryLinks(e.data.links)
+    .map((l) => `  ${l.label}: ${l.href}`)
+    .join("\n");
+  return [
+    e.title ?? e.slug,
+    meta && `${meta}\n`,
+    e.data.summary && `${e.data.summary}\n`,
+    e.body,
+    links && `links:\n${links}`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
+/**
+ * Filesystem-IA default map: a tree section is a console dir; entries are
+ * `<name>.txt` files (nested slugs become nested dirs); `dir/index.*` is
+ * `index.txt` pointing at `/<dir>/`. Drafts never reach the VFS.
+ */
+function treeSectionNode(s: TreeSection): VfsNode {
+  const root = dir({});
+  const put = (rel: string, node: VfsNode) => {
+    const segs = rel.split("/");
+    mount(root, [...segs.slice(0, -1), `${segs[segs.length - 1]}.txt`], node);
+  };
+  if (s.indexEntry && isPublicItem(s.indexEntry)) {
+    mount(root, ["index.txt"], file(treeEntryBody(s.indexEntry), { url: `/${s.dir}` }));
+  }
+  for (const e of s.entries) {
+    if (!isPublicItem(e)) continue;
+    put(e.slug.slice(s.dir.length + 1), file(treeEntryBody(e), { url: `/${e.slug}` }));
+  }
+  return root;
+}
+
+/**
+ * `console.collections` is an opt-in override: a spec replaces the tree
+ * dir of the same name (rename/url/grouping) or adds a dir for a
+ * collection not under src/content.
+ */
 const collections = await Promise.all(
   (config.console?.collections ?? []).map(async (spec) => ({
     dir: spec.dir,
@@ -49,7 +95,11 @@ const collections = await Promise.all(
     items: byTitle(publicEntries(await getCollection(spec.collection as never))).map((item) => ({
       slug: entryId(item),
       body: itemBody(item),
-      url: spec.urlPrefix ? `${spec.urlPrefix}/${entryId(item)}` : undefined,
+      url: spec.urlPrefix
+        ? entryId(item) === "index"
+          ? spec.urlPrefix
+          : `${spec.urlPrefix}/${entryId(item)}`
+        : undefined,
       section: spec.sectionField ? item.data[spec.sectionField] : item.data.type,
     })),
   })),
@@ -67,25 +117,33 @@ const homeFiles: Record<string, ReturnType<typeof file>> = {
   ),
 };
 
-/**
- * Filesystem-IA (docs/decisions/2026-10-17): dotfiles/hidden dirs live in
- * the console only. The site tree's `hidden` entries are merged under ~/
- * here — the page surface never sees them.
- */
-const hiddenChildren: Record<string, VfsNode> = {};
-const tree = projectSiteTree(path.resolve("src", "content"));
-for (const h of tree.hidden) {
-  const segs = h.path.replace(/^~\//, "").split("/");
-  let scope = hiddenChildren;
-  for (let i = 0; i < segs.length - 1; i++) {
-    scope[segs[i]] ??= dir({});
-    scope = (scope[segs[i]] as { children: Record<string, VfsNode> }).children;
-  }
-  scope[segs[segs.length - 1]] = file(h.body);
+const homeChildren: Record<string, VfsNode> = { ...homeFiles };
+// A spec claims its collection's tree section — the spec is that dir's
+// presentation (rename/grouping), so the raw tree dir is suppressed.
+const claimed = new Set((config.console?.collections ?? []).map((s) => s.collection));
+for (const s of tree.sections) {
+  if (!claimed.has(s.dir)) homeChildren[s.dir] = treeSectionNode(s);
 }
-const root = dir({ "~": dir({ ...homeFiles, ...projectCollections(collections), ...hiddenChildren }) });
+// Root loose files → `~/<slug>.txt` (ADR: standalone entries are ~/ files).
+for (const e of tree.entries) {
+  if (!isPublicItem(e)) continue;
+  homeChildren[`${e.slug}.txt`] = file(treeEntryBody(e), { url: `/${e.slug}` });
+}
+Object.assign(homeChildren, projectCollections(collections));
+const home = dir(homeChildren);
+
+/**
+ * Dotfiles/hidden dirs live in the console only — mounted into the tree
+ * dirs (not spread over them, which would clobber a dir's real children).
+ */
+for (const h of tree.hidden) {
+  mount(home, h.path.replace(/^~\//, "").split("/"), file(h.body));
+}
+const root = dir({ "~": home });
 const fsJson = JSON.stringify(root).replace(/</g, "\\u003c");
 const helpTopics = config.console?.helpTopics ?? {};
+/** `.site` headline — printed as the console's boot line when set. */
+const headline = tree.site?.headline ?? "";
 ---
 <html>
 <head>
@@ -120,6 +178,7 @@ const helpTopics = config.console?.helpTopics ?? {};
   <p class="hint">read-only console · <a href={import.meta.env.BASE_URL.replace(/\/?$/, "/")}>home</a></p>
   <div id="vfs-data" data-json={fsJson} hidden />
   <div id="help-data" data-json={JSON.stringify(helpTopics)} hidden />
+  <div id="boot-data" data-headline={headline} hidden />
   <div id="less-overlay" hidden>
     <div class="less-head"><span id="less-title"></span> <span class="hint">— less: j/k scroll, q/Esc quits —</span></div>
     <pre id="less-body"></pre>
@@ -356,6 +415,8 @@ const helpTopics = config.console?.helpTopics ?? {};
     });
     paintPrompt();
     cmdEl.focus();
+    const bootHeadline = document.getElementById("boot-data")?.dataset.headline || "";
+    if (bootHeadline) out(esc(bootHeadline));
     run("help", { pace: false });
     run("ls", { pace: false });
   </script>

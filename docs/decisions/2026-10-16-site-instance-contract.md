@@ -1,9 +1,9 @@
 # ADR — site-instance contract: what a shellside site declares
 
-**Status:** proposed, 2026-10-16
+**Status:** proposed, 2026-10-16 · **Amended 2026-10-18:** the `collections:` map in the config sketch below is superseded by `2026-10-17-filesystem-ia.md` — under filesystem-IA the content tree *is* the collection map; config keeps identity, surfaces, nav, theme, and `edit.*`. The boundary reasoning (plain-data config, host injects surfaces, site keeps taste) stands.
 **Context:** the alignment plan (`docs/ALIGNMENT.md`) aims at the marquee
 becoming an *instance* of shellside — content + config + taste. This is the
-design spike for the boundary (LAB-1465). The marquee's own Phase-4 roadmap
+design spike for the boundary. The marquee's own Phase-4 roadmap
 row ("site config, nav-from-config, portable kit") names the same target.
 
 ## Decision
@@ -67,7 +67,7 @@ Site keeps: content, config, styles, components, console personality
 
 ## Consequences
 
-- LAB-1466 scopes to: `shellsideSite()` integration + config loader +
+- The host work scopes to: `shellsideSite()` integration + config loader +
   injected generic surfaces; `apps/reference` becomes the proof site.
 - The marquee's Phase-4 work (nav-from-config, per-page meta) is the
   reference input; their adoption is a Phase-D unit on their board.

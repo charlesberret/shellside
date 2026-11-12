@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from "astro:content";
 import Base from "../../layouts/Base.astro";
+import EntryFields from "@shellside/site/EntryFields";
 import { entryId, publicEntries } from "@shellside/site";
 
 export async function getStaticPaths() {
@@ -20,5 +21,6 @@ const title = entry.data.title ?? entryId(entry);
   <p class="meta"><a href="/">Portfolio</a></p>
   <h1>{title}</h1>
   {entry.data.summary ? <p class="dek">{entry.data.summary}</p> : null}
+  <EntryFields data={entry.data} />
   <Content />
 </Base>

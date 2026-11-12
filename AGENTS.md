@@ -2,7 +2,9 @@
 
 ## What this is
 
-A **private** framework repo for dual-surface portfolio sites + dev editorial desk. Not charlesberret.net itself; that site is the first consumer.
+A **public-bound** framework repo (MIT) for dual-surface portfolio sites + dev editorial desk. Not charlesberret.net itself; that site is the first consumer.
+
+**Public-surface rule:** tracked files are publishable — no Linear ids, local `~/` paths, or house-process files. Status and threads live untracked in `.local/`; the pre-commit hook enforces it.
 
 ## Rules
 
@@ -20,10 +22,12 @@ A **private** framework repo for dual-surface portfolio sites + dev editorial de
 - `docs/LIVE_EDIT.md` — editorial desk contract
 - `docs/ARE_YOU_INSANE.md` — what `/console` and the desk actually expose
 - `docs/EXTRACTION_MAP.md` — what stays site-local vs kit
+- `docs/ALIGNMENT.md` — kit↔marquee phases + sequencing rationale
+- `.local/_Status.md` — project status + next actions (untracked)
 
 ## Marquee path
 
-Local: `~/cloud/git-projects/charlesberret.net`  
+Local: `../charlesberret.net` (sibling checkout)  
 Promote with care; keep site deploy green.
 
 ## Failure modes
@@ -31,3 +35,4 @@ Promote with care; keep site deploy green.
 - Treating shellside as “clone the whole portfolio”
 - Shipping admin/write APIs in production
 - Filtering drafts on portfolio but leaking them via console / plaintext / llms.txt
+- Committing issue ids or house-process files into the public-bound tree

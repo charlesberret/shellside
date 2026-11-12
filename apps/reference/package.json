@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@shellside/content-model": "*",
+    "@shellside/dev-api": "*",
     "@shellside/edit-protocol": "*",
     "@shellside/look": "*",
     "astro": "5.16.16",

@@ -6,9 +6,12 @@
   "exports": {
     ".": "./dist/index.js",
     "./console-page": "./pages/console.astro",
+    "./admin-page": "./pages/admin.astro",
+    "./EntryFields": "./components/EntryFields.astro",
     "./list.txt": "./dist/endpoints/list-txt.js",
     "./llms.txt": "./dist/endpoints/llms-txt.js",
-    "./section.txt": "./dist/endpoints/section-txt.js"
+    "./section.txt": "./dist/endpoints/section-txt.js",
+    "./dev-content": "./dist/endpoints/dev-content.js"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
@@ -20,6 +23,8 @@
   "dependencies": {
     "@shellside/console-vfs": "0.1.0",
     "@shellside/content-model": "0.1.0",
+    "@shellside/dev-api": "0.1.0",
+    "@shellside/edit-protocol": "0.1.0",
     "js-yaml": "4.3.2",
     "@shellside/console-engine": "0.1.0"
   },
@@ -27,7 +32,8 @@
     "LICENSE",
     "README.md",
     "dist",
-    "pages"
+    "pages",
+    "components"
   ],
   "publishConfig": {
     "access": "public"

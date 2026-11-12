@@ -14,6 +14,7 @@
     "build:reference": "npm run build -w @shellside/reference",
     "export": "node scripts/export-marquee-content.mjs",
     "check": "npm run build && npm run test && node scripts/check-reference.mjs && npm run build:reference && node scripts/check-public-output.mjs && node --test scripts/*.test.mjs",
+    "check:desk": "node scripts/check-desk.mjs",
     "docs:list": "ls -la docs/"
   },
   "engines": {

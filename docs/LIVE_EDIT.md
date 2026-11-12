@@ -20,6 +20,45 @@ Full operational notes for the marquee implementation live in
 2. **Preview bridge** — postMessage field open / CSS apply / reload  
 3. **Public DEV toggle** — optional; admin is preferred  
 
+## Mounting the desk (`surfaces.devDesk` + `edit.*`)
+
+A kit site mounts the desk by declaring its edit surface in `site.config`
+instead of writing an `api/dev-content` route by hand:
+
+```ts
+surfaces: { devDesk: true },
+edit: {
+  contentRoot: "src/content",           // default
+  files: {                              // plain-data layout; a kind with
+    work: "work",                       // no entry is not editable
+    writing: "writing.yaml",
+    records: "records.yaml",
+    profile: "profile.yaml",
+    pageCopy: "page-copy.yaml",
+  },
+  policy: "./src/lib/edit-policy.ts",   // allowlist, drafts, coercions
+  look: "./src/lib/desk-look.ts",       // optional DevLookHandlers
+},
+```
+
+- `edit.files` is plain data — file/dir names only. The host builds
+  `EditorFiles` (generated headers) and calls `createContentEditor`.
+- `edit.policy` is a module path (regex allowlist, draft builders, joins,
+  coercions — anything code-shaped). It may also export `files` for the
+  full `EditorFiles` form (headers, `archive` resolver) or `editor` to
+  skip assembly entirely.
+- `edit.look` is a module exporting `DevLookHandlers` (or a factory):
+  `meta`, `pathExtras`, `writeExtras`, `setStyle`, `setTokens`,
+  `palette`, `historyList`, `historyRestore`. Omit for a content-only
+  desk.
+- The host mounts `createDevContentHandler` at `/api/dev-content`,
+  gated `import.meta.env.DEV` + loopback, only when `surfaces.devDesk`
+  is set — nothing is imported or emitted in a production build.
+- Yaml *list* files are top-level arrays of `id`-keyed rows, or a
+  `{title, items: []}` map — the map form keeps its sibling keys on
+  write. Anything else throws `invalid` on read and `isAllowed` still
+  gates the kind.
+
 ## Field kinds
 
 - Scalar text  
@@ -60,5 +99,5 @@ Origin: marquee `c3a96b2` (2026-09-12) — the old `site-name` size exception le
 | Path parse / allowlist | thin reshape over `edit-protocol`; site keeps the allowlist | `edit-protocol` + `createContentEditor` |
 | Look roles | thin adapter (labels, hints, selectors) | `look` (`pathToLookRole`, slots, `crossSkinStyle`) |
 | field-styles I/O | site file still owns CSS | `createFieldStyles` in `@shellside/look/fs` |
-| Admin shell JS | yes | not yet |
+| Admin shell JS | yes (full app: nav, iframe preview, docked editor, look controls) | minimal packaged `/admin` desk — path list + value editor over the same route; marquee keeps its shell as chrome |
 | DEV API | thin adapter; look surface injected | `createDevContentHandler` + `createContentEditor` |

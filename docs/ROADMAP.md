@@ -1,8 +1,8 @@
 # Shellside roadmap — scaffold → release
 
 **Audience:** humans and agents working this kit and the marquee consumer.  
-**Marquee:** `~/cloud/git-projects/charlesberret.net` (first and primary consumer).  
-**Status today:** public MIT monorepo (since 2026-10-14, `a8a8577`); four extracted packages (`content-model`, `edit-protocol`, `look`, `dev-api`) with real machinery, vendored into the marquee; full dual-surface runtime (console VFS, live-edit client) still lives in the marquee.
+**Marquee:** `charlesberret.net` (first and primary consumer; sibling checkout).  
+**Status today:** public MIT monorepo (since 2026-10-14, `a8a8577`); R1 declared 2026-10-18 — seven packages (`content-model`, `edit-protocol`, `look`, `dev-api`, `console-vfs`, `console-engine`, `site`), a config-driven host with all four surfaces, filesystem-IA, a `create-site` scaffold exercised end-to-end in CI, and a dev-only desk (`/admin` + `/api/dev-content`). The marquee consumes vendored `@shellside/*` packages.
 
 This document defines **what release means**, the **feature set**, phased delivery, and a **sync protocol** so framework work tracks marquee refinements instead of forking them.
 
@@ -457,7 +457,7 @@ Optional later: `live-edit-protocol` (message types only), `create-shellside` CL
 - [x] Kit leak audit script green on reference dist (export + fixture) — `check-public-output` both shapes, 2026-10-15  
 - [x] Portfolio / console / plaintext agree on same public item set — all read `publicEntries`/`filterByVisibility`; audit asserts presence+absence across dist incl. `/console` and `/list.txt`, 2026-10-15  
 - [ ] README walkthrough: “from zero to dual-surface” + “with marquee content”  
-- [x] EXTRACTION_MAP: no open “promote soon” items that block dual-surface — all rows done 2026-10-15 (field-styles was last, LAB-1287)  
+- [x] EXTRACTION_MAP: no open “promote soon” items that block dual-surface — all rows done 2026-10-15 (field-styles was last)  
 - [x] PRODUCT_NOTES: positioning paragraph stable enough to quote — "filesystem-first dual-surface portfolio kit with a dev editorial desk" (2026-10-15)  
 
 ### R2 — Publishable (optional)

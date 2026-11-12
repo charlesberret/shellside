@@ -1,0 +1,34 @@
+---
+/**
+ * Packaged detail-fields block. A list-yaml row carries venue/role/year/
+ * note/links that a bare <Content/> never renders — the row has no body.
+ * Drop this under the page's title/dek and the fields show on every site.
+ * Field vocabulary matches the console's entry rendering (entryMeta,
+ * entryLinks in @shellside/site).
+ */
+import { entryLinks, entryMeta } from "@shellside/site";
+
+interface Props {
+  /** entry.data — collection row or tree entry fields. */
+  data: Record<string, unknown>;
+}
+
+const { data } = Astro.props;
+const meta = entryMeta(data);
+const links = entryLinks(data.links);
+const note = typeof data.note === "string" ? data.note.trim() : "";
+---
+
+{meta ? <p class="entry-meta">{meta}</p> : null}
+{note ? <p class="entry-note">{note}</p> : null}
+{
+  links.length > 0 && (
+    <ul class="entry-links">
+      {links.map((l) => (
+        <li>
+          <a href={l.href}>{l.label}</a>
+        </li>
+      ))}
+    </ul>
+  )
+}

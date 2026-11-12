@@ -76,12 +76,18 @@ export type YamlObjectFile = {
 
 export type ArchiveResolver = (which: string) => YamlListFile | null;
 
+/**
+ * File layout for the editable kinds — all optional. A kind with no
+ * backing file is simply not editable: `isAllowed` returns false and
+ * reads/writes fail with `kind not configured`. This keeps the contract
+ * neutral — a site declares the kinds it actually has.
+ */
 export type EditorFiles = {
-  work: MarkdownCollectionDir;
-  writing: YamlListFile;
-  records: YamlListFile;
-  profile: YamlListFile;
-  pageCopy: YamlObjectFile;
+  work?: MarkdownCollectionDir;
+  writing?: YamlListFile;
+  records?: YamlListFile;
+  profile?: YamlListFile;
+  pageCopy?: YamlObjectFile;
   archive?: ArchiveResolver;
 };
 
@@ -234,7 +240,24 @@ export function createContentEditor(opts: ContentEditorOptions): ContentEditor {
   const drafts = opts.drafts ?? {};
 
   const abs = (rel: string) => (path.isAbsolute(rel) ? rel : path.join(root, rel));
-  const workDir = abs(opts.files.work.dir);
+
+  /** Kind → EditorFiles key (record→records, page→pageCopy). */
+  const FILES_KEY = {
+    work: "work",
+    writing: "writing",
+    record: "records",
+    profile: "profile",
+    page: "pageCopy",
+    archive: "archive",
+  } as const;
+
+  function needFile<K extends keyof EditorFiles>(key: K): NonNullable<EditorFiles[K]> {
+    const spec = opts.files[key];
+    if (!spec) throw new Error(`edit kind not configured: ${key}`);
+    return spec as NonNullable<EditorFiles[K]>;
+  }
+
+  const workDir = () => abs(needFile("work").dir);
 
   async function readYamlFile(filePath: string): Promise<unknown> {
     return yaml.load(await fs.readFile(filePath, "utf8"));
@@ -244,21 +267,39 @@ export function createContentEditor(opts: ContentEditorOptions): ContentEditor {
     await fs.writeFile(filePath, header + yaml.dump(data, dumpOpts), "utf8");
   }
 
+  /** A list file is a top-level array or a `{title, items: []}` map — the items array either way. */
+  const listItems = (docs: unknown): any[] | null => {
+    if (Array.isArray(docs)) return docs;
+    if (docs && typeof docs === "object") {
+      const items = (docs as Record<string, unknown>).items;
+      if (Array.isArray(items)) return items;
+    }
+    return null;
+  };
+
   async function readList(spec: YamlListFile, name: string): Promise<any[]> {
-    const docs = await readYamlFile(abs(spec.file));
-    if (!Array.isArray(docs)) throw new Error(`${name} invalid`);
-    return docs;
+    const items = listItems(await readYamlFile(abs(spec.file)));
+    if (!items) throw new Error(`${name} invalid`);
+    return items;
   }
 
-  const writeList = (spec: YamlListFile, docs: any[]) =>
-    writeYamlFile(abs(spec.file), spec.header, docs);
+  const writeList = async (spec: YamlListFile, docs: any[]) => {
+    const filePath = abs(spec.file);
+    const existing = await readYamlFile(filePath);
+    // Preserve a `{title, items}` wrapper's sibling keys on write.
+    const out =
+      existing && typeof existing === "object" && !Array.isArray(existing)
+        ? { ...(existing as Record<string, unknown>), items: docs }
+        : docs;
+    await writeYamlFile(filePath, spec.header, out);
+  };
 
   async function readWorkMd(id: string): Promise<string> {
-    return fs.readFile(path.join(workDir, `${id}.md`), "utf8");
+    return fs.readFile(path.join(workDir(), `${id}.md`), "utf8");
   }
 
   async function writeWorkMd(id: string, content: string) {
-    await fs.writeFile(path.join(workDir, `${id}.md`), content, "utf8");
+    await fs.writeFile(path.join(workDir(), `${id}.md`), content, "utf8");
   }
 
   function archiveSpec(which: string): YamlListFile {
@@ -307,6 +348,7 @@ export function createContentEditor(opts: ContentEditorOptions): ContentEditor {
   }
 
   function isAllowed(ref: ParsedContentPath): boolean {
+    if (!opts.files[FILES_KEY[ref.kind]]) return false;
     if (ref.kind === "archive" && opts.archiveKinds && !opts.archiveKinds.includes(ref.id)) {
       return false;
     }
@@ -316,9 +358,9 @@ export function createContentEditor(opts: ContentEditorOptions): ContentEditor {
   }
 
   async function getValue(ref: ParsedContentPath): Promise<unknown> {
-    if (ref.kind === "profile") return profileGet(await readList(opts.files.profile, "profile"), ref.field);
+    if (ref.kind === "profile") return profileGet(await readList(needFile("profile"), "profile"), ref.field);
     if (ref.kind === "page") {
-      const raw = await readYamlFile(abs(opts.files.pageCopy.file));
+      const raw = await readYamlFile(abs(needFile("pageCopy").file));
       return getByPath(raw, ref.field);
     }
     if (ref.kind === "archive") {
@@ -332,12 +374,12 @@ export function createContentEditor(opts: ContentEditorOptions): ContentEditor {
       return getByPath(fm, ref.field);
     }
     if (ref.kind === "record") {
-      const docs = await readList(opts.files.records, "records");
+      const docs = await readList(needFile("records"), "records");
       const entry = docs.find((d) => d.id === ref.id);
       if (!entry) throw new Error(`record id not found: ${ref.id}`);
       return getByPath(entry, ref.field);
     }
-    const docs = await readList(opts.files.writing, "writing");
+    const docs = await readList(needFile("writing"), "writing");
     const entry = docs.find((d) => d.id === ref.id);
     if (!entry) throw new Error(`writing id not found: ${ref.id}`);
     if (ref.field === "byline") {
@@ -350,16 +392,16 @@ export function createContentEditor(opts: ContentEditorOptions): ContentEditor {
     const v = String(value);
 
     if (ref.kind === "profile") {
-      const docs = await readList(opts.files.profile, "profile");
+      const docs = await readList(needFile("profile"), "profile");
       profileSet(docs, ref.field, v);
-      await writeList(opts.files.profile, docs);
+      await writeList(needFile("profile"), docs);
       return { path: `profile:${ref.field}`, value: v };
     }
     if (ref.kind === "page") {
-      const docs = (await readYamlFile(abs(opts.files.pageCopy.file))) as Record<string, any>;
+      const docs = (await readYamlFile(abs(needFile("pageCopy").file))) as Record<string, any>;
       if (!docs || typeof docs !== "object") throw new Error("page-copy invalid");
       setByPath(docs, ref.field, v);
-      await writeYamlFile(abs(opts.files.pageCopy.file), opts.files.pageCopy.header, docs);
+      await writeYamlFile(abs(needFile("pageCopy").file), needFile("pageCopy").header, docs);
       return { path: `page:${ref.field}`, value: v };
     }
     if (ref.kind === "archive") {
@@ -392,26 +434,26 @@ export function createContentEditor(opts: ContentEditorOptions): ContentEditor {
       return { path: ref.raw, value: v };
     }
     if (ref.kind === "record") {
-      const docs = await readList(opts.files.records, "records");
+      const docs = await readList(needFile("records"), "records");
       const entry = docs.find((d) => d.id === ref.id);
       if (!entry) throw new Error(`record id not found: ${ref.id}`);
       if (ref.field === "visibility") {
         const vis = coerceVisibility(v);
         entry.visibility = vis;
-        await writeList(opts.files.records, docs);
+        await writeList(needFile("records"), docs);
         return { path: ref.raw, value: vis };
       }
       setByPath(entry, ref.field, v);
-      await writeList(opts.files.records, docs);
+      await writeList(needFile("records"), docs);
       return { path: ref.raw, value: v };
     }
 
-    const docs = await readList(opts.files.writing, "writing");
+    const docs = await readList(needFile("writing"), "writing");
     const entry = docs.find((d) => d.id === ref.id);
     if (!entry) throw new Error(`writing id not found: ${ref.id}`);
     if (ref.field === "year") {
       entry.year = coerceWritingYear(v);
-      await writeList(opts.files.writing, docs);
+      await writeList(needFile("writing"), docs);
       return { path: ref.raw, value: entry.year == null ? "" : String(entry.year) };
     }
     if (ref.field === "byline") {
@@ -420,24 +462,24 @@ export function createContentEditor(opts: ContentEditorOptions): ContentEditor {
         .split(/\s*,\s*(?:and\s+)?|\s+and\s+/i)
         .map((s) => s.trim())
         .filter(Boolean);
-      await writeList(opts.files.writing, docs);
+      await writeList(needFile("writing"), docs);
       return { path: ref.raw, value: entry.byline.join(", ") };
     }
     if (ref.field === "visibility") {
       const vis = coerceVisibility(v);
       entry.visibility = vis;
-      await writeList(opts.files.writing, docs);
+      await writeList(needFile("writing"), docs);
       return { path: ref.raw, value: vis };
     }
     const linkKeyM = ref.field.match(/^links\.(\w+)$/);
     if (linkKeyM && writingLinkKeys.has(linkKeyM[1]!)) {
       if (!entry.links || typeof entry.links !== "object") entry.links = {};
       entry.links[linkKeyM[1]!] = v;
-      await writeList(opts.files.writing, docs);
+      await writeList(needFile("writing"), docs);
       return { path: ref.raw, value: v };
     }
     setByPath(entry, ref.field, v);
-    await writeList(opts.files.writing, docs);
+    await writeList(needFile("writing"), docs);
     return { path: ref.raw, value: v };
   }
 
@@ -446,7 +488,7 @@ export function createContentEditor(opts: ContentEditorOptions): ContentEditor {
       const { fm } = splitWorkMd(await readWorkMd(id));
       return Array.isArray(fm.links) ? fm.links.map(normalizeLink) : [];
     }
-    const docs = await readList(opts.files.records, "records");
+    const docs = await readList(needFile("records"), "records");
     const entry = docs.find((d) => d.id === id);
     if (!entry) throw new Error("record not found");
     return Array.isArray(entry.links) ? entry.links.map(normalizeLink) : [];
@@ -487,7 +529,7 @@ export function createContentEditor(opts: ContentEditorOptions): ContentEditor {
 
     const wKey = f.match(/^links\.(\w+)$/);
     if (ref.kind === "writing" && wKey && writingLinkKeys.has(wKey[1]!)) {
-      const docs = await readList(opts.files.writing, "writing");
+      const docs = await readList(needFile("writing"), "writing");
       const entry = docs.find((d) => d.id === ref.id);
       if (!entry) throw new Error("writing not found");
       const href = String(entry.links?.[wKey[1]!] ?? "");
@@ -530,13 +572,13 @@ export function createContentEditor(opts: ContentEditorOptions): ContentEditor {
       await writeWorkMd(id, joinWorkMd(fm, body));
       return clean;
     }
-    const docs = await readList(opts.files.records, "records");
+    const docs = await readList(needFile("records"), "records");
     const entry = docs.find((d) => d.id === id);
     if (!entry) throw new Error("record not found");
     if (!Array.isArray(entry.links)) entry.links = [];
     while (entry.links.length <= index) entry.links.push({ ...PLACEHOLDER });
     entry.links[index] = clean;
-    await writeList(opts.files.records, docs);
+    await writeList(needFile("records"), docs);
     return clean;
   }
 
@@ -554,12 +596,12 @@ export function createContentEditor(opts: ContentEditorOptions): ContentEditor {
       await writeWorkMd(id, joinWorkMd(fm, body));
       return { index: fm.links.length - 1, link: clean };
     }
-    const docs = await readList(opts.files.records, "records");
+    const docs = await readList(needFile("records"), "records");
     const entry = docs.find((d) => d.id === id);
     if (!entry) throw new Error("record not found");
     if (!Array.isArray(entry.links)) entry.links = [];
     entry.links.push(clean);
-    await writeList(opts.files.records, docs);
+    await writeList(needFile("records"), docs);
     return { index: entry.links.length - 1, link: clean };
   }
 
@@ -574,18 +616,18 @@ export function createContentEditor(opts: ContentEditorOptions): ContentEditor {
       await writeWorkMd(id, joinWorkMd(fm, body));
       return;
     }
-    const docs = await readList(opts.files.records, "records");
+    const docs = await readList(needFile("records"), "records");
     const entry = docs.find((d) => d.id === id);
     if (!entry || !Array.isArray(entry.links)) throw new Error("record/links missing");
     if (index < 0 || index >= entry.links.length) throw new Error("link index out of range");
     if (entry.links.length <= 1) throw new Error("records need at least one link");
     entry.links.splice(index, 1);
-    await writeList(opts.files.records, docs);
+    await writeList(needFile("records"), docs);
   }
 
   async function workIdExists(id: string): Promise<boolean> {
     try {
-      await fs.access(path.join(workDir, `${id}.md`));
+      await fs.access(path.join(workDir(), `${id}.md`));
       return true;
     } catch {
       return false;
@@ -616,11 +658,11 @@ export function createContentEditor(opts: ContentEditorOptions): ContentEditor {
   async function nextWorkOrder(): Promise<number> {
     let max = 0;
     try {
-      const files = await fs.readdir(workDir);
+      const files = await fs.readdir(workDir());
       for (const f of files) {
         if (!f.endsWith(".md")) continue;
         try {
-          const { fm } = splitWorkMd(await fs.readFile(path.join(workDir, f), "utf8"));
+          const { fm } = splitWorkMd(await fs.readFile(path.join(workDir(), f), "utf8"));
           const o = Number(fm.order);
           if (Number.isFinite(o) && o > max) max = o;
         } catch {
@@ -647,37 +689,37 @@ export function createContentEditor(opts: ContentEditorOptions): ContentEditor {
         kind: "work",
         id,
         title,
-        path: path.relative(process.cwd(), path.join(workDir, `${id}.md`)),
+        path: path.relative(process.cwd(), path.join(workDir(), `${id}.md`)),
         editPath: `work:${id}:title`,
       };
     }
 
     if (d.kind === "writing") {
       if (!drafts.writing) throw new Error("writing drafts not configured");
-      const docs = await readList(opts.files.writing, "writing");
+      const docs = await readList(needFile("writing"), "writing");
       const id = uniqueYamlId(docs, title);
       docs.push(drafts.writing(d, { id }));
-      await writeList(opts.files.writing, docs);
+      await writeList(needFile("writing"), docs);
       return {
         kind: "writing",
         id,
         title,
-        path: path.relative(process.cwd(), abs(opts.files.writing.file)),
+        path: path.relative(process.cwd(), abs(needFile("writing").file)),
         editPath: `writing:${id}:title`,
       };
     }
 
     if (d.kind === "record") {
       if (!drafts.record) throw new Error("record drafts not configured");
-      const docs = await readList(opts.files.records, "records");
+      const docs = await readList(needFile("records"), "records");
       const id = uniqueYamlId(docs, title);
       docs.push(drafts.record(d, { id }));
-      await writeList(opts.files.records, docs);
+      await writeList(needFile("records"), docs);
       return {
         kind: "record",
         id,
         title,
-        path: path.relative(process.cwd(), abs(opts.files.records.file)),
+        path: path.relative(process.cwd(), abs(needFile("records").file)),
         editPath: `record:${id}:title`,
       };
     }

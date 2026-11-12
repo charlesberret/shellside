@@ -1,0 +1,176 @@
+---
+/**
+ * Packaged /admin — the dev desk's client half (DEV-only; injected only
+ * when `surfaces.devDesk` + `edit.*` are set and the command is `dev`).
+ * A minimal but real editor: it enumerates the declared `edit.files`
+ * grammar, filters candidates through `editor.isAllowed`, and reads +
+ * writes through the mounted `/api/dev-content` route.
+ */
+import fs from "node:fs";
+import path from "node:path";
+import yaml from "js-yaml";
+import config from "virtual:shellsite/config";
+import { editor, files } from "virtual:shellsite/dev-desk";
+import { parseContentPath } from "@shellside/edit-protocol";
+import { projectSiteTree } from "@shellside/site";
+
+const edit = config.edit ?? {};
+const contentRoot = path.resolve(edit.contentRoot ?? "src/content");
+const tree = projectSiteTree(contentRoot);
+const scalar = (v: unknown) => ["string", "number", "boolean"].includes(typeof v);
+
+/** Candidate edit paths, filtered through the editor's own allowlist. */
+const rows: { path: string; group: string }[] = [];
+const push = (p: string, group: string) => {
+  const ref = parseContentPath(p);
+  if (!ref) return;
+  try {
+    if (editor.isAllowed(ref)) rows.push({ path: p, group });
+  } catch {
+    /* kind not configured — skip */
+  }
+};
+
+// work-kind dir: `work:<slug>:<frontmatter key | body>`
+if (files.work?.dir) {
+  const section = tree.sections.find((s) => s.dir === files.work.dir);
+  for (const e of section?.entries ?? []) {
+    const id = e.slug.slice(files.work.dir.length + 1);
+    for (const k of [...Object.keys(e.data), "body"]) push(`work:${id}:${k}`, "work");
+  }
+}
+// list-file kinds: `writing:<rowId>:<scalar field>`, `records:` the same
+for (const kind of ["writing", "records"] as const) {
+  const f = files[kind]?.file;
+  if (!f) continue;
+  const dirName = path.basename(f).replace(/\.[^.]+$/, "");
+  const section = tree.sections.find((s) => s.dir === dirName);
+  for (const e of section?.entries ?? []) {
+    const id = e.slug.slice(dirName.length + 1);
+    for (const k of Object.keys(e.data).filter((k) => scalar(e.data[k]))) {
+      push(`${kind}:${id}:${k}`, kind);
+    }
+  }
+}
+// profile map: `profile:<scalar key>`
+if (files.profile?.file) {
+  const parsed = yaml.load(
+    fs.readFileSync(path.join(contentRoot, files.profile.file), "utf8"),
+  ) as Record<string, unknown>;
+  for (const k of Object.keys(parsed ?? {}).filter((k) => scalar(parsed[k]))) {
+    push(`profile:${k}`, "profile");
+  }
+}
+// page-copy map-of-maps: `page:<section>.<scalar field>`
+if (files.pageCopy?.file) {
+  const parsed = yaml.load(
+    fs.readFileSync(path.join(contentRoot, files.pageCopy.file), "utf8"),
+  ) as Record<string, Record<string, unknown>>;
+  for (const [sec, fields] of Object.entries(parsed ?? {})) {
+    if (fields && typeof fields === "object") {
+      for (const k of Object.keys(fields).filter((k) => scalar(fields[k]))) {
+        push(`page:${sec}.${k}`, "page");
+      }
+    }
+  }
+}
+const groups = [...new Set(rows.map((r) => r.group))];
+---
+
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>desk — {config.identity.name}</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; margin: 0; color: CanvasText; background: Canvas; }
+    main { display: grid; grid-template-columns: minmax(14rem, 22rem) 1fr; gap: 0; height: 100vh; }
+    header { padding: 0.75rem 1rem; border-bottom: 1px solid color-mix(in srgb, CanvasText 20%, transparent); font-size: 0.85rem; }
+    header b { font-weight: 600; }
+    header .tag { opacity: 0.6; margin-left: 0.5rem; }
+    #list { overflow-y: auto; border-right: 1px solid color-mix(in srgb, CanvasText 20%, transparent); font-size: 0.8rem; }
+    #list h2 { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.6; margin: 0.9rem 1rem 0.3rem; }
+    #list a { display: block; padding: 0.15rem 1rem; color: inherit; text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #list a:hover, #list a.on { background: color-mix(in srgb, CanvasText 8%, transparent); }
+    #pane { display: flex; flex-direction: column; padding: 0.9rem 1rem; gap: 0.5rem; }
+    #pathLabel { font-size: 0.85rem; opacity: 0.8; }
+    textarea { flex: 1; font: inherit; font-size: 0.85rem; padding: 0.6rem; border: 1px solid color-mix(in srgb, CanvasText 25%, transparent); border-radius: 4px; background: Canvas; color: CanvasText; resize: none; }
+    .row { display: flex; gap: 0.6rem; align-items: center; }
+    button { font: inherit; font-size: 0.8rem; padding: 0.35rem 1.1rem; border: 1px solid color-mix(in srgb, CanvasText 30%, transparent); border-radius: 4px; background: Canvas; color: CanvasText; cursor: pointer; }
+    button:hover { border-color: CanvasText; }
+    #status { font-size: 0.75rem; opacity: 0.75; white-space: pre-wrap; margin: 0; }
+    #find { font: inherit; font-size: 0.8rem; padding: 0.35rem 0.6rem; border: 1px solid color-mix(in srgb, CanvasText 25%, transparent); border-radius: 4px; background: Canvas; color: CanvasText; width: 100%; }
+  </style>
+</head>
+<body>
+  <header><b>desk</b> <span class="tag">DEV-only — writes hit files on disk via /api/dev-content</span></header>
+  <main>
+    <div id="list">
+      <div style="padding:0.6rem 1rem 0"><input id="find" placeholder="filter paths…" /></div>
+      {groups.map((g) => (
+        <section>
+          <h2>{g}</h2>
+          {rows.filter((r) => r.group === g).map((r) => (
+            <a href="#" data-path={r.path}>{r.path}</a>
+          ))}
+        </section>
+      ))}
+      {rows.length === 0 ? <p style="padding:0 1rem;opacity:0.6">no editable paths — check edit.files + allowlist</p> : null}
+    </div>
+    <div id="pane">
+      <code id="pathLabel">pick a path on the left</code>
+      <textarea id="value" spellcheck="false" placeholder="value"></textarea>
+      <div class="row">
+        <button id="save">save</button>
+        <pre id="status"></pre>
+      </div>
+    </div>
+  </main>
+  <script>
+    const api = "/api/dev-content";
+    const label = document.getElementById("pathLabel");
+    const value = document.getElementById("value");
+    const status = document.getElementById("status");
+    let current = null;
+
+    async function load(p) {
+      current = p;
+      label.textContent = p;
+      status.textContent = "…";
+      const r = await fetch(`${api}?path=${encodeURIComponent(p)}`);
+      const j = await r.json();
+      if (!j.ok) { status.textContent = `error: ${j.error ?? r.status}`; value.value = ""; return; }
+      value.value = typeof j.value === "string" ? j.value : JSON.stringify(j.value ?? "", null, 2);
+      status.textContent = `type: ${j.type}`;
+      document.querySelectorAll("#list a").forEach((a) => a.classList.toggle("on", a.dataset.path === p));
+    }
+
+    document.getElementById("list").addEventListener("click", (e) => {
+      const a = e.target.closest("a[data-path]");
+      if (!a) return;
+      e.preventDefault();
+      load(a.dataset.path);
+    });
+
+    document.getElementById("save").addEventListener("click", async () => {
+      if (!current) { status.textContent = "nothing loaded"; return; }
+      status.textContent = "saving…";
+      const r = await fetch(api, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ path: current, value: value.value }),
+      });
+      const j = await r.json();
+      status.textContent = j.ok ? `saved ${current}` : `error: ${j.error ?? r.status}`;
+    });
+
+    document.getElementById("find").addEventListener("input", (e) => {
+      const q = e.target.value.toLowerCase();
+      document.querySelectorAll("#list a").forEach((a) => {
+        a.style.display = a.dataset.path.includes(q) ? "" : "none";
+      });
+    });
+  </script>
+</body>
+</html>

@@ -9,6 +9,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import yaml from "js-yaml";
+import type { VisibilityFields } from "@shellside/content-model";
 import { parseFrontmatter } from "./frontmatter.js";
 
 export type TreeEntry = {
@@ -18,7 +19,7 @@ export type TreeEntry = {
   /** raw body after frontmatter (markdown/text). */
   body: string;
   /** frontmatter scalars, plus `visibility`/`status`. */
-  data: Record<string, unknown>;
+  data: VisibilityFields & Record<string, unknown>;
   /** extra list rows when the file is a *.yaml collection. */
   list?: Record<string, unknown>[];
 };
@@ -32,12 +33,16 @@ export type TreeSection = {
   order: number;
   /** .meta `blurb:` if present. */
   blurb?: string;
+  /** `index.*` inside the dir — the directory's own page (`/<dir>/`), not an entry row. */
+  indexEntry?: TreeEntry;
   entries: TreeEntry[];
 };
 
 export type SiteTree = {
   /** parsed `.site` config (key: value lines / yaml-ish). */
   site: Record<string, string>;
+  /** root `index.*` — the index page's own body content, not a listed entry. */
+  indexEntry?: TreeEntry;
   /** root-level loose files. */
   entries: TreeEntry[];
   sections: TreeSection[];
@@ -59,7 +64,7 @@ export function parseDotConfig(text: string): Record<string, string> {
     const t = line.trim();
     if (!t || t.startsWith("#")) continue;
     const m = t.match(/^([A-Za-z0-9_.-]+):\s*(.*)$/);
-    if (m) out[m[1]] = m[2].trim();
+    if (m) out[m[1]] = m[2].trim().replaceAll("\\n", "\n");
   }
   return out;
 }
@@ -112,12 +117,16 @@ export function projectSiteTree(contentDir: string): SiteTree {
             slug: `${ent.name.replace(/\.[^.]+$/, "")}/${row.id ?? row.title}`,
             title: row.title ? String(row.title) : String(row.id ?? "row"),
             body: typeof row.body === "string" ? row.body : "",
-            data: row,
+            data: row as TreeEntry["data"],
           })),
         });
         continue;
       }
-      tree.entries.push(e);
+      if (e.slug === "index") {
+        tree.indexEntry = e;
+      } else {
+        tree.entries.push(e);
+      }
       continue;
     }
     if (!ent.isDirectory()) continue;
@@ -144,7 +153,12 @@ export function projectSiteTree(contentDir: string): SiteTree {
       if (sub.isFile() && isContentFile(sub.name)) {
         const e = readEntry(subAbs);
         e.slug = `${ent.name}/${e.slug}`;
-        section.entries.push(e);
+        // `index.*` is the directory's own page, not an entry row.
+        if (path.basename(sub.name).replace(/\.[^.]+$/, "") === "index") {
+          section.indexEntry = e;
+        } else {
+          section.entries.push(e);
+        }
       } else if (sub.isDirectory()) {
         // deeper nesting: files become entries slugged sub/file
         for (const deep of fs.readdirSync(subAbs, { withFileTypes: true })) {

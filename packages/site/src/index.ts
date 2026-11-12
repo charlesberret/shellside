@@ -7,8 +7,10 @@
  */
 
 import type { AstroIntegration, AstroConfig } from "astro";
+import { fileURLToPath } from "node:url";
 import type { Plugin } from "vite";
 import type { ShellsiteConfig } from "./config.js";
+import { devDeskPlugin } from "./dev-desk.js";
 
 export { defineShellsiteConfig } from "./config.js";
 export type {
@@ -21,8 +23,11 @@ export {
   publicEntries,
   byTitle,
   entryId,
+  entryMeta,
+  entryLinks,
   type Listed,
 } from "./public.js";
+export { isPublicItem } from "@shellside/content-model";
 
 export const SHELLSITE_CONFIG_ID = "virtual:shellsite/config";
 const RESOLVED_CONFIG_ID = "\0" + SHELLSITE_CONFIG_ID;
@@ -47,7 +52,21 @@ export function shellsite(config: ShellsiteConfig): AstroIntegration {
   return {
     name: "@shellside/site",
     hooks: {
-      "astro:config:setup": ({ injectRoute, updateConfig }: any) => {
+      "astro:config:setup": ({ injectRoute, updateConfig, command, config: astroConfig }: any) => {
+        // The desk mounts only in `astro dev` — a build never sees the
+        // route, the virtual module, or the site's edit modules.
+        const deskOn =
+          Boolean(config.surfaces.devDesk && config.edit) && command === "dev";
+        if (deskOn) {
+          injectRoute({
+            pattern: "/api/dev-content",
+            entrypoint: "@shellside/site/dev-content",
+          });
+          injectRoute({
+            pattern: "/admin",
+            entrypoint: "@shellside/site/admin-page",
+          });
+        }
         if (config.surfaces.console) {
           injectRoute({
             pattern: "/console",
@@ -73,7 +92,14 @@ export function shellsite(config: ShellsiteConfig): AstroIntegration {
           });
         }
         updateConfig({
-          vite: { plugins: [configPlugin(config)] },
+          vite: {
+            plugins: [
+              configPlugin(config),
+              ...(deskOn
+                ? [devDeskPlugin(config, fileURLToPath(astroConfig.root))]
+                : []),
+            ],
+          },
         });
       },
     },

@@ -33,3 +33,14 @@ jobs:
       - name: Demo build + leak audit
         run: node ../../node_modules/astro/astro.js build && node scripts/check.mjs
         working-directory: apps/demo
+
+      - name: Dev-desk smoke (astro dev routes — not covered by builds)
+        run: node scripts/check-desk.mjs
+
+      - name: create-site scaffold smoke (second site from zero)
+        run: |
+          node scripts/create-site.mjs /tmp/ci-scratch --name "CI Scratch"
+          cd /tmp/ci-scratch
+          npm install
+          npm run build
+          npm run check

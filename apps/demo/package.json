@@ -9,6 +9,8 @@
     "check": "node scripts/check.mjs"
   },
   "dependencies": {
+    "@fontsource-variable/tasa-orbiter": "5.3.0",
+    "@shellside/dev-api": "*",
     "@shellside/site": "*",
     "astro": "5.16.16"
   }

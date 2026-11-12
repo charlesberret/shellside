@@ -23,3 +23,12 @@
   note: >-
     Dual-read: status draft and missing visibility stay off public surfaces.
     SHELLSIDE_LEGACY_DRAFT_SENTINEL
+
+- id: shelved-piece
+  title: Shelved Piece SHELLSIDE_LEGACY_UNPUBLISHED_SENTINEL
+  summary: Legacy status unpublished with no visibility field.
+  venue: Desk
+  year: 2026
+  status: unpublished
+  note: >-
+    The unpublished spelling hides the same way. SHELLSIDE_LEGACY_UNPUBLISHED_SENTINEL
