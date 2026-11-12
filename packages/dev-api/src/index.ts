@@ -1,9 +1,12 @@
 export {
   isLoopbackHost,
   DEV_API_NOTES,
+  parseCreateDraftBody,
   type DevApiSkin,
   type DevApiFieldStyle,
   type DevApiActions,
+  type DevApiCreateDraftRequest,
+  type DevApiCreateDraftResponse,
 } from "./contract.js";
 export {
   createContentEditor,

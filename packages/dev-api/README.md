@@ -9,3 +9,11 @@ import { createDevContentHandler } from "@shellside/dev-api";
 ```
 
 Gates: `isDev()` + localhost Host check. See `docs/ARE_YOU_INSANE.md`.
+
+## Actions (`DevApiActions`)
+
+Scalar writes use `{ path, value? }`. Named actions include `add-link`, `remove-link`,
+look-history helpers, and **`create-draft`** — POST `{ action: "create-draft", draftTitle,
+draftKind? }` to allocate a new work markdown file or YAML row. Request/response shapes
+live in `src/contract.ts` (`DevApiCreateDraftRequest`, `DevApiCreateDraftResponse`);
+`createDevContentHandler` implements them.

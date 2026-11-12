@@ -11,7 +11,7 @@
  * `handler.GET({ url, request })`.
  */
 import { parseContentPath } from "@shellside/edit-protocol";
-import { isLoopbackHost } from "./contract.js";
+import { isLoopbackHost, parseCreateDraftBody, type DevApiActions } from "./contract.js";
 import type { ContentEditor, CreateDraftOpts, LinkRecord } from "./content-editor.js";
 
 /** What the site supplies for the look half of the desk. */
@@ -58,7 +58,7 @@ export type DevPostBody = {
   skin?: string;
   tags?: string[];
   link?: LinkRecord;
-  action?: "add-link" | "remove-link" | "look-history-list" | "look-history-restore" | "create-draft";
+  action?: DevApiActions;
   lookHistoryId?: string;
   tokens?: unknown;
   palette?: Record<string, unknown>;
@@ -165,13 +165,17 @@ export function createDevContentHandler(opts: DevContentHandlerOptions): DevApiH
     }
 
     if (body.action === "create-draft") {
+      const parsed = parseCreateDraftBody(body as Record<string, unknown>);
+      if (!parsed.ok) {
+        return json({ error: parsed.error }, parsed.status);
+      }
       try {
         const result = await opts.editor.createDraft({
-          kind: (body.draftKind || "work") as CreateDraftOpts["kind"],
-          title: String(body.draftTitle || ""),
-          workStatus: body.workStatus,
-          writingType: body.writingType,
-          recordSection: body.recordSection,
+          kind: parsed.opts.draftKind ?? "work",
+          title: String(parsed.opts.draftTitle ?? ""),
+          workStatus: parsed.opts.workStatus,
+          writingType: parsed.opts.writingType,
+          recordSection: parsed.opts.recordSection,
         });
         return json({
           ok: true,
