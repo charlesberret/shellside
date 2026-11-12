@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { defineShellsiteConfig, shellsite } from "./index.js";
+import { defineShellsiteConfig, isLoopbackServerBind, shellsite } from "./index.js";
 
 test("config is plain data (serializable)", () => {
   const c = defineShellsiteConfig({
@@ -45,6 +45,40 @@ test("virtual config plugin emits the config", () => {
   assert.ok(plugin.load(id)!.includes('"name":"T"'));
 });
 
+test("isLoopbackServerBind matches Astro server.host shapes", () => {
+  assert.equal(isLoopbackServerBind(undefined), true);
+  assert.equal(isLoopbackServerBind(false), true);
+  assert.equal(isLoopbackServerBind(true), false);
+  assert.equal(isLoopbackServerBind("0.0.0.0"), false);
+  assert.equal(isLoopbackServerBind("127.0.0.1"), true);
+  assert.equal(isLoopbackServerBind("localhost"), true);
+});
+
+test("devDesk skips mount when server.host is true unless allowNonLoopback", () => {
+  const edit = {
+    files: { work: "work" },
+    policy: "./src/policy.ts",
+  };
+  const run = (allowNonLoopback?: boolean) => {
+    const routes: string[] = [];
+    const i = shellsite({
+      identity: { name: "T" },
+      collections: {},
+      surfaces: { devDesk: true },
+      edit: { ...edit, ...(allowNonLoopback ? { allowNonLoopback: true } : {}) },
+    });
+    (i.hooks as Record<string, Function>)["astro:config:setup"]({
+      injectRoute: (r: { pattern: string }) => routes.push(r.pattern),
+      updateConfig: () => {},
+      command: "dev",
+      config: { root: new URL("file:///site/"), server: { host: true } },
+    });
+    return routes;
+  };
+  assert.equal(run().includes("/api/dev-content"), false);
+  assert.equal(run(true).includes("/api/dev-content"), true);
+});
+
 test("devDesk injects /api/dev-content only in dev and only with edit", () => {
   const mk = (devDesk: boolean, withEdit: boolean) =>
     shellsite({
@@ -67,7 +101,7 @@ test("devDesk injects /api/dev-content only in dev and only with edit", () => {
           plugins = u.vite?.plugins ?? [];
         },
         command,
-        config: { root: new URL("file:///site/") },
+        config: { root: new URL("file:///site/"), server: { host: "127.0.0.1" } },
       });
       const want = command === "dev" && withEdit;
       assert.equal(

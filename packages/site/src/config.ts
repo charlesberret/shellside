@@ -125,6 +125,13 @@ export type ShellsiteConfig = {
      * Omit for a content-only desk.
      */
     look?: string;
+    /**
+     * When false (default), the host refuses to mount the dev desk in
+     * `astro dev` unless Astro's `server.host` is loopback-only. Set
+     * `true` only if you accept exposing the write API on every address
+     * the dev server binds to (`server.host: true` and the like).
+     */
+    allowNonLoopback?: boolean;
   };
 };
 
