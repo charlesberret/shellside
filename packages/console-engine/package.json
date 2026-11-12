@@ -1,6 +1,13 @@
 {
   "name": "@shellside/console-engine",
   "version": "0.1.0",
+  "description": "Console terminal runner with filesystem and filter commands.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/charlesberret/shellside.git",
+    "directory": "packages/console-engine"
+  },
   "private": true,
   "type": "module",
   "exports": {

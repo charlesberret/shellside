@@ -1,6 +1,13 @@
 {
   "name": "@shellside/console-vfs",
   "version": "0.1.0",
+  "description": "Project public collections into a virtual filesystem for the console.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/charlesberret/shellside.git",
+    "directory": "packages/console-vfs"
+  },
   "private": true,
   "type": "module",
   "main": "./dist/index.js",

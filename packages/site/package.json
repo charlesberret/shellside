@@ -1,6 +1,13 @@
 {
   "name": "@shellside/site",
   "version": "0.1.0",
+  "description": "Config-driven Astro integration for dual-surface portfolio sites.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/charlesberret/shellside.git",
+    "directory": "packages/site"
+  },
   "private": true,
   "type": "module",
   "exports": {

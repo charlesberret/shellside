@@ -1,6 +1,13 @@
 {
   "name": "@shellside/dev-api",
   "version": "0.1.0",
+  "description": "DEV-only editorial desk write API and content persistence layer.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/charlesberret/shellside.git",
+    "directory": "packages/dev-api"
+  },
   "private": true,
   "type": "module",
   "main": "./dist/index.js",

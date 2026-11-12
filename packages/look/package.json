@@ -1,6 +1,13 @@
 {
   "name": "@shellside/look",
   "version": "0.1.0",
+  "description": "Look roles, field-style maps, and filesystem design-token factories.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/charlesberret/shellside.git",
+    "directory": "packages/look"
+  },
   "private": true,
   "type": "module",
   "main": "./dist/index.js",
