@@ -16,9 +16,7 @@ export default defineShellsiteConfig({
     files: {
       work: "work",
       writing: "writing.yaml",
-      records: "records.yaml",
-      profile: "profile.yaml",
-      pageCopy: "page-copy.yaml",
+      profile: "profile/profile.yaml",
     },
     policy: "./src/lib/edit-policy.ts",
   },
