@@ -49,6 +49,14 @@ const entrySchema = z
 const rootEntries = fs.readdirSync(contentRoot, { withFileTypes: true });
 
 export const collections = Object.fromEntries([
+  // root loose files → "pages" collection (index.md renders on the index page)
+  [
+    "pages",
+    defineCollection({
+      loader: glob({ pattern: "*.{md,mdx,markdown}", base: contentRoot }),
+      schema: entrySchema,
+    }),
+  ],
   // dirs → markdown-glob collections
   ...rootEntries
     .filter((e) => e.isDirectory() && !e.name.startsWith("."))

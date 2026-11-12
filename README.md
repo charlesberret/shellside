@@ -15,7 +15,7 @@ First consumer (the "marquee" site): [charlesberret.net](https://charlesberret.n
 
 ## Live demo
 
-https://charlesberret.github.io/shellside/ — a `@shellside/site` instance whose content is the kit itself (packages as projects, docs as writing, releases as records). Deployed by `.github/workflows/pages.yml` on changes to `apps/demo/` or `packages/`.
+https://charlesberret.github.io/shellside/ — a `@shellside/site` instance whose content is the kit itself (packages as projects, docs as writing, releases as records). It opens on a two-surface gate (`/` → `plain` | `console`); `content/index.md` is the plain index's body and `<dir>/index.md` is a section's own landing page. Deployed by `.github/workflows/pages.yml` on changes to `apps/demo/` or `packages/`.
 
 ## Packages
 
@@ -27,7 +27,7 @@ https://charlesberret.github.io/shellside/ — a `@shellside/site` instance whos
 | `@shellside/console-vfs` | VFS node types + collection→tree projection for a second-site console (`ls`/`cat` data only — no personality) |
 | `@shellside/dev-api` | DEV-only desk machinery. `createContentEditor` is the fs write core. `createDevContentHandler` covers gates and actions. The site injects the look surface. |
 | `@shellside/console-engine` | Terminal mechanics — parse/path/pipeline/runner/io + fs/filter commands. Personality stays in the site. |
-| `@shellside/site` | Config-driven host: `shellsite()` Astro integration injects `/console` + `/list.txt`; site keeps chrome; `leakAudit` audits dist for draft leaks. |
+| `@shellside/site` | Config-driven host: `shellsite()` Astro integration injects `/console`, `/list.txt`, `/llms.txt`, and — in `astro dev` only — `/admin` + `/api/dev-content`. Site keeps chrome; `leakAudit` audits dist for draft leaks; the packaged `EntryFields` component renders a row's meta/note/links on detail pages. |
 
 ## Apps
 
@@ -38,7 +38,7 @@ https://charlesberret.github.io/shellside/ — a `@shellside/site` instance whos
 
 ## Design pillars
 
-1. **Content once, many surfaces.** Portfolio page, console VFS, plaintext, and llms.txt all read the same collections
+1. **Content once, many surfaces.** Portfolio page, console VFS, plaintext, and llms.txt all read the same content tree
 2. **Visibility ≠ lifecycle.** `visibility: draft|published` is orthogonal to work `current|complete` or writing `forthcoming`
 3. **Look is role-scoped.** Restyle "item title", not only `work:kettle:title`
 4. **Admin is DEV-only.** No production write surface. Drafts never ship if filters are correct
@@ -63,9 +63,9 @@ See [docs/EXTRACTION_MAP.md](./docs/EXTRACTION_MAP.md).
 
 ## Status
 
-Pre-1.0; releases are `0.x` tags listed in [CHANGELOG.md](./CHANGELOG.md). **R0 was declared 2026-10-11 and R1 on 2026-10-18**: a reference host, a packaged read-only console, the config-driven `@shellside/site` host, a `create-site` scaffold, a filesystem-as-information-architecture projection, a dev-only desk route, and a leak audit that runs against the marquee's public export (about 119 pages, green). The marquee builds on vendored `@shellside/*` packages in `vendor/shellside`, synced by `scripts/sync-marquee-vendor.mjs`. Details: [docs/MARQUEE_SWITCH.md](./docs/MARQUEE_SWITCH.md).
+Pre-1.0; releases are `0.x` tags listed in [CHANGELOG.md](./CHANGELOG.md). **R0 was declared 2026-10-11 and R1 on 2026-10-18**: a reference host, a packaged read-only console, the config-driven `@shellside/site` host, a `create-site` scaffold, a filesystem-as-information-architecture projection, a dev-only desk route + `/admin` client, and a leak audit that runs against the marquee's public export (about 119 pages, green). The marquee builds on vendored `@shellside/*` packages in `vendor/shellside`, synced by `scripts/sync-marquee-vendor.mjs`. Details: [docs/MARQUEE_SWITCH.md](./docs/MARQUEE_SWITCH.md).
 
-**Next is R2, a publishable kit**: packages installable without vendoring. Nothing is published to npm yet, and no second real site has run the scaffold. [docs/ROADMAP.md](./docs/ROADMAP.md) covers the north star, the release bars, phased delivery, and the marquee sync protocol. The release bars run R0, contracts plus a content portability smoke, then R1, dual-surface with a marquee content fixture, then R2, publishable.
+**Next is R2, a publishable kit**: packages installable without vendoring. Nothing is published to npm yet; CI scaffolds a second site end-to-end on every push (install → build → leak audit). [docs/ROADMAP.md](./docs/ROADMAP.md) covers the north star, the release bars, phased delivery, and the marquee sync protocol. The release bars run R0, contracts plus a content portability smoke, then R1, dual-surface with a marquee content fixture, then R2, publishable.
 
 ## What "renders correctly" means
 
@@ -97,7 +97,7 @@ npm ci && npm run check        # builds packages, tests, reference prod build, l
 npm run dev -w @shellside/reference
 ```
 
-Routes: `/` portfolio, `/projects/<id>`, `/writing/<id>`, `/records/<id>`, `/console` (read-only shell over the VFS), `/list.txt`.
+Routes: `/` portfolio, `/projects/<id>`, `/writing/<id>`, `/records/<id>`, `/console` (read-only shell over the VFS), `/list.txt`. Under `astro dev` the desk also mounts: `/admin` + `/api/dev-content`.
 
 **With marquee content** — the export is the R1 acceptance fixture:
 

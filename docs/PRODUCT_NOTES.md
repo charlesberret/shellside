@@ -19,7 +19,7 @@ People might care if:
 
 ## Open questions
 
-- Package name on registries — repo is public MIT since 2026-10-14; npm/PyPI `shellside` reservation is LAB-113 (patron creds)  
+- Package name on registries — repo is public MIT since 2026-10-14; npm/PyPI `shellside` reservation waits on patron credentials  
 - Astro-only vs surface-agnostic content layer  
 - Console as optional package vs core pillar  
 

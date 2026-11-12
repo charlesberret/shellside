@@ -44,3 +44,74 @@ test("virtual config plugin emits the config", () => {
   assert.ok(id.startsWith("\0"));
   assert.ok(plugin.load(id)!.includes('"name":"T"'));
 });
+
+test("devDesk injects /api/dev-content only in dev and only with edit", () => {
+  const mk = (devDesk: boolean, withEdit: boolean) =>
+    shellsite({
+      identity: { name: "T" },
+      collections: {},
+      surfaces: { devDesk },
+      ...(withEdit
+        ? { edit: { files: { work: "work" }, policy: "./src/policy.ts" } }
+        : {}),
+    });
+
+  for (const command of ["dev", "build"] as const) {
+    for (const withEdit of [true, false]) {
+      const routes: string[] = [];
+      let plugins: { name?: string }[] = [];
+      const i = mk(true, withEdit);
+      (i.hooks as Record<string, Function>)["astro:config:setup"]({
+        injectRoute: (r: { pattern: string }) => routes.push(r.pattern),
+        updateConfig: (u: { vite?: { plugins?: { name?: string }[] } }) => {
+          plugins = u.vite?.plugins ?? [];
+        },
+        command,
+        config: { root: new URL("file:///site/") },
+      });
+      const want = command === "dev" && withEdit;
+      assert.equal(
+        routes.includes("/api/dev-content"),
+        want,
+        `${command}/edit=${withEdit} route`,
+      );
+      assert.equal(
+        plugins.some((p) => p.name === "shellsite-dev-desk"),
+        want,
+        `${command}/edit=${withEdit} plugin`,
+      );
+    }
+  }
+});
+
+test("dev-desk module assembles editor from config + policy paths", () => {
+  let deskSrc = "";
+  const i = shellsite({
+    identity: { name: "T" },
+    collections: {},
+    surfaces: { devDesk: true },
+    edit: {
+      contentRoot: "content",
+      files: { work: "cards", writing: "writing.yaml" },
+      policy: "./src/policy.ts",
+      look: "./src/look.ts",
+    },
+  });
+  (i.hooks as Record<string, Function>)["astro:config:setup"]({
+    injectRoute: () => {},
+    updateConfig: (u: { vite?: { plugins?: any[] } }) => {
+      const p = u.vite!.plugins!.find((x) => x.name === "shellsite-dev-desk")!;
+      deskSrc = p.load(p.resolveId("virtual:shellsite/dev-desk")!) as string;
+    },
+    command: "dev",
+    config: { root: new URL("file:///site/") },
+  });
+  assert.ok(deskSrc.includes('from "/site/src/policy.ts"'));
+  assert.ok(deskSrc.includes('from "/site/src/look.ts"'));
+  assert.ok(deskSrc.includes('"contentRoot": undefined') === false);
+  assert.ok(deskSrc.includes('/site/content'));
+  assert.ok(deskSrc.includes('work: { dir: "cards" }'));
+  assert.ok(deskSrc.includes('writing: { file: "writing.yaml"'));
+  assert.ok(deskSrc.includes("createDevContentHandler"));
+  assert.ok(deskSrc.includes("import.meta.env.DEV"));
+});

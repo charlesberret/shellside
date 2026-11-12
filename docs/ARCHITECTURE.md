@@ -44,7 +44,7 @@
 
 ## Are you insane? This is a really bad idea.
 
-`/console` is a browser program over a JSON copy of the public content. The prompt is costume. The editorial desk is the part that writes: an HTTP API in the dev process, with no accounts, gated by `isDev()` and a `Host` header of `localhost` or `127.0.0.1`. The marquee dev server listens on every interface (`server.host: true` in `~/cloud/git-projects/charlesberret.net/astro.config.mjs`). While that dev server is running, anyone who can open the port and send that header can rewrite the content files.
+`/console` is a browser program over a JSON copy of the public content. The prompt is costume. The editorial desk is the part that writes: an HTTP API in the dev process, with no accounts, gated by `isDev()` and a `Host` header of `localhost` or `127.0.0.1`. The marquee dev server listens on every interface (`server.host: true` in the marquee's `astro.config.mjs`). While that dev server is running, anyone who can open the port and send that header can rewrite the content files.
 
 The file-by-file account — what a visitor of `/console` can read, what the desk can write, what `parseContentPath` refuses, and what `leakAudit` does and does not watch — is [Are you insane? This is a really bad idea.](./ARE_YOU_INSANE.md).
 

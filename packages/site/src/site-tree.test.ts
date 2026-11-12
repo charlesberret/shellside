@@ -24,6 +24,26 @@ test("dotconfig parses key: value", () => {
   assert.deepEqual(parseDotConfig("name: X\n# c\nfoo:  bar baz "), { name: "X", foo: "bar baz" });
 });
 
+test("dotconfig decodes \\n escapes for multi-line values", () => {
+  assert.equal(
+    parseDotConfig("headline: Business in the front,\\nTTY in the back.").headline,
+    "Business in the front,\nTTY in the back.",
+  );
+});
+
+test("index.* files become the directory's own page, not an entry row", () => {
+  const dir = scaffold();
+  writeFileSync(path.join(dir, "docs", "index.md"), "---\ntitle: Docs home\n---\ndocs body");
+  writeFileSync(path.join(dir, "index.md"), "---\ntitle: Home\n---\nhome body");
+  const t = projectSiteTree(dir);
+  const docs = t.sections.find((s) => s.dir === "docs")!;
+  assert.equal(docs.indexEntry?.title, "Docs home");
+  assert.equal(docs.indexEntry?.slug, "docs/index");
+  assert.ok(!docs.entries.some((e) => e.slug === "docs/index"));
+  assert.equal(t.indexEntry?.title, "Home");
+  assert.ok(!t.entries.some((e) => e.slug === "index"));
+});
+
 test("tree maps dirs to sections, files to entries, dots to hidden", () => {
   const t = projectSiteTree(scaffold());
   assert.equal(t.site.name, "Demo");

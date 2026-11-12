@@ -27,6 +27,11 @@ console's `~/` — the same tree both surfaces read.
   appears as a nested dir in console. Index lists it under the section as
   `sub/file` (flat mention, not a new heading) — headings beyond h2 are the
   entry pages' own business.
+- **`index.*` is the directory's own page** — `dir/index.md` renders at
+  `/<dir>/` as the section's landing page; it is not an entry row and its
+  console node's `url` is `/<dir>/`. Root `content/index.md` is the index
+  page's own body. A yaml list file named `index` is unaffected — list
+  files are sections, not pages.
 - **Dotfiles / hidden dirs** — any name starting `.` is invisible to page
   rendering and to `ls` without `-a`; fully present in the console tree
   (`ls -a`, `cat`, `cd` all work on them).
@@ -62,6 +67,11 @@ console's `~/` — the same tree both surfaces read.
 - `site.config` shrinks: identity, surfaces, edit hooks remain; the
   collection map collapses into the tree itself.
 - create-site's content dir becomes the tutorial — add a dir, get a section.
+- A site may front the index with a gate (a two-button picker between
+  surfaces): `index.astro` becomes the chooser and the IA index moves to
+  `/plain/`. The gate is page chrome, not kit machinery — demo +
+  create-site ship it as the default; a site can delete it and put the
+  index back at `/`.
 
 ## Revisit when
 

@@ -45,7 +45,7 @@ Every GET and POST goes through `gated` in `packages/dev-api/src/handler.ts`.
 
 There is no session, no password, and no CSRF token.
 
-The marquee dev server sets `server.host: true` (`~/cloud/git-projects/charlesberret.net/astro.config.mjs`), so `astro dev` listens on every interface, on port 4321. A client that can open that port and send `Host: localhost` passes `isLoopbackHost`. Vite 6.4, which this repo's Astro 5.16 hosts use, also checks `Host` against `allowedHosts`, and localhost is allowed. The peer address is still unchecked.
+The marquee dev server sets `server.host: true` (its `astro.config.mjs`), so `astro dev` listens on every interface, on port 4321. A client that can open that port and send `Host: localhost` passes `isLoopbackHost`. Vite 6.4, which this repo's Astro 5.16 hosts use, also checks `Host` against `allowedHosts`, and localhost is allowed. The peer address is still unchecked.
 
 CORS is a browser rule, and it is a different one. Vite 6.4 defaults `server.cors.origin` to localhost, `127.0.0.1`, `[::1]`, and any `*.localhost` origin (see `defaultAllowedOrigins` in the installed `vite` package, `dist/node/constants.js`). A page at `https://example.com` cannot finish a JSON POST to the desk. A page served from `http://localhost:<port>` or `http://<name>.localhost:<port>` can. `curl` and any other non-browser client ignore CORS.
 

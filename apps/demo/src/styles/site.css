@@ -7,10 +7,15 @@
 
 body {
   margin: 0;
+  -webkit-font-smoothing: antialiased;
 }
 
 a {
   color: #1d4e89;
+}
+
+::selection {
+  background: #ddd2bd;
 }
 
 .wrap {
@@ -35,12 +40,25 @@ header {
 
 nav a {
   margin-left: 0.75rem;
+  font-size: 0.9rem;
+  color: #5c564e;
+  text-decoration: none;
+}
+nav a:hover {
+  color: #1c1915;
+  text-decoration: underline;
 }
 
 h1 {
   font-size: 1.75rem;
   font-weight: 600;
+  letter-spacing: -0.01em;
   margin: 0 0 0.25rem;
+}
+
+h3 {
+  font-size: 1rem;
+  margin: 1.25rem 0 0.25rem;
 }
 
 .dek {
@@ -54,14 +72,23 @@ h2 {
   text-transform: uppercase;
   margin: 1.75rem 0 0.5rem;
 }
+h2 a {
+  color: inherit;
+  text-decoration: none;
+}
+h2 a:hover {
+  text-decoration: underline;
+}
 
-ul {
+/* Entry rows — section indexes, detail item lists, cv/resume lines.
+   Markdown-rendered <ul> inside entry bodies keeps normal bullets. */
+.entries {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-li {
+.entries li {
   padding: 0.65rem 0;
   border-top: 1px solid #e2dcd2;
 }
@@ -71,12 +98,54 @@ li {
   font-size: 0.85rem;
 }
 
-li > a {
+.entries li > a {
   font-weight: 600;
   text-decoration: none;
 }
-li > a:hover { text-decoration: underline; }
-li > div { color: #5c564e; font-size: 0.9rem; margin-top: 0.15rem; }
+.entries li > a:hover {
+  text-decoration: underline;
+}
+.entries li > div {
+  color: #5c564e;
+  font-size: 0.9rem;
+  margin-top: 0.15rem;
+}
+
+/* Entry bodies — rendered markdown and verbatim text. */
+pre,
+.catout {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+code {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.9em;
+}
+pre code {
+  font-size: inherit;
+}
+
+blockquote {
+  margin: 1rem 0;
+  padding-left: 1rem;
+  border-left: 2px solid #e2dcd2;
+  color: #4a453e;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid #e2dcd2;
+  margin: 2rem 0;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
 
 :focus-visible {
   outline: 2px solid #1d4e89;
@@ -86,7 +155,65 @@ li > div { color: #5c564e; font-size: 0.9rem; margin-top: 0.15rem; }
 @media (prefers-color-scheme: dark) {
   :root { color: #e6e1d8; background: #14120e; }
   a { color: #9db8d9; }
-  .dek, .meta, li > div { color: #9a9285; }
-  li { border-top-color: #2b2820; }
+  ::selection { background: #3a352a; }
+  nav a { color: #9a9285; }
+  nav a:hover { color: #e6e1d8; }
+  .dek, .meta, .entries li > div, blockquote { color: #9a9285; }
+  .entries li, blockquote, hr { border-color: #2b2820; }
   :focus-visible { outline-color: #9db8d9; }
+}
+
+/* Landing gate — the two-button surface picker. */
+.gate {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem;
+}
+
+.gate-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin: 0 0 0.5rem;
+  color: #5c564e;
+}
+
+.gate-headline {
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  margin: 0 0 2.5rem;
+}
+
+.gate-nav {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.gate-btn {
+  display: inline-block;
+  padding: 0.6rem 1.6rem;
+  border: 1px solid #e2dcd2;
+  border-radius: 4px;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.95rem;
+  color: inherit;
+  text-decoration: none;
+}
+.gate-btn:hover {
+  border-color: #1d4e89;
+  color: #1d4e89;
+}
+
+@media (prefers-color-scheme: dark) {
+  .gate-name { color: #9a9285; }
+  .gate-btn { border-color: #2b2820; }
+  .gate-btn:hover { border-color: #9db8d9; color: #9db8d9; }
 }

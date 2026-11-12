@@ -1,3 +1,4 @@
+# docs.yaml — managed by the shellside dev desk
 title: Docs
 items:
   - id: readme
@@ -16,8 +17,7 @@ items:
     title: Extraction map — what stays site-local vs kit
     kind: doc
     summary: The ledger of every marquee piece promoted into a contract.
-    url: >-
-      https://github.com/charlesberret/shellside/blob/main/docs/EXTRACTION_MAP.md
+    url: https://github.com/charlesberret/shellside/blob/main/docs/EXTRACTION_MAP.md
     visibility: published
   - id: divergences
     title: Divergences — marquee↔kit alignment log

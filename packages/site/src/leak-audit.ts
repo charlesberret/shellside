@@ -8,6 +8,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import yaml from "js-yaml";
+import { isPublicItem } from "@shellside/content-model";
 import { parseFrontmatter } from "./frontmatter.js";
 
 export type LeakAuditOptions = {
@@ -23,7 +24,6 @@ export type LeakAuditOptions = {
   plaintextRoute?: string | false;
 };
 
-const LEGACY_HIDDEN = new Set(["draft", "unpublished"]);
 const SENTINEL = /SHELLSIDE_[A-Z0-9_]*SENTINEL/g;
 
 function walk(dir: string, acc: string[] = []): string[] {
@@ -37,9 +37,7 @@ function walk(dir: string, acc: string[] = []): string[] {
 }
 
 function isHidden(data: Record<string, string>): boolean {
-  if (data.visibility === "draft") return true;
-  const visibilityAbsent = data.visibility == null || data.visibility === "";
-  return visibilityAbsent && LEGACY_HIDDEN.has(data.status);
+  return !isPublicItem(data);
 }
 
 function entryId(relPosix: string): string {

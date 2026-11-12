@@ -1,0 +1,7 @@
+/* Demo-only typeface — the shared default skin stays font-file-free so a
+   scaffolded site starts system-serif and opts into a face itself. */
+@import "@fontsource-variable/tasa-orbiter/wght.css";
+
+:root {
+  font-family: "TASA Orbiter Variable", "TASA Orbiter", system-ui, sans-serif;
+}
