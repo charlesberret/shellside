@@ -51,6 +51,8 @@ CORS is a browser rule, and it is a different one. Vite 6.4 defaults `server.cor
 
 Copying the marquee's `server.host: true` onto a host that mounts the handler exposes the desk on every interface that process listens on.
 
+By default, `@shellside/site` does not mount `/admin` or `/api/dev-content` when Astro's `server.host` is not loopback-only (`server.host: true`, `0.0.0.0`, and the like). It logs one line at setup and mounts nothing unless `edit.allowNonLoopback: true` is set in `site.config`.
+
 ## What the path grammar holds
 
 `parseContentPath` (`packages/edit-protocol/src/paths.ts`) accepts `kind:id:field` up to 200 characters. An id must match `[a-z0-9][a-z0-9._-]*`. A field must be dotted identifiers (`title`, `links.0.href`). A slash, a space, or an id of `..` fails the parse, and the handler returns 400. Work files are `<work dir>/<id>.md` with that id. YAML lists are rewritten with `yaml.dump`, so a value is a datum in the document.
@@ -68,7 +70,7 @@ The portfolio, the console, `list.txt`, and `llms.txt` are supposed to read one 
 ## If you run one
 
 - Mount `createDevContentHandler` only where `import.meta.env.DEV` is the real dev flag, and pass that flag as `isDev`.
-- Leave the dev server on loopback. `server.host: true` listens on every interface, and the desk's host check will not notice.
+- Leave the dev server on loopback. `server.host: true` listens on every interface; the request `Host` check will not notice. The kit's mount gate refuses non-loopback binds by default — do not set `edit.allowNonLoopback: true` unless you mean to expose the desk on every interface the process listens on.
 - Build the VFS from `isPublicItem`. Run `leakAudit` on `dist`.
 - Pass a real allowlist. An omitted policy allows every well-formed path.
 - Escape anything a console command sends to `out()`.

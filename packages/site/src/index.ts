@@ -32,6 +32,19 @@ export { isPublicItem } from "@shellside/content-model";
 export const SHELLSITE_CONFIG_ID = "virtual:shellsite/config";
 const RESOLVED_CONFIG_ID = "\0" + SHELLSITE_CONFIG_ID;
 
+const LOOPBACK_BIND_HOSTS = new Set(["localhost", "127.0.0.1", "::1", "[::1]"]);
+
+/** Whether Astro's dev `server.host` binds only on loopback (default safe). */
+export function isLoopbackServerBind(host?: string | boolean): boolean {
+  if (host === undefined || host === false) return true;
+  if (host === true) return false;
+  const h = host.trim().toLowerCase();
+  if (LOOPBACK_BIND_HOSTS.has(h)) return true;
+  if (h === "0.0.0.0" || h === "::" || h === "*") return false;
+  if (/^127(?:\.\d{1,3}){3}$/.test(h)) return true;
+  return false;
+}
+
 function configPlugin(config: ShellsiteConfig): Plugin {
   return {
     name: "shellsite-config",
@@ -55,8 +68,16 @@ export function shellsite(config: ShellsiteConfig): AstroIntegration {
       "astro:config:setup": ({ injectRoute, updateConfig, command, config: astroConfig }: any) => {
         // The desk mounts only in `astro dev` — a build never sees the
         // route, the virtual module, or the site's edit modules.
-        const deskOn =
+        const deskWanted =
           Boolean(config.surfaces.devDesk && config.edit) && command === "dev";
+        const bindLoopback = isLoopbackServerBind(astroConfig?.server?.host);
+        const allowWideBind = config.edit?.allowNonLoopback === true;
+        const deskOn = deskWanted && (bindLoopback || allowWideBind);
+        if (deskWanted && !deskOn) {
+          console.log(
+            "@shellside/site: dev desk not mounted because Astro server.host is not loopback (set edit.allowNonLoopback: true to opt in)",
+          );
+        }
         if (deskOn) {
           injectRoute({
             pattern: "/api/dev-content",
