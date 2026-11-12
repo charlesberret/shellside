@@ -28,7 +28,7 @@ jobs:
         run: node scripts/prepare-reference-content.mjs && npm run build:reference
 
       - name: Reference + public-output checks
-        run: node scripts/check-reference.mjs && node scripts/check-public-output.mjs && node --test scripts/*.test.mjs
+        run: node scripts/check-reference.mjs && node scripts/check-public-output.mjs && node scripts/check-changelog.mjs && node --test scripts/*.test.mjs
 
       - name: Demo build + leak audit
         run: node ../../node_modules/astro/astro.js build && node scripts/check.mjs
