@@ -55,9 +55,12 @@ function* collectionEntries(contentDir: string, routeDirs: Record<string, string
       ? loaded
       : ((loaded as { items?: unknown[] })?.items ?? [])) as (Record<string, unknown> | null)[];
     for (const row of rows) {
-      if (!row?.id) continue;
-      const { id, ...data } = row;
-      yield { collection, id: String(id), data, body: JSON.stringify(data) };
+      if (!row) continue;
+      const id = String(row.id ?? row.title ?? "");
+      if (!id) continue;
+      const data = { ...row };
+      delete data.id;
+      yield { collection, id, data, body: JSON.stringify(data) };
     }
   }
   for (const abs of walk(contentDir)) {
