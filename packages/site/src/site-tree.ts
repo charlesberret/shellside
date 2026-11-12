@@ -9,6 +9,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import yaml from "js-yaml";
+import { isPublicItem } from "@shellside/content-model";
 import { parseFrontmatter } from "./frontmatter.js";
 
 export type TreeEntry = {
@@ -167,4 +168,108 @@ export function projectSiteTree(contentDir: string): SiteTree {
   tree.sections.sort((a, b) => a.order - b.order || a.dir.localeCompare(b.dir));
   tree.entries.sort((a, b) => (a.title ?? a.slug).localeCompare(b.title ?? b.slug));
   return tree;
+}
+
+export function isPublicTreeEntry(entry: TreeEntry): boolean {
+  return isPublicItem({ data: entry.data });
+}
+
+export function publicTreeEntries(entries: readonly TreeEntry[]): TreeEntry[] {
+  return entries.filter(isPublicTreeEntry);
+}
+
+export function byTreeTitle(entries: readonly TreeEntry[]): TreeEntry[] {
+  return [...entries].sort((a, b) =>
+    String(a.title ?? a.slug).localeCompare(String(b.title ?? b.slug), "en"),
+  );
+}
+
+function treeEntryLabel(entry: TreeEntry): string {
+  return String(entry.title ?? entry.slug.split("/").pop() ?? entry.slug);
+}
+
+function treeEntryPageUrl(base: string, entry: TreeEntry, origin?: string): string {
+  const page = entry.data.url ? String(entry.data.url) : `${base}/${entry.slug}`;
+  return origin ? new URL(page, origin).href : page;
+}
+
+/** Lines for `/list.txt` from a projected content tree. */
+export function buildListTxtLines(tree: SiteTree, siteName: string): string[] {
+  const lines: string[] = [siteName, ""];
+  const roots = byTreeTitle(publicTreeEntries(tree.entries));
+  if (roots.length) {
+    lines.push(...roots.map((e) => `- ${treeEntryLabel(e)}`), "");
+  }
+  for (const section of tree.sections) {
+    const items = byTreeTitle(publicTreeEntries(section.entries));
+    if (!items.length) continue;
+    lines.push(section.dir, ...items.map((e) => `- ${treeEntryLabel(e)}`), "");
+  }
+  return lines;
+}
+
+/** Lines for `/llms.txt` from a projected content tree. */
+export function buildLlmsTxtLines(
+  tree: SiteTree,
+  siteName: string,
+  tagline: string | undefined,
+  base: string,
+): string[] {
+  const lines: string[] = [`# ${siteName}`, ""];
+  if (tagline) lines.push(`> ${tagline}`, "");
+  const roots = byTreeTitle(publicTreeEntries(tree.entries));
+  if (roots.length) {
+    lines.push("## index", "");
+    for (const entry of roots) {
+      const title = treeEntryLabel(entry);
+      const url = treeEntryPageUrl(base, entry);
+      const desc = entry.data.summary ? `: ${String(entry.data.summary)}` : "";
+      lines.push(`- [${title}](${url})${desc}`);
+    }
+    lines.push("");
+  }
+  for (const section of tree.sections) {
+    const items = byTreeTitle(publicTreeEntries(section.entries));
+    if (!items.length) continue;
+    lines.push(`## ${section.dir}`, "");
+    for (const entry of items) {
+      const title = treeEntryLabel(entry);
+      const url = treeEntryPageUrl(base, entry);
+      const desc = entry.data.summary ? `: ${String(entry.data.summary)}` : "";
+      lines.push(`- [${title}](${url})${desc}`);
+    }
+    lines.push("");
+  }
+  return lines;
+}
+
+function formatSectionRecord(entry: TreeEntry, page: string): string {
+  const data = entry.data;
+  const title = treeEntryLabel(entry);
+  const lines = [`${"=".repeat(72)}`, title, `page: ${page}`];
+  const meta = [data.kind, data.org, data.dates, data.venue, data.role, data.year, data.date]
+    .filter((v) => v != null && v !== "")
+    .join(" · ");
+  if (meta) lines.push(meta);
+  if (data.summary) lines.push(String(data.summary));
+  if (entry.body) lines.push("", entry.body);
+  return lines.join("\n");
+}
+
+/** Body for `/<section>.txt`; `null` when the section is unknown. */
+export function buildSectionTxt(
+  tree: SiteTree,
+  sectionDir: string,
+  siteName: string,
+  origin: string,
+  base: string,
+): string | null {
+  const section = tree.sections.find((s) => s.dir === sectionDir);
+  if (!section) return null;
+  const items = byTreeTitle(publicTreeEntries(section.entries));
+  const records = items.map((entry) => {
+    const page = treeEntryPageUrl(base, entry, origin);
+    return formatSectionRecord(entry, page);
+  });
+  return `# ${section.dir} — ${siteName}\n\n${records.join("\n\n")}\n`;
 }
