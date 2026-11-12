@@ -7,14 +7,6 @@ the packaging milestone).
 
 ## [Unreleased]
 
-### Changed
-
-- **Console projects the content tree by default** — the packaged `/console` builds its VFS from `projectSiteTree`: dirs → dirs, entries → `<name>.txt` (nested slugs nested), `dir/index.*` → `index.txt` → `/<dir>/`, root loose files → `~/<slug>.txt`. `console.collections` is now an opt-in override (rename, `groupBySection`, custom `urlPrefix`, or collections outside `src/content`); a spec claims its collection's tree section so nothing duplicates. Demo + template no longer declare it.
-
-### Fixed
-
-- **Hidden files clobbering dirs** — `~/.meta`-style hidden children were spread over projected dirs, so `ls packages/` showed empty. They're now `mount`ed into dirs.
-
 ### Added
 
 - **`index.*` = the directory's own page** — `dir/index.md` renders at `/<dir>/`; root `index.md` is the index page's own body. Both detach from entry lists into `indexEntry` on the tree, so list/llms/console surfaces stay clean; the console node's `url` points at `/<dir>/`.
@@ -24,10 +16,12 @@ the packaging milestone).
 
 ### Changed
 
+- **Console projects the content tree by default** — the packaged `/console` builds its VFS from `projectSiteTree`: dirs → dirs, entries → `<name>.txt` (nested slugs nested), `dir/index.*` → `index.txt` → `/<dir>/`, root loose files → `~/<slug>.txt`. `console.collections` is now an opt-in override (rename, `groupBySection`, custom `urlPrefix`, or collections outside `src/content`); a spec claims its collection's tree section so nothing duplicates. Demo + template no longer declare it.
 - **`EditorFiles` fields are all optional.** A kind with no backing file is not editable — `isAllowed` returns false, writes error `kind not configured` — instead of requiring the fixed five-file portfolio layout.
 
 ### Fixed
 
+- **Hidden files clobbering dirs** — `~/.meta`-style hidden children were spread over projected dirs, so `ls packages/` showed empty. They're now `mount`ed into dirs.
 - **Default skin**: entry-row styling scoped to `.entries` so markdown lists in entry bodies keep bullets; `pre`/`.catout` wrap; `code`/`h3`/`blockquote`/`hr`/`img` styled; muted nav; dark scheme extended.
 
 ## [0.4.0] — 2026-10-17
@@ -36,14 +30,12 @@ The filesystem-IA + public-surface release: the content tree is now the
 site's information architecture, and the packaged console became a real
 engine-driven shell.
 
-
+### Added
 
 - **Filesystem-IA** (`docs/decisions/2026-10-17-filesystem-ia.md`): the content tree is the site structure — dirs → sections/headings, files → entries, root `*.yaml` lists → sections, dotfiles console-only. `projectSiteTree()` in `@shellside/site`; demo index + `[dir]/[...id]` consume it; `.site`/`.meta` hidden plaintext config readable via `cat` in console.
 - **`/llms.txt`** surface behind `surfaces.llmsTxt`; `surfaces.devDesk` marked planned (deferred — now shipped, see Unreleased).
 - **Packaged console**: `less` overlay pager, clickable fs entries, `open <file>` follows `node.url`, `console.helpTopics` config.
 - **Default skin**: dark-mode + focus-visible pass on demo/template css.
-
-
 - **`@shellside/console-engine`** gained `createHistory` (ring + draft restore) and `completeLine` (lcp + cycle on repeat Tab); the packaged `/console` page is now a bundled engine-driven shell — pipes, grep/find/head/tail/wc/sort/uniq/diff/strings, ls/cd/cat/tree/open, ↑/↓ history, Tab completion — replacing the hand-rolled if/else shell.
 - **`apps/demo`** — self-describing demo on GitHub Pages (`shellsite` instance; packages as entries, docs as writing, releases as records). `.github/workflows/pages.yml` builds packages → demo → leak-audit gate → deploy.
 
@@ -110,4 +102,7 @@ charlesberret.net and consumed by it.
 - `npm run check`: all package suites + reference build + leak audit + script tests green.
 - Drafts/legacy-hidden entries excluded from portfolio routes, plaintext, and console projections (negative-tested).
 
+[0.4.0]: https://github.com/charlesberret/shellside/releases/tag/v0.4.0
+[0.3.0]: https://github.com/charlesberret/shellside/releases/tag/v0.3.0
+[0.2.0]: https://github.com/charlesberret/shellside/releases/tag/v0.2.0
 [0.1.0]: https://github.com/charlesberret/shellside/releases/tag/v0.1.0
