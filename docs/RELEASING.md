@@ -6,6 +6,10 @@ a semver tag plus a vendor re-sync into each consumer.
 ## Steps
 
 1. `npm run check` must be green on a clean tree.
+   Before tagging, align versions in one step:
+   `node scripts/bump-version.mjs X.Y.Z`
+   That sets the root `package.json`, every `packages/*/package.json`
+   `version`, and each internal `@shellside/*` pin to the same semver.
 2. Add a dated `## [x.y.z] — YYYY-MM-DD` section to `CHANGELOG.md`
    (Keep-a-Changelog sections: Added / Changed / Fixed / Removed / Verified).
 3. Commit the changelog, then tag:
