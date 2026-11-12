@@ -316,4 +316,59 @@ describe("createDevContentHandler", () => {
     assert.equal((await h.POST({ request: req({ path: "work:kettle:title" }) })).status, 400);
     assert.equal((await h.POST({ request: req({ path: "work:kettle:title", value: "x".repeat(20001) }) })).status, 400);
   });
+
+  describe("POST create-draft", () => {
+    it("creates a valid work draft", async () => {
+      const h = makeHandler(true);
+      const res = await h.POST({
+        request: req({
+          action: "create-draft",
+          draftKind: "work",
+          draftTitle: "Fresh Project",
+          workStatus: "current",
+        }),
+      });
+      const body = await res.json();
+      assert.equal(res.status, 200);
+      assert.equal(body.action, "create-draft");
+      assert.equal(body.id, "fresh-project");
+      assert.equal(body.editPath, "work:fresh-project:title");
+      assert.equal(body.reload, true);
+      const abs = path.join(root, "work", "fresh-project.md");
+      assert.match(await fs.readFile(abs, "utf8"), /visibility: draft/);
+    });
+
+    it("rejects invalid shape", async () => {
+      const h = makeHandler(true);
+      let res = await h.POST({ request: req({ action: "create-draft", draftKind: "profile" }) });
+      assert.equal((await res.json()).error, "invalid_shape");
+      assert.equal(res.status, 400);
+      res = await h.POST({ request: req({ action: "create-draft", draftTitle: 42 }) });
+      assert.equal(res.status, 400);
+      assert.equal((await res.json()).error, "invalid_shape");
+    });
+
+    it("rejects path escape in draftTitle", async () => {
+      const h = makeHandler(true);
+      const res = await h.POST({
+        request: req({ action: "create-draft", draftKind: "work", draftTitle: "../../outside" }),
+      });
+      const body = await res.json();
+      assert.equal(res.status, 400);
+      assert.equal(body.error, "path_escape");
+      await assert.rejects(fs.access(path.join(root, "outside.md")));
+    });
+
+    it("allocates a new id when the slug already exists", async () => {
+      const h = makeHandler(true);
+      const res = await h.POST({
+        request: req({ action: "create-draft", draftKind: "work", draftTitle: "Kettle" }),
+      });
+      const body = await res.json();
+      assert.equal(res.status, 200);
+      assert.equal(body.id, "kettle-2");
+      assert.equal(body.editPath, "work:kettle-2:title");
+      await fs.access(path.join(root, "work", "kettle-2.md"));
+    });
+  });
 });
