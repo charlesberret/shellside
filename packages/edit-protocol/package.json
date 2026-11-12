@@ -1,6 +1,13 @@
 {
   "name": "@shellside/edit-protocol",
   "version": "0.1.0",
+  "description": "Editorial desk path grammar, field kinds, and preview-bridge contract.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/charlesberret/shellside.git",
+    "directory": "packages/edit-protocol"
+  },
   "private": true,
   "type": "module",
   "main": "./dist/index.js",

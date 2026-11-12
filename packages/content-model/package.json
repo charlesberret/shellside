@@ -1,6 +1,13 @@
 {
   "name": "@shellside/content-model",
   "version": "0.1.0",
+  "description": "Visibility contract and shared schemas for Shellside content collections.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/charlesberret/shellside.git",
+    "directory": "packages/content-model"
+  },
   "private": true,
   "type": "module",
   "main": "./dist/index.js",
